@@ -700,8 +700,8 @@
 				"Show confirmation of interpreted date"
 			],
 			"priority": 52,
-			"passes": false,
-			"notes": "More intuitive entry creation - speak naturally about dates"
+			"passes": true,
+			"notes": "RESOLVED: Added parse_natural_date() Lua function supporting: today, yesterday, tomorrow, last/next <day>, last/next week, N days/weeks/months ago, in N days/weeks. Shows confirmation notification with interpreted date. Command completion suggests natural language options. Falls back to YYYY-MM-DD format if not recognized."
 		},
 		{
 			"id": "US-054",

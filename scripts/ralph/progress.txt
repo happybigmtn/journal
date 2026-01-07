@@ -716,3 +716,35 @@ Target: Journal Enhancements
 
 ---
 
+
+## 2026-01-07 - US-053 Natural Language Date Entry Creation
+
+- Added `parse_natural_date()` function for intuitive date parsing in Lua
+- Supported patterns:
+  - Simple keywords: "today", "yesterday", "tomorrow"
+  - Day references: "last monday", "next friday"
+  - Week references: "last week", "next week"
+  - Relative days: "2 days ago", "5 days ago", "in 3 days"
+  - Relative weeks: "2 weeks ago", "in 2 weeks"
+  - Relative months: "3 months ago", "a month ago"
+  - Word variants: "a week ago", "one day ago"
+- Day name mapping includes abbreviations (mon, tue, wed, thur, fri, sat, sun)
+- Week calculations use modular arithmetic for correct day-of-week computation
+- Month calculations handle year rollover and day overflow (e.g., Mar 31 - 1 month = Feb 28)
+- Updated JournalNew command:
+  - Collects non-date-format, non-type arguments as natural language parts
+  - Joins with spaces for multi-word phrases ("last monday")
+  - Shows confirmation notification with interpreted date
+- Enhanced command completion:
+  - Suggests natural language keywords (today, yesterday, last, next)
+  - Context-aware: after "last" or "next", suggests day names + "week"
+- Falls back to YYYY-MM-DD format if natural language not recognized
+- Files changed: `nvim/journal.lua`
+- **Learnings:**
+  - Lua's `os.date("*t")` returns wday as 1-7 (Sunday=1), convert to 0-6 for modular arithmetic
+  - Month subtraction needs both year rollover and day clamping to month's max days
+  - Command completion receives `cmdline` for context-aware suggestions
+  - `table.concat(parts, " ")` joins multi-word arguments
+
+---
+
