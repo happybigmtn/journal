@@ -630,8 +630,8 @@
 				"Store in appropriate subdirectories"
 			],
 			"priority": 47,
-			"passes": false,
-			"notes": "Specialized templates for different journaling purposes"
+			"passes": true,
+			"notes": "RESOLVED: Templates created (project.md, book.md, travel.md) with type-specific placeholders. Schema extended with project_status, author, rating, pages_read, total_pages, status, location, trip_start, trip_end fields. :JournalNew supports project/book/travel with vim.ui.input prompts. Entries stored in YYYY/projects/, YYYY/books/, YYYY/travel/ with slugified names. Keymaps: <leader>jnp (project), <leader>jnb (book), <leader>jnt (travel)."
 		},
 		{
 			"id": "US-049",

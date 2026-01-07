@@ -555,3 +555,29 @@ Target: Journal Enhancements
   - Minimal friction: no template, no buffer switch, just capture and go
 
 ---
+
+## 2026-01-07 - US-048 Entry Templates Beyond Daily
+
+- Created three new specialized templates:
+  - `templates/project.md`: Goals, progress log, blockers, next steps, retrospective
+  - `templates/book.md`: Author, rating, quotes, chapter notes, reflections
+  - `templates/travel.md`: Location, daily log, highlights, photos, budget, practical notes
+- Extended content schema with type-specific fields:
+  - Project: `project_status` (active/paused/completed/archived)
+  - Book: `author`, `rating` (1-5), `pages_read`, `total_pages`, `status` (reading/finished/abandoned/want-to-read)
+  - Travel: `location`, `trip_start`, `trip_end`
+- Updated `fill_template()` to accept `extra_vars` for type-specific placeholders
+  - `{{PROJECT_NAME}}`, `{{BOOK_TITLE}}`, `{{DESTINATION}}` replaced dynamically
+- Entry type handling with vim.ui.input prompts for name/title/destination
+- Subdirectory storage: `YYYY/projects/`, `YYYY/books/`, `YYYY/travel/`
+- Slugified filenames: "My Cool Project" → `my-cool-project.md`
+- Updated :JournalNew command completion to include project, book, travel
+- Added keymaps: `<leader>jnp` (project), `<leader>jnb` (book), `<leader>jnt` (travel)
+- Files changed: `templates/project.md`, `templates/book.md`, `templates/travel.md`, `site/src/content/config.ts`, `nvim/journal.lua`
+- **Learnings:**
+  - Lua gsub chaining (`gsub("[^%w]+", "-"):gsub("^-", ""):gsub("-$", "")`) creates clean slugs
+  - Extra template vars passed as third argument to fill_template enables type polymorphism
+  - Nested keymaps (`jn` prefix) group related actions without conflicting
+  - vim.ui.input callback recursively calls journal_new with populated args
+
+---

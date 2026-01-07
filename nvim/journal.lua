@@ -94,7 +94,8 @@ local function read_template(template_type)
 end
 
 -- Utility: Replace template placeholders
-local function fill_template(template, date_parts)
+-- extra_vars: optional table with additional placeholders like {PROJECT_NAME = "My Project"}
+local function fill_template(template, date_parts, extra_vars)
   local filled = template
   filled = filled:gsub("{{DATE}}", date_parts.full)
   filled = filled:gsub("{{YEAR}}", date_parts.year)
@@ -112,6 +113,13 @@ local function fill_template(template, date_parts)
   else
     filled = filled:gsub("{{STOIC_PROMPT}}", "What wisdom will guide me today?")
     filled = filled:gsub("{{STOIC_THEME}}", "Reflection")
+  end
+
+  -- Replace type-specific placeholders (project name, book title, destination)
+  if extra_vars then
+    for key, value in pairs(extra_vars) do
+      filled = filled:gsub("{{" .. key .. "}}", value)
+    end
   end
 
   return filled
@@ -143,6 +151,7 @@ function M.journal_new(args)
 
   local parts = get_date_parts(date)
   local filename, dir
+  local extra_vars = {} -- Type-specific template variables
 
   if entry_type == "daily" then
     dir = M.config.journal_dir .. "/" .. parts.year .. "/" .. parts.month
@@ -156,6 +165,52 @@ function M.journal_new(args)
   elseif entry_type == "yearly" then
     dir = M.config.journal_dir .. "/" .. parts.year .. "/yearly"
     filename = parts.year .. ".md"
+  elseif entry_type == "project" then
+    -- Project entries need a name
+    local project_name = args and args.name
+    if not project_name then
+      vim.ui.input({ prompt = "Project name: " }, function(name)
+        if name and name ~= "" then
+          M.journal_new({ type = "project", name = name, date = args and args.date })
+        end
+      end)
+      return
+    end
+    -- Slugify name for filename
+    local slug = project_name:lower():gsub("[^%w]+", "-"):gsub("^-", ""):gsub("-$", "")
+    dir = M.config.journal_dir .. "/" .. parts.year .. "/projects"
+    filename = slug .. ".md"
+    extra_vars.PROJECT_NAME = project_name
+  elseif entry_type == "book" then
+    -- Book entries need a title
+    local book_title = args and args.name
+    if not book_title then
+      vim.ui.input({ prompt = "Book title: " }, function(name)
+        if name and name ~= "" then
+          M.journal_new({ type = "book", name = name, date = args and args.date })
+        end
+      end)
+      return
+    end
+    local slug = book_title:lower():gsub("[^%w]+", "-"):gsub("^-", ""):gsub("-$", "")
+    dir = M.config.journal_dir .. "/" .. parts.year .. "/books"
+    filename = slug .. ".md"
+    extra_vars.BOOK_TITLE = book_title
+  elseif entry_type == "travel" then
+    -- Travel entries need a destination
+    local destination = args and args.name
+    if not destination then
+      vim.ui.input({ prompt = "Destination: " }, function(name)
+        if name and name ~= "" then
+          M.journal_new({ type = "travel", name = name, date = args and args.date })
+        end
+      end)
+      return
+    end
+    local slug = destination:lower():gsub("[^%w]+", "-"):gsub("^-", ""):gsub("-$", "")
+    dir = M.config.journal_dir .. "/" .. parts.year .. "/travel"
+    filename = slug .. ".md"
+    extra_vars.DESTINATION = destination
   else
     vim.notify("Unknown entry type: " .. entry_type, vim.log.levels.ERROR)
     return
@@ -174,7 +229,7 @@ function M.journal_new(args)
   if not file_exists then
     local template = read_template(entry_type)
     if template then
-      local content = fill_template(template, parts)
+      local content = fill_template(template, parts, extra_vars)
       local lines = vim.split(content, "\n")
       vim.api.nvim_buf_set_lines(0, 0, -1, false, lines)
       vim.cmd("write")
@@ -883,6 +938,12 @@ function M.setup(opts)
         entry_type = "monthly"
       elseif arg == "year" or arg == "yearly" then
         entry_type = "yearly"
+      elseif arg == "project" then
+        entry_type = "project"
+      elseif arg == "book" then
+        entry_type = "book"
+      elseif arg == "travel" then
+        entry_type = "travel"
       elseif arg:match("%d+-%d+-%d+") then
         date = arg
       end
@@ -893,7 +954,7 @@ function M.setup(opts)
     nargs = "*",
     desc = "Create new journal entry",
     complete = function()
-      return { "daily", "weekly", "monthly", "yearly" }
+      return { "daily", "weekly", "monthly", "yearly", "project", "book", "travel" }
     end,
   })
 
@@ -1005,6 +1066,9 @@ function M.setup(opts)
     vim.keymap.set("n", "<leader>jw", ":JournalNew week<CR>", { desc = "Weekly review" })
     vim.keymap.set("n", "<leader>jm", ":JournalNew month<CR>", { desc = "Monthly review" })
     vim.keymap.set("n", "<leader>jy", ":JournalNew year<CR>", { desc = "Yearly review" })
+    vim.keymap.set("n", "<leader>jnp", ":JournalNew project<CR>", { desc = "New project log" })
+    vim.keymap.set("n", "<leader>jnb", ":JournalNew book<CR>", { desc = "New book notes" })
+    vim.keymap.set("n", "<leader>jnt", ":JournalNew travel<CR>", { desc = "New travel journal" })
     vim.keymap.set("n", "<leader>j[", M.journal_prev, { desc = "Previous entry" })
     vim.keymap.set("n", "<leader>j]", M.journal_next, { desc = "Next entry" })
     vim.keymap.set("n", "<leader>jp", M.publish, { desc = "Publish journal" })

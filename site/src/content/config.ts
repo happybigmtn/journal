@@ -17,7 +17,19 @@ const journal = defineCollection({
     sleep_hours: z.number().min(0).max(24).optional(),
     energy: z.number().int().min(1).max(10).optional(),
     tags: z.array(z.string()).default([]),
-    type: z.enum(['daily', 'weekly', 'monthly', 'yearly']).default('daily'),
+    type: z.enum(['daily', 'weekly', 'monthly', 'yearly', 'project', 'book', 'travel']).default('daily'),
+    // Project-specific fields
+    project_status: z.enum(['active', 'paused', 'completed', 'archived']).optional(),
+    // Book-specific fields
+    author: z.string().optional(),
+    rating: z.number().min(1).max(5).optional(),
+    pages_read: z.number().optional(),
+    total_pages: z.number().optional(),
+    status: z.enum(['reading', 'finished', 'abandoned', 'want-to-read']).optional(),
+    // Travel-specific fields
+    location: z.string().optional(),
+    trip_start: z.coerce.date().optional(),
+    trip_end: z.coerce.date().optional(),
     draft: z.boolean().default(false),
     published: z.boolean().default(false), // Privacy: false = private, true = public on site
     habits: z.array(habitSchema).default([]), // Optional habit tracking
