@@ -1,0 +1,602 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+// Parse gratitudes from entry content
+function extractGratitudes(content: string, date: Date): Array<{ text: string; date: Date }> {
+  const gratitudes: Array<{ text: string; date: Date }> = [];
+
+  // Find the gratitude section
+  const gratitudeMatch = content.match(/###\s*I am grateful for[.]*\s*\n([\s\S]*?)(?=\n###|\n---|\n##|$)/i);
+  if (!gratitudeMatch) return gratitudes;
+
+  const section = gratitudeMatch[1];
+
+  // Extract numbered items (1. 2. 3.)
+  const itemRegex = /^\s*\d+\.\s*(.+)$/gm;
+  let match;
+  while ((match = itemRegex.exec(section)) !== null) {
+    const text = match[1].trim();
+    if (text && text.length > 1) {
+      gratitudes.push({ text, date });
+    }
+  }
+
+  return gratitudes;
+}
+
+// Categorize gratitude by theme using keyword matching
+function categorizeGratitude(text: string): string {
+  const lowerText = text.toLowerCase();
+
+  // People keywords
+  const peopleKeywords = ['family', 'friend', 'partner', 'wife', 'husband', 'mom', 'dad', 'mother', 'father',
+    'sister', 'brother', 'child', 'son', 'daughter', 'colleague', 'team', 'mentor', 'teacher',
+    'who', 'someone', 'people', 'relationship', 'love', 'support', '@'];
+
+  // Experiences keywords
+  const experienceKeywords = ['moment', 'opportunity', 'experience', 'chance', 'able to', 'being able',
+    'feeling', 'day', 'morning', 'evening', 'time', 'journey', 'walk', 'conversation',
+    'learning', 'growing', 'creating', 'building', 'working', 'enjoying'];
+
+  // Things keywords
+  const thingsKeywords = ['home', 'house', 'car', 'food', 'coffee', 'tea', 'book', 'music',
+    'computer', 'phone', 'tool', 'device', 'bed', 'warm', 'roof', 'job', 'work', 'income',
+    'health', 'body', 'mind', 'weather', 'sun', 'rain', 'nature'];
+
+  // Check each category
+  for (const keyword of peopleKeywords) {
+    if (lowerText.includes(keyword)) return 'people';
+  }
+
+  for (const keyword of experienceKeywords) {
+    if (lowerText.includes(keyword)) return 'experiences';
+  }
+
+  for (const keyword of thingsKeywords) {
+    if (lowerText.includes(keyword)) return 'things';
+  }
+
+  return 'other';
+}
+
+// Build word frequency for word cloud
+function buildWordCloud(gratitudes: Array<{ text: string; date: Date }>): Array<{ word: string; count: number }> {
+  const stopWords = new Set(['the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for',
+    'of', 'with', 'by', 'from', 'as', 'is', 'was', 'are', 'were', 'been', 'be', 'have', 'has',
+    'had', 'do', 'does', 'did', 'will', 'would', 'could', 'should', 'may', 'might', 'must',
+    'that', 'this', 'these', 'those', 'it', 'its', 'my', 'your', 'his', 'her', 'their', 'our',
+    'i', 'me', 'we', 'us', 'you', 'he', 'she', 'they', 'them', 'what', 'which', 'who', 'whom',
+    'am', 'being', 'about', 'into', 'through', 'during', 'before', 'after', 'above', 'below',
+    'just', 'still', 'even', 'also', 'very', 'can', 'all', 'each', 'every', 'both', 'few',
+    'more', 'most', 'other', 'some', 'such', 'no', 'not', 'only', 'own', 'same', 'so', 'than']);
+
+  const wordCounts: Record<string, number> = {};
+
+  for (const g of gratitudes) {
+    const words = g.text.toLowerCase()
+      .replace(/[^\w\s]/g, '')
+      .split(/\s+/)
+      .filter(w => w.length > 2 && !stopWords.has(w));
+
+    for (const word of words) {
+      wordCounts[word] = (wordCounts[word] || 0) + 1;
+    }
+  }
+
+  return Object.entries(wordCounts)
+    .map(([word, count]) => ({ word, count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 50);
+}
+
+// Get all entries
+const allEntries = await getCollection('journal', ({ data }) =>
+  !data.draft && (import.meta.env.DEV || data.published)
+);
+
+// Extract all gratitudes
+const allGratitudes: Array<{ text: string; date: Date; category: string }> = [];
+
+for (const entry of allEntries) {
+  const gratitudes = extractGratitudes(entry.body, entry.data.date);
+  for (const g of gratitudes) {
+    allGratitudes.push({
+      ...g,
+      category: categorizeGratitude(g.text)
+    });
+  }
+}
+
+// Sort by date descending
+allGratitudes.sort((a, b) => b.date.getTime() - a.date.getTime());
+
+// Calculate statistics
+const totalGratitudes = allGratitudes.length;
+const uniqueDates = new Set(allGratitudes.map(g => g.date.toISOString().split('T')[0]));
+const daysWithGratitude = uniqueDates.size;
+
+// Category counts
+const categoryCounts: Record<string, number> = { people: 0, experiences: 0, things: 0, other: 0 };
+for (const g of allGratitudes) {
+  categoryCounts[g.category]++;
+}
+
+// Calculate streak (days with gratitude entries)
+const sortedDates = Array.from(uniqueDates).sort().reverse();
+let gratitudeStreak = 0;
+const today = new Date();
+today.setHours(0, 0, 0, 0);
+
+for (let i = 0; i < sortedDates.length; i++) {
+  const entryDate = new Date(sortedDates[i]);
+  entryDate.setHours(0, 0, 0, 0);
+
+  const expectedDate = new Date(today);
+  expectedDate.setDate(today.getDate() - i);
+  expectedDate.setHours(0, 0, 0, 0);
+
+  // Allow for today or yesterday to count
+  if (i === 0) {
+    const dayDiff = Math.floor((today.getTime() - entryDate.getTime()) / (1000 * 60 * 60 * 24));
+    if (dayDiff > 1) break;
+    gratitudeStreak++;
+  } else if (entryDate.getTime() === expectedDate.getTime()) {
+    gratitudeStreak++;
+  } else {
+    break;
+  }
+}
+
+// Word cloud data
+const wordCloud = buildWordCloud(allGratitudes);
+const maxCount = wordCloud.length > 0 ? wordCloud[0].count : 1;
+
+// Monthly gratitude counts
+const monthlyGratitude: Record<string, number> = {};
+for (const g of allGratitudes) {
+  const month = g.date.toISOString().slice(0, 7);
+  monthlyGratitude[month] = (monthlyGratitude[month] || 0) + 1;
+}
+const sortedMonths = Object.entries(monthlyGratitude).sort((a, b) => b[0].localeCompare(a[0])).slice(0, 12);
+const maxMonthCount = Math.max(...sortedMonths.map(m => m[1]));
+
+function formatDate(date: Date): string {
+  return date.toISOString().split('T')[0];
+}
+---
+
+<BaseLayout title="Gratitude">
+  <header class="page-hero">
+    <h1>Gratitude</h1>
+    <p class="hero-subtitle">What you're thankful for</p>
+  </header>
+
+  {totalGratitudes === 0 ? (
+    <p class="empty-state">
+      No gratitudes recorded yet. Add them to your daily entries under "I am grateful for..."
+    </p>
+  ) : (
+    <>
+      <section class="stats-overview">
+        <div class="stat-card">
+          <span class="stat-value">{totalGratitudes}</span>
+          <span class="stat-label">Total gratitudes</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value">{daysWithGratitude}</span>
+          <span class="stat-label">Days practiced</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value">{gratitudeStreak}</span>
+          <span class="stat-label">Current streak</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value">{(totalGratitudes / Math.max(daysWithGratitude, 1)).toFixed(1)}</span>
+          <span class="stat-label">Avg per day</span>
+        </div>
+      </section>
+
+      <section class="categories-section">
+        <h2>Categories</h2>
+        <p class="section-subtitle">What you're most grateful for</p>
+        <div class="category-grid">
+          <div class="category-card">
+            <span class="category-icon">&#128101;</span>
+            <span class="category-name">People</span>
+            <span class="category-count">{categoryCounts.people}</span>
+            <div class="category-bar" style={`width: ${(categoryCounts.people / totalGratitudes) * 100}%`}></div>
+          </div>
+          <div class="category-card">
+            <span class="category-icon">&#10024;</span>
+            <span class="category-name">Experiences</span>
+            <span class="category-count">{categoryCounts.experiences}</span>
+            <div class="category-bar" style={`width: ${(categoryCounts.experiences / totalGratitudes) * 100}%`}></div>
+          </div>
+          <div class="category-card">
+            <span class="category-icon">&#127968;</span>
+            <span class="category-name">Things</span>
+            <span class="category-count">{categoryCounts.things}</span>
+            <div class="category-bar" style={`width: ${(categoryCounts.things / totalGratitudes) * 100}%`}></div>
+          </div>
+          <div class="category-card">
+            <span class="category-icon">&#9679;</span>
+            <span class="category-name">Other</span>
+            <span class="category-count">{categoryCounts.other}</span>
+            <div class="category-bar" style={`width: ${(categoryCounts.other / totalGratitudes) * 100}%`}></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="wordcloud-section">
+        <h2>Word Cloud</h2>
+        <p class="section-subtitle">Common themes in your gratitudes</p>
+        <div class="word-cloud">
+          {wordCloud.map((item) => {
+            const size = 0.8 + (item.count / maxCount) * 1.5;
+            const opacity = 0.4 + (item.count / maxCount) * 0.6;
+            return (
+              <span
+                class="cloud-word"
+                style={`font-size: ${size}rem; opacity: ${opacity};`}
+                title={`${item.word}: ${item.count} times`}
+              >
+                {item.word}
+              </span>
+            );
+          })}
+        </div>
+      </section>
+
+      {sortedMonths.length > 1 && (
+        <section class="frequency-section">
+          <h2>Monthly Practice</h2>
+          <p class="section-subtitle">Gratitudes recorded per month</p>
+          <div class="frequency-chart">
+            {sortedMonths.map(([month, count]) => (
+              <div class="frequency-bar">
+                <div class="bar" style={`height: ${(count / maxMonthCount) * 100}%`}>
+                  <span class="count">{count}</span>
+                </div>
+                <span class="month">{month}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      <section class="gratitude-list-section">
+        <h2>All Gratitudes</h2>
+        <p class="section-subtitle">Everything you've been thankful for</p>
+
+        <div class="filter-tabs">
+          <button class="filter-tab active" data-filter="all">All ({totalGratitudes})</button>
+          <button class="filter-tab" data-filter="people">People ({categoryCounts.people})</button>
+          <button class="filter-tab" data-filter="experiences">Experiences ({categoryCounts.experiences})</button>
+          <button class="filter-tab" data-filter="things">Things ({categoryCounts.things})</button>
+        </div>
+
+        <ul class="gratitude-list">
+          {allGratitudes.map((g) => (
+            <li class="gratitude-item" data-category={g.category}>
+              <span class="gratitude-date">{formatDate(g.date)}</span>
+              <span class="gratitude-text">{g.text}</span>
+              <span class={`gratitude-badge gratitude-badge--${g.category}`}>{g.category}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
+    </>
+  )}
+</BaseLayout>
+
+<style>
+  .page-hero {
+    padding: 4rem 0;
+    margin-bottom: 3rem;
+    border-bottom: var(--border-thick);
+  }
+
+  .page-hero h1 {
+    font-family: var(--font-display);
+    font-size: var(--text-5xl);
+    letter-spacing: var(--tracking-tight);
+    margin-bottom: 0.5rem;
+  }
+
+  .hero-subtitle {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-widest);
+    color: var(--muted-foreground);
+  }
+
+  .empty-state {
+    color: var(--muted-foreground);
+    font-style: italic;
+    padding: 4rem 0;
+  }
+
+  .stats-overview {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 4rem;
+  }
+
+  .stat-card {
+    padding: 2rem;
+    background: var(--muted);
+    text-align: center;
+  }
+
+  .stat-value {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: var(--text-4xl);
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  .stat-label {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-widest);
+    color: var(--muted-foreground);
+  }
+
+  /* Categories */
+  .categories-section,
+  .wordcloud-section,
+  .frequency-section,
+  .gratitude-list-section {
+    margin-bottom: 4rem;
+  }
+
+  .categories-section h2,
+  .wordcloud-section h2,
+  .frequency-section h2,
+  .gratitude-list-section h2 {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    margin-bottom: 0.5rem;
+  }
+
+  .section-subtitle {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-widest);
+    color: var(--muted-foreground);
+    margin-bottom: 2rem;
+  }
+
+  .category-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+
+  .category-card {
+    padding: 1.5rem;
+    background: var(--muted);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .category-icon {
+    font-size: var(--text-2xl);
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+
+  .category-name {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-widest);
+    display: block;
+    margin-bottom: 0.25rem;
+  }
+
+  .category-count {
+    font-family: var(--font-mono);
+    font-size: var(--text-3xl);
+    font-weight: 700;
+    display: block;
+  }
+
+  .category-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 4px;
+    background: var(--black);
+  }
+
+  /* Word cloud */
+  .word-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem 1.25rem;
+    padding: 2rem;
+    background: var(--muted);
+    align-items: center;
+    justify-content: center;
+  }
+
+  .cloud-word {
+    font-family: var(--font-display);
+    cursor: default;
+    transition: opacity 100ms;
+  }
+
+  .cloud-word:hover {
+    opacity: 1 !important;
+  }
+
+  /* Frequency chart */
+  .frequency-chart {
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-start;
+    gap: var(--space-2);
+    height: 150px;
+    padding-top: var(--space-4);
+    overflow-x: auto;
+  }
+
+  .frequency-bar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-2);
+    min-width: 60px;
+  }
+
+  .frequency-bar .bar {
+    background: var(--black);
+    width: 40px;
+    min-height: 20px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: var(--space-1);
+  }
+
+  .frequency-bar .count {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--white);
+  }
+
+  .frequency-bar .month {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--muted-foreground);
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    height: 60px;
+  }
+
+  /* Filter tabs */
+  .filter-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+    border-bottom: var(--border-thin);
+    padding-bottom: 1rem;
+  }
+
+  .filter-tab {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-widest);
+    padding: 0.5rem 1rem;
+    background: transparent;
+    border: var(--border-thin);
+    cursor: pointer;
+    transition: all 100ms;
+  }
+
+  .filter-tab:hover,
+  .filter-tab.active {
+    background: var(--black);
+    color: var(--white);
+  }
+
+  /* Gratitude list */
+  .gratitude-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .gratitude-item {
+    display: grid;
+    grid-template-columns: 100px 1fr auto;
+    gap: 1rem;
+    padding: 1rem 0;
+    border-bottom: var(--border-hairline);
+    align-items: start;
+  }
+
+  .gratitude-item.hidden {
+    display: none;
+  }
+
+  .gratitude-date {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    color: var(--muted-foreground);
+  }
+
+  .gratitude-text {
+    font-family: var(--font-body);
+    line-height: 1.6;
+  }
+
+  .gratitude-badge {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-widest);
+    padding: 0.25rem 0.5rem;
+    background: var(--muted);
+  }
+
+  .gratitude-badge--people {
+    border-left: 3px solid var(--black);
+  }
+
+  .gratitude-badge--experiences {
+    border-left: 3px solid var(--muted-foreground);
+  }
+
+  @media (max-width: 640px) {
+    .page-hero h1 {
+      font-size: var(--text-3xl);
+    }
+
+    .gratitude-item {
+      grid-template-columns: 1fr;
+      gap: 0.5rem;
+    }
+
+    .gratitude-badge {
+      justify-self: start;
+    }
+  }
+</style>
+
+<script>
+  // Filter functionality
+  document.addEventListener('DOMContentLoaded', () => {
+    const tabs = document.querySelectorAll('.filter-tab');
+    const items = document.querySelectorAll('.gratitude-item');
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const filter = tab.getAttribute('data-filter');
+
+        // Update active tab
+        tabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+
+        // Filter items
+        items.forEach(item => {
+          const category = item.getAttribute('data-category');
+          if (filter === 'all' || category === filter) {
+            item.classList.remove('hidden');
+          } else {
+            item.classList.add('hidden');
+          }
+        });
+      });
+    });
+  });
+</script>
