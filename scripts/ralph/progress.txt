@@ -748,3 +748,44 @@ Target: Journal Enhancements
 
 ---
 
+
+## 2026-01-07 - US-054 Weekly Digest Email Generation
+
+- Created `scripts/weekly_digest.lua` - comprehensive digest generation system
+- Digest content:
+  - Week date range (Monday to Sunday)
+  - Entries for the week with titles, dates, moods
+  - Statistics: entry count, mood average, current streak
+  - "On This Week in History" section showing same week-day entries from previous years
+  - Mood description based on average (Excellent/Good/Mixed/Challenging/Tough)
+- HTML template:
+  - Editorial styling matching site design
+  - Georgia serif for body, monospace for metadata
+  - Black borders, minimal colors
+  - Responsive layout
+- Email service support:
+  - SendGrid integration via API
+  - Postmark integration via API
+  - Configuration via environment variables
+  - `JOURNAL_EMAIL_SERVICE`: sendgrid, postmark, or none
+  - `SENDGRID_API_KEY`, `POSTMARK_API_KEY` for credentials
+- CLI interface:
+  - `lua weekly_digest.lua` - save last week's digest
+  - `--weeks N` - specify how many weeks back
+  - `--send --to email@example.com` - send via email service
+  - `--help` - show usage
+- Neovim integration:
+  - `:JournalDigest [weeks] [--preview]` command
+  - `M.generate_digest(weeks_ago)` - generates and opens in browser
+  - `M.preview_digest(weeks_ago)` - shows stats in floating window
+  - `<leader>jD` keymap for quick access
+- Week boundary calculation uses modular arithmetic for correct Monday start
+- Files changed: `scripts/weekly_digest.lua`, `nvim/journal.lua`
+- **Learnings:**
+  - Week calculation: `(wday - 2) % 7` gives days since Monday (Lua wday 1=Sunday)
+  - Historical entries need to match month-day across year boundaries
+  - Curl with `-d @file` reads JSON payload from file (handles escaping)
+  - Email services have different JSON schemas but similar auth patterns
+
+---
+

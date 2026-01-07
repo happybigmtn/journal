@@ -714,8 +714,8 @@
 				"Include 'on this week in history' entries"
 			],
 			"priority": 53,
-			"passes": false,
-			"notes": "Periodic reflection delivered to your inbox"
+			"passes": true,
+			"notes": "RESOLVED: Created scripts/weekly_digest.lua generating HTML digest with entries, mood avg, streak, and 'on this week in history'. Supports SendGrid and Postmark via env vars. Added :JournalDigest [weeks] [--preview] command and <leader>jD keymap. HTML uses editorial styling matching site design."
 		},
 		{
 			"id": "US-055",
