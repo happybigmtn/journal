@@ -10,6 +10,27 @@
   --font-body: 'Source Serif 4', Georgia, serif;
   --font-mono: 'JetBrains Mono', 'SF Mono', monospace;
 
+  /* Dramatic typography scale (xs through 9xl) */
+  --text-xs: 0.75rem;    /* 12px */
+  --text-sm: 0.875rem;   /* 14px */
+  --text-base: 1rem;     /* 16px */
+  --text-lg: 1.125rem;   /* 18px */
+  --text-xl: 1.25rem;    /* 20px */
+  --text-2xl: 1.5rem;    /* 24px */
+  --text-3xl: 1.875rem;  /* 30px */
+  --text-4xl: 2.25rem;   /* 36px */
+  --text-5xl: 3rem;      /* 48px */
+  --text-6xl: 3.75rem;   /* 60px */
+  --text-7xl: 4.5rem;    /* 72px - hero headlines */
+  --text-8xl: 6rem;      /* 96px - oversized statements */
+  --text-9xl: 8rem;      /* 128px - maximum drama */
+
+  /* Letter spacing for headlines vs labels */
+  --tracking-tight: -0.025em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.025em;
+  --tracking-widest: 0.1em;
+
   --max-width: 38rem;
   --line-height: 1.7;
 }
@@ -36,13 +57,13 @@ body {
 h1, h2, h3 {
   font-family: var(--font-display);
   font-weight: 500;
-  letter-spacing: -0.02em;
+  letter-spacing: var(--tracking-tight);
   color: var(--black);
 }
 
-h1 { font-size: 2rem; margin-bottom: 1.5rem; }
-h2 { font-size: 1.25rem; margin: 2rem 0 1rem; }
-h3 { font-size: 1rem; margin: 1.5rem 0 0.75rem; }
+h1 { font-size: var(--text-4xl); margin-bottom: 1.5rem; }
+h2 { font-size: var(--text-xl); margin: 2rem 0 1rem; }
+h3 { font-size: var(--text-lg); margin: 1.5rem 0 0.75rem; }
 
 p { margin-bottom: 1.25rem; }
 
