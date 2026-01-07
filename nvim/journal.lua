@@ -695,6 +695,75 @@ function M.share_entry()
   vim.notify("Copied to clipboard: " .. share_url, vim.log.levels.INFO)
 end
 
+-- Import entries from Day One or Journey
+-- format: "dayone" or "journey"
+-- input_path: path to export directory
+function M.import_entries(format, input_path)
+  if not format or not input_path then
+    vim.notify("Usage: :JournalImport <format> <path>", vim.log.levels.ERROR)
+    return
+  end
+
+  format = format:lower()
+  if format ~= "dayone" and format ~= "journey" then
+    vim.notify("Format must be 'dayone' or 'journey'", vim.log.levels.ERROR)
+    return
+  end
+
+  -- Expand path
+  input_path = vim.fn.expand(input_path)
+
+  -- Check path exists
+  if vim.fn.isdirectory(input_path) == 0 and vim.fn.filereadable(input_path) == 0 then
+    vim.notify("Path does not exist: " .. input_path, vim.log.levels.ERROR)
+    return
+  end
+
+  vim.notify("Importing from " .. format .. "...", vim.log.levels.INFO)
+
+  -- Get script path
+  local script_dir = M.config.journal_dir:gsub("/site/src/content/journal$", "")
+  local import_script = script_dir .. "/scripts/import_journal.lua"
+
+  -- Run import script
+  local cmd = string.format(
+    'lua "%s" %s "%s" "%s" 2>&1',
+    import_script,
+    format,
+    input_path,
+    M.config.journal_dir
+  )
+
+  vim.fn.jobstart(cmd, {
+    stdout_buffered = true,
+    on_stdout = function(_, data)
+      if data then
+        for _, line in ipairs(data) do
+          if line ~= "" then
+            vim.schedule(function()
+              -- Show results
+              if line:match("^Imported:") or line:match("^Results:") or line:match("^Done!") then
+                vim.notify(line, vim.log.levels.INFO)
+              elseif line:match("^Error:") or line:match("error") then
+                vim.notify(line, vim.log.levels.ERROR)
+              end
+            end)
+          end
+        end
+      end
+    end,
+    on_exit = function(_, code)
+      vim.schedule(function()
+        if code == 0 then
+          vim.notify("Import complete! Run :JournalPublish to rebuild site.", vim.log.levels.INFO)
+        else
+          vim.notify("Import failed. Check the output for errors.", vim.log.levels.ERROR)
+        end
+      end)
+    end,
+  })
+end
+
 -- List recent entries
 function M.journal_list()
   local entries = {}
@@ -834,6 +903,28 @@ function M.setup(opts)
   vim.api.nvim_create_user_command("JournalShare", function()
     M.share_entry()
   end, { desc = "Copy shareable link to clipboard" })
+
+  -- Import command
+  vim.api.nvim_create_user_command("JournalImport", function(args)
+    if #args.fargs < 2 then
+      vim.notify("Usage: :JournalImport <format> <path>", vim.log.levels.ERROR)
+      vim.notify("Formats: dayone, journey", vim.log.levels.INFO)
+      return
+    end
+    M.import_entries(args.fargs[1], args.fargs[2])
+  end, {
+    nargs = "+",
+    desc = "Import entries from Day One or Journey",
+    complete = function(_, line)
+      local args = vim.split(line, "%s+")
+      if #args == 2 then
+        return { "dayone", "journey" }
+      elseif #args == 3 then
+        return vim.fn.getcompletion(args[3], "dir")
+      end
+      return {}
+    end,
+  })
 
   -- Keymaps (disabled when using LazyVim, which handles its own keymaps)
   if M.config.keymaps then

@@ -478,3 +478,30 @@ Target: Journal Enhancements
   - Astro's `getStaticPaths` generates PNG endpoints at build time like any other static route
 
 ---
+
+## 2026-01-07 - US-045 Import from Day One and Journey
+
+- Created `scripts/import_journal.lua` for importing from popular journaling apps
+- Day One format:
+  - Parses `Journal.json` from unzipped export
+  - Extracts `creationDate` (ISO 8601), `text`, `tags`, `mood`, `photos`
+  - Copies photos from `photos/` subdirectory to assets
+- Journey format:
+  - Scans directory for individual JSON files per entry
+  - Uses `date_journal` (milliseconds timestamp), `text`, `tags`, `photos`
+  - Strips HTML tags from content for clean markdown
+- Common features:
+  - Maps dates to YYYY/MM directory structure
+  - Skips existing entries (no overwrites)
+  - Generates proper frontmatter with source comment
+  - Copies media attachments preserving directory structure
+- Added `:JournalImport <format> <path>` command with tab completion
+- Usage: `:JournalImport dayone ~/Downloads/DayOne-Export/`
+- Files changed: `scripts/import_journal.lua`, `nvim/journal.lua`
+- **Learnings:**
+  - Day One uses ISO 8601 dates; Journey uses Unix timestamps in milliseconds
+  - Both apps may include HTML in text content; regex stripping handles common cases
+  - Lua lacks native JSON; simple recursive parser works for these structures
+  - Preserving original dates is crucial for "On This Day" and timeline features
+
+---

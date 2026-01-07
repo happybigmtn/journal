@@ -588,8 +588,8 @@
 				"Add :JournalImport command with format selection"
 			],
 			"priority": 44,
-			"passes": false,
-			"notes": "Migration path from popular journaling apps - reduce switching friction"
+			"passes": true,
+			"notes": "RESOLVED: scripts/import_journal.lua handles both formats, maps dates/mood/tags/photos, :JournalImport command with tab completion"
 		},
 		{
 			"id": "US-046",
