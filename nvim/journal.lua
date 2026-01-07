@@ -4,6 +4,22 @@
 
 local M = {}
 
+-- Load stoic prompts module (same directory as this file)
+local stoic_prompts = nil
+local function get_stoic_prompts()
+  if stoic_prompts then
+    return stoic_prompts
+  end
+  local script_dir = debug.getinfo(1, "S").source:sub(2):match("(.*/)")
+  local prompts_path = script_dir .. "stoic_prompts.lua"
+  local ok, prompts = pcall(dofile, prompts_path)
+  if ok and prompts then
+    stoic_prompts = prompts
+    return stoic_prompts
+  end
+  return nil
+end
+
 -- Configuration
 M.config = {
   journal_dir = vim.fn.expand("~/Coding/journal/site/src/content/journal"),
@@ -20,6 +36,8 @@ local function get_date_parts(date)
     year = tostring(date.year),
     month = string.format("%02d", date.month),
     day = string.format("%02d", date.day),
+    month_num = date.month, -- numeric for stoic prompts lookup
+    day_num = date.day,     -- numeric for stoic prompts lookup
     week = os.date("%V", os.time(date)),
     month_name = os.date("%B", os.time(date)),
     weekday = os.date("%A", os.time(date)),
@@ -53,6 +71,19 @@ local function fill_template(template, date_parts)
   filled = filled:gsub("{{MONTH}}", date_parts.month_name)
   filled = filled:gsub("{{WEEK}}", date_parts.week)
   filled = filled:gsub("{{WEEKDAY}}", date_parts.weekday)
+
+  -- Add daily stoic prompt
+  local prompts = get_stoic_prompts()
+  if prompts then
+    local stoic_prompt = prompts.get_prompt(date_parts.month_num, date_parts.day_num)
+    local stoic_theme = prompts.get_theme(date_parts.month_num)
+    filled = filled:gsub("{{STOIC_PROMPT}}", stoic_prompt)
+    filled = filled:gsub("{{STOIC_THEME}}", stoic_theme)
+  else
+    filled = filled:gsub("{{STOIC_PROMPT}}", "What wisdom will guide me today?")
+    filled = filled:gsub("{{STOIC_THEME}}", "Reflection")
+  end
+
   return filled
 end
 

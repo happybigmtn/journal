@@ -6,6 +6,16 @@ tags: []
 type: daily
 ---
 
+## Today's Reflection
+
+> **{{STOIC_PROMPT}}**
+
+*Theme: {{STOIC_THEME}}*
+
+
+
+---
+
 ## Morning
 
 ### I am grateful for...
