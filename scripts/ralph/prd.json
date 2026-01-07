@@ -1,5 +1,7 @@
 {
 	"branchName": "ralph/journal-enhancements",
+	"projectVision": "The best journaling app ever created - combining thoughtful Stoic prompts, editorial design, and seamless publishing to your personal blog.",
+	"completedPhase": "Phase 1: Foundation (US-001 to US-035) - Editorial design system, core journaling, visualizations",
 	"userStories": [
 		{
 			"id": "US-001",
@@ -446,6 +448,314 @@
 			"priority": 34,
 			"passes": true,
 			"notes": "RESOLVED: @media (pointer: coarse) applies 44px min-height to all interactive elements"
+		},
+		{
+			"id": "US-036",
+			"title": "Add GitHub Actions workflow for automatic blog deployment",
+			"acceptanceCriteria": [
+				"Create .github/workflows/deploy.yml",
+				"Trigger on push to main branch",
+				"Build Astro site with npm run build",
+				"Deploy dist/ to GitHub Pages using actions/deploy-pages",
+				"Add GITHUB_TOKEN permissions for deployment",
+				"Site accessible at happybigmtn.github.io/journal"
+			],
+			"priority": 35,
+			"passes": true,
+			"notes": "RESOLVED: Workflow exists with npm ci, caching, artifact upload, and deploy-pages@v4. Custom domain rizz.dad via CNAME."
+		},
+		{
+			"id": "US-037",
+			"title": "Add 'On This Day' feature showing past entries from same date",
+			"acceptanceCriteria": [
+				"Create memory surfacing component for entry pages",
+				"Query entries matching current month-day from previous years",
+				"Display as 'On This Day' section below current entry",
+				"Show entry excerpt, year, and mood if available",
+				"Add dedicated /on-this-day page showing all same-date entries"
+			],
+			"priority": 36,
+			"passes": false,
+			"notes": "Top requested feature from journaling app research - rediscover memories"
+		},
+		{
+			"id": "US-038",
+			"title": "Add image/photo support to journal entries",
+			"acceptanceCriteria": [
+				"Support image markdown syntax in entries",
+				"Create journal/assets/YYYY/MM/ directory structure for images",
+				"Add image gallery component to entry layout",
+				"Support drag-and-drop image insertion in Neovim (if possible)",
+				"Optimize images during build (astro-imagetools)",
+				"Display images with editorial styling (full-width, bordered)"
+			],
+			"priority": 37,
+			"passes": false,
+			"notes": "Multimedia entries significantly increase journaling engagement"
+		},
+		{
+			"id": "US-039",
+			"title": "Add entry privacy levels (private/published)",
+			"acceptanceCriteria": [
+				"Add 'published' boolean field to content schema (default false)",
+				"Filter unpublished entries from public site build",
+				"Create :JournalPublishEntry command to toggle published status",
+				"Show published indicator in entry layout",
+				"Add 'published entries only' mode for site"
+			],
+			"priority": 38,
+			"passes": false,
+			"notes": "Selective sharing - keep personal entries private, publish polished ones"
+		},
+		{
+			"id": "US-040",
+			"title": "Generate RSS feed for published entries",
+			"acceptanceCriteria": [
+				"Create /rss.xml endpoint with published entries",
+				"Include entry title, date, excerpt, and link",
+				"Follow RSS 2.0 specification",
+				"Add RSS autodiscovery link to site head",
+				"Update feed on each build"
+			],
+			"priority": 39,
+			"passes": false,
+			"notes": "Allow followers to subscribe to your public journal"
+		},
+		{
+			"id": "US-041",
+			"title": "Add word count and reading time to entries",
+			"acceptanceCriteria": [
+				"Calculate word count for each entry during build",
+				"Estimate reading time (average 200 wpm)",
+				"Display in entry metadata section",
+				"Add total word count to statistics/about page",
+				"Track monthly/yearly word count trends"
+			],
+			"priority": 40,
+			"passes": false,
+			"notes": "Quantified journaling - see your writing volume over time"
+		},
+		{
+			"id": "US-042",
+			"title": "Add mood analytics and visualization",
+			"acceptanceCriteria": [
+				"Create /insights page with mood over time chart",
+				"Calculate mood trends by week/month/year",
+				"Correlate mood with day of week and season",
+				"Show mood distribution pie chart",
+				"Identify patterns (e.g., better moods on weekends)"
+			],
+			"priority": 41,
+			"passes": false,
+			"notes": "Self-reflection through data - understand emotional patterns"
+		},
+		{
+			"id": "US-043",
+			"title": "Add habit tracker integration to daily template",
+			"acceptanceCriteria": [
+				"Add optional habits array to frontmatter schema",
+				"Create habit tracking section in daily template",
+				"Support boolean habits (did/didn't) and numeric habits",
+				"Display habit streaks alongside journaling streak",
+				"Visualize habit completion rates on calendar view"
+			],
+			"priority": 42,
+			"passes": false,
+			"notes": "Expand from pure journaling to holistic self-tracking"
+		},
+		{
+			"id": "US-044",
+			"title": "Add shareable entry cards for social media",
+			"acceptanceCriteria": [
+				"Generate OG image for each published entry",
+				"Use editorial styling (black border, large date, excerpt)",
+				"Add meta tags for Twitter/Facebook/LinkedIn sharing",
+				"Create :JournalShare command to copy shareable link",
+				"Support custom share images per entry"
+			],
+			"priority": 43,
+			"passes": false,
+			"notes": "Beautiful previews when sharing journal entries on social media"
+		},
+		{
+			"id": "US-045",
+			"title": "Add import from Day One and Journey formats",
+			"acceptanceCriteria": [
+				"Create import script for Day One JSON export",
+				"Create import script for Journey backup format",
+				"Map imported entries to journal schema (mood, tags, etc.)",
+				"Preserve original dates and media attachments",
+				"Add :JournalImport command with format selection"
+			],
+			"priority": 44,
+			"passes": false,
+			"notes": "Migration path from popular journaling apps - reduce switching friction"
+		},
+		{
+			"id": "US-046",
+			"title": "Add PWA support for offline access",
+			"acceptanceCriteria": [
+				"Create service worker for offline caching",
+				"Add web app manifest with icons and theme colors",
+				"Cache all static assets and recent entries",
+				"Enable 'Add to Home Screen' on mobile",
+				"Show offline indicator when disconnected"
+			],
+			"priority": 45,
+			"passes": false,
+			"notes": "Read your journal anywhere, even without internet"
+		},
+		{
+			"id": "US-047",
+			"title": "Add quick entry mode for micro-journaling",
+			"acceptanceCriteria": [
+				"Create :JournalQuick command for rapid entries",
+				"Minimal frontmatter (just date and optional mood)",
+				"Single text area instead of structured template",
+				"Append to today's entry if exists, create if not",
+				"Support voice input transcription (future)"
+			],
+			"priority": 46,
+			"passes": false,
+			"notes": "Reduce friction for quick thoughts - not every entry needs full structure"
+		},
+		{
+			"id": "US-048",
+			"title": "Add entry templates beyond daily (project, book, travel)",
+			"acceptanceCriteria": [
+				"Create project log template (goals, progress, blockers)",
+				"Create book notes template (quotes, reflections, rating)",
+				"Create travel journal template (location, highlights, photos)",
+				"Add 'type' selector to :JournalNew command",
+				"Store in appropriate subdirectories"
+			],
+			"priority": 47,
+			"passes": false,
+			"notes": "Specialized templates for different journaling purposes"
+		},
+		{
+			"id": "US-049",
+			"title": "Add automatic backup to cloud storage",
+			"acceptanceCriteria": [
+				"Create backup script supporting multiple providers",
+				"Support S3, Backblaze B2, or local backup targets",
+				"Encrypt backups before upload",
+				"Schedule daily automatic backups",
+				"Verify backup integrity with checksums"
+			],
+			"priority": 48,
+			"passes": false,
+			"notes": "Peace of mind - your journal is safe even if your computer isn't"
+		},
+		{
+			"id": "US-050",
+			"title": "Add yearly wrapped/summary generation",
+			"acceptanceCriteria": [
+				"Generate end-of-year summary with key statistics",
+				"Include: total entries, words written, streak records",
+				"Highlight most common tags/themes",
+				"Show mood trends across the year",
+				"Export as shareable image or page"
+			],
+			"priority": 49,
+			"passes": false,
+			"notes": "Spotify Wrapped but for your journal - celebrate your year"
+		},
+		{
+			"id": "US-051",
+			"title": "Add people mentions and relationship tracking",
+			"acceptanceCriteria": [
+				"Support @mentions in entry content",
+				"Create /people page listing all mentioned people",
+				"Show entries mentioning each person",
+				"Track relationship touchpoints over time",
+				"Add optional 'connections' field to daily template"
+			],
+			"priority": 50,
+			"passes": false,
+			"notes": "Journal your relationships - see who you spend time with"
+		},
+		{
+			"id": "US-052",
+			"title": "Add gratitude tracking with visualization",
+			"acceptanceCriteria": [
+				"Parse gratitudes from daily template Morning section",
+				"Create /gratitude page showing all gratitudes",
+				"Categorize gratitudes by theme (people, experiences, things)",
+				"Show gratitude word cloud",
+				"Track gratitude consistency alongside journaling streak"
+			],
+			"priority": 51,
+			"passes": false,
+			"notes": "Elevate gratitude practice with dedicated tracking and visualization"
+		},
+		{
+			"id": "US-053",
+			"title": "Add natural language date entry creation",
+			"acceptanceCriteria": [
+				"Support :JournalNew 'yesterday' instead of date format",
+				"Parse 'last monday', 'two weeks ago', etc.",
+				"Support 'next week' for future planning entries",
+				"Use date-fns or similar for parsing",
+				"Show confirmation of interpreted date"
+			],
+			"priority": 52,
+			"passes": false,
+			"notes": "More intuitive entry creation - speak naturally about dates"
+		},
+		{
+			"id": "US-054",
+			"title": "Add weekly digest email generation",
+			"acceptanceCriteria": [
+				"Create script to generate weekly digest HTML",
+				"Include: week's entries, mood average, streak status",
+				"Support sending via SendGrid/Postmark/etc.",
+				"Add opt-in configuration for digest delivery",
+				"Include 'on this week in history' entries"
+			],
+			"priority": 53,
+			"passes": false,
+			"notes": "Periodic reflection delivered to your inbox"
+		},
+		{
+			"id": "US-055",
+			"title": "Add bookmarklet for quick web capture to journal",
+			"acceptanceCriteria": [
+				"Create bookmarklet that captures page title and URL",
+				"Generate markdown snippet for journal entry",
+				"Copy to clipboard for pasting into entry",
+				"Optional: save to 'captures' for later processing",
+				"Support capturing selected text as quote"
+			],
+			"priority": 54,
+			"passes": false,
+			"notes": "Capture interesting web content directly to your journal"
+		}
+	],
+	"technicalDebt": [
+		{
+			"id": "TD-001",
+			"title": "Add end-to-end tests for site generation",
+			"description": "Create Playwright tests verifying all pages render correctly, search works, navigation functions"
+		},
+		{
+			"id": "TD-002",
+			"title": "Add Neovim plugin tests",
+			"description": "Create Lua tests for journal.lua commands using plenary.nvim test framework"
+		},
+		{
+			"id": "TD-003",
+			"title": "Optimize build performance for large archives",
+			"description": "Profile build time as entries grow, implement incremental builds if needed"
+		}
+	],
+	"infrastructure": [
+		{
+			"id": "INF-001",
+			"title": "Set up GitHub Actions CI/CD",
+			"description": "Build and deploy on push, run tests on PRs, validate schema",
+			"priority": "IMMEDIATE",
+			"blocksUserStories": ["US-036"]
 		}
 	]
 }

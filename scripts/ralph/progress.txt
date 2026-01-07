@@ -310,3 +310,20 @@ Target: Journal Enhancements
   - `inline-flex` + `align-items: center` vertically centers text in larger targets
 
 ---
+
+## 2026-01-07 - US-036 GitHub Actions Deployment
+
+- Verified existing `.github/workflows/deploy.yml` meets all acceptance criteria
+- Workflow structure: build job → deploy job with GitHub Pages environment
+- Uses `npm ci` with caching for reproducible, fast builds
+- Proper permissions: `contents: read`, `pages: write`, `id-token: write`
+- Custom domain `rizz.dad` configured via `site/public/CNAME`
+- Concurrency control prevents conflicting deployments
+- Files verified: `.github/workflows/deploy.yml`, `site/public/CNAME`, `site/astro.config.mjs`
+- **Learnings:**
+  - `actions/deploy-pages@v4` is the modern approach (vs. pushing to gh-pages branch)
+  - CNAME file in public/ gets copied to dist/ during build for custom domain persistence
+  - `npm ci` requires package-lock.json; faster and more deterministic than `npm install`
+  - Two-job workflow (build → deploy) allows artifact inspection between stages
+
+---
