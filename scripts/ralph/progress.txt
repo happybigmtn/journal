@@ -789,3 +789,48 @@ Target: Journal Enhancements
 
 ---
 
+
+## 2026-01-07 - US-055 Bookmarklet for Quick Web Capture
+
+- Created `/capture` page with bookmarklet tools and capture management
+- Two bookmarklets:
+  1. "Capture to Clipboard" - generates and copies markdown immediately
+  2. "Save for Later" - stores captures in localStorage for batch processing
+- Markdown output format:
+  ```markdown
+  ## Captured: 2026-01-07 14:30
+
+  **[Page Title](https://example.com/page)**
+
+  > Selected text as blockquote
+
+  <!-- Notes: -->
+  ```
+- Capture to Clipboard features:
+  - Gets page title via `document.title`
+  - Gets URL via `window.location.href`
+  - Captures selection via `window.getSelection().toString()`
+  - Uses `navigator.clipboard.writeText()` with `prompt()` fallback
+- Save for Later features:
+  - Stores array of captures in `localStorage.journal_captures`
+  - Each capture has: title, url, selection, timestamp
+  - Shows count in confirmation alert
+- Capture management page:
+  - Lists all saved captures with title, date, URL, selection preview
+  - Delete individual captures
+  - Export All as Markdown - copies combined markdown to clipboard
+  - Clear All - removes all captures
+  - Responsive grid layout
+- Bookmarklet encoding:
+  - JavaScript minified (`replace(/\s+/g, ' ')`)
+  - URL-encoded with `encodeURIComponent()`
+  - Prefixed with `javascript:`
+- Files changed: `site/src/pages/capture.astro`
+- **Learnings:**
+  - Bookmarklets must be URL-encoded and prefixed with `javascript:`
+  - `navigator.clipboard.writeText()` is async and requires HTTPS or localhost
+  - `onclick="return false;"` prevents navigation when clicking bookmarklet link
+  - localStorage persists across browser sessions - good for batching captures
+
+---
+

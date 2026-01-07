@@ -728,8 +728,8 @@
 				"Support capturing selected text as quote"
 			],
 			"priority": 54,
-			"passes": false,
-			"notes": "Capture interesting web content directly to your journal"
+			"passes": true,
+			"notes": "RESOLVED: Created /capture page with two bookmarklets: 'Capture to Clipboard' copies markdown with title, URL, selected quote; 'Save for Later' stores to localStorage for batch export. Page shows saved captures with delete/export functionality. Markdown output includes timestamp and blockquote for selections."
 		},
 		{
 			"id": "US-056",
