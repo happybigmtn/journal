@@ -275,8 +275,8 @@
 				"Store in journal/YYYY/yearly/YYYY.md"
 			],
 			"priority": 21,
-			"passes": false,
-			"notes": "ENHANCEMENT: PRD mentions yearly reviews but not implemented"
+			"passes": true,
+			"notes": "RESOLVED: Yearly template with 10 sections, schema updated, <leader>jy keymap added"
 		},
 		{
 			"id": "US-008",

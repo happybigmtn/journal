@@ -127,3 +127,17 @@ Target: Journal Enhancements
   - `:global(mark)` in scoped CSS targets dynamically injected elements
 
 ---
+
+## 2026-01-07 - US-007 Yearly Review Template
+
+- Created `templates/yearly.md` with 10 reflection sections
+- Added 'yearly' to content schema type enum
+- Updated journal.lua to handle yearly entry type
+- Added `:JournalNew year` command and `<leader>jy` keymap
+- Files changed: `templates/yearly.md`, `site/src/content/config.ts`, `nvim/journal.lua`
+- **Learnings:**
+  - Yearly reviews need different prompts than daily (retrospective + forward-looking)
+  - Zod enums can be extended by adding values to array
+  - Template placeholders like {{YEAR}}+1 don't auto-increment; handled manually in template
+
+---
