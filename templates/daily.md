@@ -18,6 +18,11 @@ habits:
   # - name: "Water"
   #   value: 0
   #   goal: 8
+connections: []
+  # People you connected with today
+  # - "John"
+  # - "Sarah"
+  # Or use @mentions in your text: "Had coffee with @john and @sarah"
 ---
 
 ## Today's Reflection
@@ -98,6 +103,9 @@ What affected my energy today?
 
 
 ### People I connected with
+
+<!-- Use @name to mention people, e.g., "Had lunch with @john" -->
+<!-- They'll appear on the /people page automatically -->
 
 
 ### How I felt

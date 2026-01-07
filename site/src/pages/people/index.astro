@@ -1,0 +1,299 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const allEntries = await getCollection('journal', (e) => !e.data.draft && (import.meta.env.DEV || e.data.published));
+
+// Parse @mentions from entry content
+function extractMentions(content: string): string[] {
+  const mentionRegex = /@(\w+)/g;
+  const mentions = new Set<string>();
+  let match;
+  while ((match = mentionRegex.exec(content)) !== null) {
+    mentions.add(match[1].toLowerCase());
+  }
+  return Array.from(mentions);
+}
+
+// Build a map of people to their mentions
+const peopleMap = new Map<string, {
+  count: number;
+  entries: { slug: string; date: Date; title: string; context: string }[];
+  firstSeen: Date;
+  lastSeen: Date;
+}>();
+
+for (const entry of allEntries) {
+  const mentions = extractMentions(entry.body);
+
+  // Also check connections field if present
+  const connections = (entry.data as any).connections || [];
+  for (const connection of connections) {
+    if (typeof connection === 'string') {
+      mentions.push(connection.toLowerCase());
+    }
+  }
+
+  // Dedupe mentions for this entry
+  const uniqueMentions = [...new Set(mentions)];
+
+  for (const person of uniqueMentions) {
+    // Get context snippet (sentence containing the mention)
+    const mentionRegex = new RegExp(`[^.!?]*@${person}[^.!?]*[.!?]`, 'gi');
+    const contextMatch = entry.body.match(mentionRegex);
+    const context = contextMatch ? contextMatch[0].trim().slice(0, 150) : '';
+
+    if (!peopleMap.has(person)) {
+      peopleMap.set(person, {
+        count: 0,
+        entries: [],
+        firstSeen: entry.data.date,
+        lastSeen: entry.data.date,
+      });
+    }
+
+    const personData = peopleMap.get(person)!;
+    personData.count++;
+    personData.entries.push({
+      slug: entry.slug,
+      date: entry.data.date,
+      title: entry.data.title,
+      context,
+    });
+
+    if (entry.data.date < personData.firstSeen) {
+      personData.firstSeen = entry.data.date;
+    }
+    if (entry.data.date > personData.lastSeen) {
+      personData.lastSeen = entry.data.date;
+    }
+  }
+}
+
+// Sort people by mention count
+const sortedPeople = Array.from(peopleMap.entries())
+  .sort((a, b) => b[1].count - a[1].count);
+
+// Calculate stats
+const totalPeople = sortedPeople.length;
+const totalMentions = sortedPeople.reduce((sum, [_, data]) => sum + data.count, 0);
+
+// Format date helpers
+function formatDate(date: Date): string {
+  return date.toISOString().split('T')[0];
+}
+
+function daysSince(date: Date): number {
+  return Math.floor((Date.now() - date.getTime()) / (1000 * 60 * 60 * 24));
+}
+
+function formatRelativeTime(days: number): string {
+  if (days === 0) return 'Today';
+  if (days === 1) return 'Yesterday';
+  if (days < 7) return `${days} days ago`;
+  if (days < 30) return `${Math.floor(days / 7)} week${days >= 14 ? 's' : ''} ago`;
+  if (days < 365) return `${Math.floor(days / 30)} month${days >= 60 ? 's' : ''} ago`;
+  return `${Math.floor(days / 365)} year${days >= 730 ? 's' : ''} ago`;
+}
+---
+
+<BaseLayout title="People">
+  <main id="main" class="people-page">
+    <header class="people-header">
+      <h1>People</h1>
+      <p class="people-subtitle">
+        {totalPeople} people mentioned {totalMentions} times
+      </p>
+    </header>
+
+    {sortedPeople.length === 0 ? (
+      <div class="empty-state">
+        <p>No @mentions found yet.</p>
+        <p class="hint">Use @name in your journal entries to track relationships.</p>
+      </div>
+    ) : (
+      <div class="people-list">
+        {sortedPeople.map(([name, data]) => {
+          const daysSinceLast = daysSince(data.lastSeen);
+          return (
+            <article class="person-card">
+              <header class="person-header">
+                <h2 class="person-name">@{name}</h2>
+                <span class="person-count">{data.count} mention{data.count !== 1 ? 's' : ''}</span>
+              </header>
+
+              <div class="person-timeline">
+                <span class="timeline-first">First: {formatDate(data.firstSeen)}</span>
+                <span class="timeline-last">
+                  Last: {formatRelativeTime(daysSinceLast)}
+                  {daysSinceLast > 30 && <span class="reconnect-hint" title="Consider reaching out!">👋</span>}
+                </span>
+              </div>
+
+              <details class="person-entries">
+                <summary>Recent mentions</summary>
+                <ul class="mention-list">
+                  {data.entries.slice(0, 5).map((entry) => (
+                    <li class="mention-item">
+                      <a href={`/${entry.slug}`}>{formatDate(entry.date)}</a>
+                      {entry.context && <span class="mention-context">{entry.context}</span>}
+                    </li>
+                  ))}
+                  {data.entries.length > 5 && (
+                    <li class="mention-more">
+                      +{data.entries.length - 5} more entries
+                    </li>
+                  )}
+                </ul>
+              </details>
+            </article>
+          );
+        })}
+      </div>
+    )}
+  </main>
+</BaseLayout>
+
+<style>
+  .people-page {
+    max-width: 72rem;
+    margin: 0 auto;
+    padding: var(--space-8);
+  }
+
+  .people-header {
+    margin-bottom: var(--space-12);
+    border-bottom: var(--border-thick);
+    padding-bottom: var(--space-8);
+  }
+
+  .people-header h1 {
+    font-family: var(--font-display);
+    font-size: var(--text-7xl);
+    letter-spacing: var(--tracking-tight);
+  }
+
+  .people-subtitle {
+    font-family: var(--font-mono);
+    color: var(--muted-foreground);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-widest);
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: var(--space-16) 0;
+  }
+
+  .empty-state p {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    margin-bottom: var(--space-4);
+  }
+
+  .hint {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm) !important;
+    color: var(--muted-foreground);
+  }
+
+  .people-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+  }
+
+  .person-card {
+    border: var(--border-thin);
+    padding: var(--space-6);
+  }
+
+  .person-card:hover {
+    border-color: var(--black);
+    border-width: 2px;
+  }
+
+  .person-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: var(--space-4);
+  }
+
+  .person-name {
+    font-family: var(--font-mono);
+    font-size: var(--text-2xl);
+    letter-spacing: var(--tracking-tight);
+  }
+
+  .person-count {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-widest);
+    color: var(--muted-foreground);
+  }
+
+  .person-timeline {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    color: var(--muted-foreground);
+    margin-bottom: var(--space-4);
+  }
+
+  .reconnect-hint {
+    margin-left: var(--space-2);
+    cursor: help;
+  }
+
+  .person-entries {
+    margin-top: var(--space-4);
+    border-top: var(--border-hairline);
+    padding-top: var(--space-4);
+  }
+
+  .person-entries summary {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-widest);
+    cursor: pointer;
+  }
+
+  .person-entries summary:hover {
+    color: var(--black);
+  }
+
+  .mention-list {
+    list-style: none;
+    margin-top: var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .mention-item {
+    font-size: var(--text-sm);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .mention-item a {
+    font-family: var(--font-mono);
+  }
+
+  .mention-context {
+    color: var(--muted-foreground);
+    font-style: italic;
+    font-size: var(--text-xs);
+  }
+
+  .mention-more {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--muted-foreground);
+  }
+</style>

@@ -1,0 +1,349 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  // Parse @mentions from entry content
+  function extractMentions(content: string): string[] {
+    const mentionRegex = /@(\w+)/g;
+    const mentions = new Set<string>();
+    let match;
+    while ((match = mentionRegex.exec(content)) !== null) {
+      mentions.add(match[1].toLowerCase());
+    }
+    return Array.from(mentions);
+  }
+
+  const allEntries = await getCollection('journal', (e) => !e.data.draft);
+
+  // Collect all unique mentions
+  const allMentions = new Set<string>();
+  for (const entry of allEntries) {
+    const mentions = extractMentions(entry.body);
+    const connections = (entry.data as any).connections || [];
+    for (const mention of mentions) {
+      allMentions.add(mention);
+    }
+    for (const connection of connections) {
+      if (typeof connection === 'string') {
+        allMentions.add(connection.toLowerCase());
+      }
+    }
+  }
+
+  return Array.from(allMentions).map((name) => ({
+    params: { name },
+  }));
+}
+
+const { name } = Astro.params;
+
+// Parse @mentions from entry content (duplicate for main script context)
+function extractMentions(content: string): string[] {
+  const mentionRegex = /@(\w+)/g;
+  const mentions = new Set<string>();
+  let match;
+  while ((match = mentionRegex.exec(content)) !== null) {
+    mentions.add(match[1].toLowerCase());
+  }
+  return Array.from(mentions);
+}
+
+const allEntries = await getCollection('journal', (e) => !e.data.draft && (import.meta.env.DEV || e.data.published));
+
+// Find entries mentioning this person
+interface EntryWithMention {
+  slug: string;
+  date: Date;
+  title: string;
+  mood?: string;
+  context: string[];
+}
+
+const entries: EntryWithMention[] = [];
+
+for (const entry of allEntries) {
+  const mentions = extractMentions(entry.body);
+  const connections = (entry.data as any).connections || [];
+
+  const hasMention = mentions.includes(name!) ||
+    connections.some((c: string) => c.toLowerCase() === name);
+
+  if (hasMention) {
+    // Extract all sentences containing the mention
+    const mentionRegex = new RegExp(`[^.!?]*@${name}[^.!?]*[.!?]`, 'gi');
+    const contexts = entry.body.match(mentionRegex) || [];
+
+    entries.push({
+      slug: entry.slug,
+      date: entry.data.date,
+      title: entry.data.title,
+      mood: entry.data.mood,
+      context: contexts.map((c) => c.trim().slice(0, 200)),
+    });
+  }
+}
+
+// Sort by date descending
+entries.sort((a, b) => b.date.getTime() - a.date.getTime());
+
+// Calculate statistics
+const totalMentions = entries.length;
+const firstMention = entries.length > 0 ? entries[entries.length - 1].date : null;
+const lastMention = entries.length > 0 ? entries[0].date : null;
+
+// Calculate mention frequency by month
+const monthlyMentions: Record<string, number> = {};
+for (const entry of entries) {
+  const month = entry.date.toISOString().slice(0, 7);
+  monthlyMentions[month] = (monthlyMentions[month] || 0) + 1;
+}
+
+// Get months sorted
+const sortedMonths = Object.entries(monthlyMentions).sort((a, b) => b[0].localeCompare(a[0]));
+
+function formatDate(date: Date): string {
+  return date.toISOString().split('T')[0];
+}
+
+function daysSince(date: Date): number {
+  return Math.floor((Date.now() - date.getTime()) / (1000 * 60 * 60 * 24));
+}
+---
+
+<BaseLayout title={`@${name}`}>
+  <main id="main" class="person-page">
+    <header class="person-header">
+      <a href="/people" class="back-link">← People</a>
+      <h1>@{name}</h1>
+      <p class="person-stats">
+        {totalMentions} mention{totalMentions !== 1 ? 's' : ''}
+        {firstMention && (
+          <span>
+            · Since {formatDate(firstMention)}
+          </span>
+        )}
+      </p>
+    </header>
+
+    {lastMention && daysSince(lastMention) > 30 && (
+      <div class="reconnect-banner">
+        👋 It's been {daysSince(lastMention)} days since you last mentioned @{name}.
+        <span>Consider reaching out!</span>
+      </div>
+    )}
+
+    <section class="timeline-section">
+      <h2>Timeline</h2>
+      <div class="entry-timeline">
+        {entries.map((entry, i) => (
+          <article class="timeline-entry">
+            <div class="timeline-date">
+              <span class="date">{formatDate(entry.date)}</span>
+              {entry.mood && <span class="mood">{entry.mood}</span>}
+            </div>
+            <div class="timeline-content">
+              <a href={`/${entry.slug}`} class="entry-link">{entry.title}</a>
+              {entry.context.length > 0 && (
+                <div class="contexts">
+                  {entry.context.map((ctx) => (
+                    <p class="context-snippet">{ctx}</p>
+                  ))}
+                </div>
+              )}
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    {sortedMonths.length > 1 && (
+      <section class="frequency-section">
+        <h2>Mention Frequency</h2>
+        <div class="frequency-chart">
+          {sortedMonths.slice(0, 12).map(([month, count]) => (
+            <div class="frequency-bar">
+              <div class="bar" style={`height: ${(count / Math.max(...Object.values(monthlyMentions))) * 100}%`}>
+                <span class="count">{count}</span>
+              </div>
+              <span class="month">{month}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+    )}
+  </main>
+</BaseLayout>
+
+<style>
+  .person-page {
+    max-width: 72rem;
+    margin: 0 auto;
+    padding: var(--space-8);
+  }
+
+  .person-header {
+    margin-bottom: var(--space-8);
+  }
+
+  .back-link {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-widest);
+    display: inline-block;
+    margin-bottom: var(--space-4);
+  }
+
+  .back-link:hover {
+    color: var(--black);
+    text-decoration: underline;
+  }
+
+  .person-header h1 {
+    font-family: var(--font-mono);
+    font-size: var(--text-7xl);
+    letter-spacing: var(--tracking-tight);
+  }
+
+  .person-stats {
+    font-family: var(--font-mono);
+    color: var(--muted-foreground);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-widest);
+    margin-top: var(--space-2);
+  }
+
+  .reconnect-banner {
+    background: var(--muted);
+    padding: var(--space-4) var(--space-6);
+    margin-bottom: var(--space-8);
+    font-family: var(--font-body);
+  }
+
+  .reconnect-banner span {
+    font-style: italic;
+    display: block;
+    margin-top: var(--space-2);
+    color: var(--muted-foreground);
+  }
+
+  .timeline-section h2,
+  .frequency-section h2 {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    border-bottom: var(--border-thin);
+    padding-bottom: var(--space-2);
+    margin-bottom: var(--space-6);
+  }
+
+  .entry-timeline {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+  }
+
+  .timeline-entry {
+    display: grid;
+    grid-template-columns: 150px 1fr;
+    gap: var(--space-6);
+    padding-bottom: var(--space-6);
+    border-bottom: var(--border-hairline);
+  }
+
+  @media (max-width: 640px) {
+    .timeline-entry {
+      grid-template-columns: 1fr;
+      gap: var(--space-2);
+    }
+  }
+
+  .timeline-date {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    color: var(--muted-foreground);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .timeline-date .mood {
+    font-size: var(--text-lg);
+  }
+
+  .timeline-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .entry-link {
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+  }
+
+  .entry-link:hover {
+    text-decoration: underline;
+  }
+
+  .contexts {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .context-snippet {
+    font-size: var(--text-sm);
+    color: var(--muted-foreground);
+    font-style: italic;
+    padding-left: var(--space-4);
+    border-left: var(--border-thin);
+  }
+
+  .frequency-section {
+    margin-top: var(--space-12);
+  }
+
+  .frequency-chart {
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-start;
+    gap: var(--space-2);
+    height: 150px;
+    padding-top: var(--space-4);
+    overflow-x: auto;
+  }
+
+  .frequency-bar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-2);
+    min-width: 60px;
+  }
+
+  .frequency-bar .bar {
+    background: var(--black);
+    width: 40px;
+    min-height: 20px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: var(--space-1);
+  }
+
+  .frequency-bar .count {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--white);
+  }
+
+  .frequency-bar .month {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--muted-foreground);
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    height: 60px;
+  }
+</style>

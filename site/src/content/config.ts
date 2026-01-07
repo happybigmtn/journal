@@ -34,6 +34,7 @@ const journal = defineCollection({
     published: z.boolean().default(false), // Privacy: false = private, true = public on site
     habits: z.array(habitSchema).default([]), // Optional habit tracking
     og_image: z.string().optional(), // Custom Open Graph image URL (overrides auto-generated)
+    connections: z.array(z.string()).default([]), // People mentioned/met (alternative to @mentions)
   }),
 });
 
