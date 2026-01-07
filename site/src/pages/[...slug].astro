@@ -3,7 +3,10 @@ import EntryLayout from '../layouts/EntryLayout.astro';
 import { getCollection } from 'astro:content';
 
 export async function getStaticPaths() {
-  const entries = await getCollection('journal');
+  // In production, only generate pages for published entries; in dev, generate all non-draft
+  const entries = await getCollection('journal', ({ data }) =>
+    !data.draft && (import.meta.env.DEV || data.published)
+  );
   return entries.map(entry => ({
     params: { slug: entry.slug },
     props: { entry },

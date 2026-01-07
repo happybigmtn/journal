@@ -3,7 +3,10 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
 
 export async function getStaticPaths() {
-  const entries = await getCollection('journal', ({ data }) => !data.draft);
+  // In production, only show published entries; in dev, show all non-draft entries
+  const entries = await getCollection('journal', ({ data }) =>
+    !data.draft && (import.meta.env.DEV || data.published)
+  );
   const tags = [...new Set(entries.flatMap(e => e.data.tags))];
 
   return tags.map(tag => ({

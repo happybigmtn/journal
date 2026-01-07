@@ -405,6 +405,16 @@ textarea:focus-visible {
   color: inherit;
 }
 
+.entry-published {
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-widest);
+  color: var(--white);
+  background: var(--black);
+  padding: 0.25rem 0.5rem;
+  border: var(--border-thin);
+}
+
 .energy-dots {
   letter-spacing: 0.1em;
 }

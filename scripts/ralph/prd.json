@@ -504,8 +504,8 @@
 				"Add 'published entries only' mode for site"
 			],
 			"priority": 38,
-			"passes": false,
-			"notes": "Selective sharing - keep personal entries private, publish polished ones"
+			"passes": true,
+			"notes": "RESOLVED: Schema has published field, all pages filter via import.meta.env.DEV, :JournalPublish + <leader>jP toggle, PUBLIC badge in meta"
 		},
 		{
 			"id": "US-040",

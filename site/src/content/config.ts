@@ -11,6 +11,7 @@ const journal = defineCollection({
     tags: z.array(z.string()).default([]),
     type: z.enum(['daily', 'weekly', 'monthly', 'yearly']).default('daily'),
     draft: z.boolean().default(false),
+    published: z.boolean().default(false), // Privacy: false = private, true = public on site
   }),
 });
 

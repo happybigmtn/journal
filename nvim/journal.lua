@@ -622,6 +622,57 @@ function M.insert_image()
   end)
 end
 
+-- Toggle published status in current entry's frontmatter
+function M.toggle_published()
+  local buf = vim.api.nvim_get_current_buf()
+  local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
+
+  -- Find frontmatter bounds
+  local start_line, end_line
+  for i, line in ipairs(lines) do
+    if line == "---" then
+      if not start_line then
+        start_line = i
+      else
+        end_line = i
+        break
+      end
+    end
+  end
+
+  if not start_line or not end_line then
+    vim.notify("No frontmatter found in file", vim.log.levels.ERROR)
+    return
+  end
+
+  -- Look for published: line
+  local published_line = nil
+  local current_value = false
+  for i = start_line + 1, end_line - 1 do
+    local line = lines[i]
+    if line:match("^published:") then
+      published_line = i
+      current_value = line:match("true") ~= nil
+      break
+    end
+  end
+
+  local new_value = not current_value
+
+  if published_line then
+    -- Update existing line
+    lines[published_line] = "published: " .. tostring(new_value)
+  else
+    -- Insert new line before closing ---
+    table.insert(lines, end_line, "published: " .. tostring(new_value))
+  end
+
+  vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
+
+  local status = new_value and "PUBLISHED" or "PRIVATE"
+  vim.notify("Entry marked as " .. status, vim.log.levels.INFO)
+end
+
 -- List recent entries
 function M.journal_list()
   local entries = {}
@@ -752,6 +803,11 @@ function M.setup(opts)
     M.insert_image()
   end, { desc = "Insert image markdown" })
 
+  -- Publish toggle command
+  vim.api.nvim_create_user_command("JournalPublish", function()
+    M.toggle_published()
+  end, { desc = "Toggle entry published status" })
+
   -- Keymaps (disabled when using LazyVim, which handles its own keymaps)
   if M.config.keymaps then
     vim.keymap.set("n", "<leader>jj", ":JournalNew<CR>", { desc = "New journal entry (today)" })
@@ -766,6 +822,7 @@ function M.setup(opts)
     vim.keymap.set("n", "<leader>jr", M.journal_random, { desc = "Random past entry" })
     vim.keymap.set("n", "<leader>js", M.show_streak, { desc = "Show streak" })
     vim.keymap.set("n", "<leader>ji", M.insert_image, { desc = "Insert image" })
+    vim.keymap.set("n", "<leader>jP", M.toggle_published, { desc = "Toggle published status" })
   end
 
   -- Show streak in startup notification

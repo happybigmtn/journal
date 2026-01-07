@@ -367,3 +367,21 @@ Target: Journal Enhancements
   - Negative margins create full-bleed images without breaking container
 
 ---
+
+## 2026-01-07 - US-039 Entry Privacy Levels
+
+- Added `published: boolean` field to content schema (default: false)
+- Updated all pages to filter: `!data.draft && (import.meta.env.DEV || data.published)`
+  - In dev mode: shows all non-draft entries (for preview)
+  - In production: only shows entries with `published: true`
+- Added `:JournalPublish` command + `<leader>jP` keymap to toggle published status
+- Toggle function finds/updates frontmatter `published:` line or inserts if missing
+- Added PUBLIC badge in entry meta row (inverted monochrome style)
+- Files changed: `site/src/content/config.ts`, `site/src/pages/*.astro`, `site/src/layouts/EntryLayout.astro`, `nvim/journal.lua`, `site/src/styles/global.css`
+- **Learnings:**
+  - `import.meta.env.DEV` is true during `astro dev`, false during `astro build`
+  - getCollection filter runs at build time, so different results in dev vs prod
+  - Lua string find/replace in buffer via `nvim_buf_get_lines` + `table.insert` + `nvim_buf_set_lines`
+  - Capital keymap `<leader>jP` distinguishes from lowercase `<leader>jp` (publish site)
+
+---

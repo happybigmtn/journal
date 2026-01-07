@@ -2,7 +2,10 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
 
-const allEntries = await getCollection('journal', ({ data }) => !data.draft);
+// In production, only show published entries; in dev, show all non-draft entries
+const allEntries = await getCollection('journal', ({ data }) =>
+  !data.draft && (import.meta.env.DEV || data.published)
+);
 
 // Sort chronologically (oldest first for timeline)
 const sortedEntries = allEntries.sort((a, b) =>
