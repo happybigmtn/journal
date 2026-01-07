@@ -401,3 +401,19 @@ Target: Journal Enhancements
   - Autodiscovery via `<link rel="alternate" type="application/rss+xml">` enables browsers/readers to find feed
 
 ---
+
+## 2026-01-07 - US-041 Word Count and Reading Time
+
+- Added word count calculation from `entry.body` raw markdown
+- Strips frontmatter, code blocks, and markdown syntax before counting
+- Estimates reading time at 200 words per minute (minimum 1 min)
+- Displayed in entry metadata row: "X min read" and "X words"
+- Uses `toLocaleString()` for number formatting (1,234 vs 1234)
+- Files changed: `site/src/layouts/EntryLayout.astro`, `site/src/styles/global.css`
+- **Learnings:**
+  - Astro content collections expose `entry.body` as raw markdown string
+  - Regex chaining removes markdown syntax before word splitting
+  - `Math.max(1, ...)` ensures minimum 1 minute reading time
+  - Word count varies based on how aggressively syntax is stripped
+
+---

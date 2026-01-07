@@ -400,7 +400,9 @@ textarea:focus-visible {
 
 .entry-mood,
 .entry-sleep,
-.entry-energy {
+.entry-energy,
+.entry-reading-time,
+.entry-word-count {
   font-size: inherit;
   color: inherit;
 }

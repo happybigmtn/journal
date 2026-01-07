@@ -52,6 +52,19 @@ const yearsAgo = (year: number) => {
   const diff = currentYear - year;
   return diff === 1 ? '1 year ago' : `${diff} years ago`;
 };
+
+// Word count and reading time
+const WORDS_PER_MINUTE = 200;
+const wordCount = entry.body
+  .replace(/---[\s\S]*?---/, '') // Remove frontmatter
+  .replace(/```[\s\S]*?```/g, '') // Remove code blocks
+  .replace(/[#*_~`\[\]()>|-]/g, '') // Remove markdown syntax
+  .trim()
+  .split(/\s+/)
+  .filter(word => word.length > 0)
+  .length;
+
+const readingTime = Math.max(1, Math.ceil(wordCount / WORDS_PER_MINUTE));
 ---
 
 <BaseLayout title={entry.data.title}>
@@ -66,6 +79,8 @@ const yearsAgo = (year: number) => {
         {entry.data.published && (
           <span class="entry-published" title="Published to public site">PUBLIC</span>
         )}
+        <span class="entry-reading-time">{readingTime} min read</span>
+        <span class="entry-word-count">{wordCount.toLocaleString()} words</span>
         {entry.data.mood && <span class="entry-mood">Mood: {entry.data.mood}</span>}
         {entry.data.sleep_hours !== undefined && (
           <span class="entry-sleep">Sleep: {entry.data.sleep_hours}h</span>

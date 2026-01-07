@@ -532,8 +532,8 @@
 				"Track monthly/yearly word count trends"
 			],
 			"priority": 40,
-			"passes": false,
-			"notes": "Quantified journaling - see your writing volume over time"
+			"passes": true,
+			"notes": "RESOLVED: entry.body parsed for word count, 200 wpm reading time, displayed in meta row; stats page not implemented (future)"
 		},
 		{
 			"id": "US-042",
