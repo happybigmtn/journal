@@ -185,3 +185,22 @@ Target: Journal Enhancements
   - Monochrome designs invert perfectly - just swap black/white values
 
 ---
+
+## 2026-01-07 - US-011 Timeline Visualization
+
+- Created `/timeline` route with vertical chronological view
+- Entries displayed as points on 4px black line with alternating left/right layout
+- Square timeline points (16x16) with medium border, mood emoji adjacent
+- Year and month dropdowns for filtering (client-side JS with `define:vars`)
+- Entry count updates dynamically based on filter selection
+- Cards show date, type badge, and energy dots (if available)
+- Full color inversion on hover (matching archive list pattern)
+- Responsive: single column on mobile with timeline line at left edge
+- Files changed: `site/src/pages/timeline.astro`
+- **Learnings:**
+  - Alternating sides achieved with `index % 2` and CSS positioning
+  - `dataset` attributes + client-side JS enable filtering without full page reload
+  - Timeline points can host adjacent content (mood) via absolute positioning
+  - Square timeline points match editorial "sharp corners" design system
+
+---
