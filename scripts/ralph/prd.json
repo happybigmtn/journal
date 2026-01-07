@@ -1,0 +1,200 @@
+{
+	"branchName": "ralph/journal-enhancements",
+	"userStories": [
+		{
+			"id": "US-001",
+			"title": "Fix duplicate keymap conflict in journal.lua",
+			"acceptanceCriteria": [
+				"Remove duplicate <leader>jn keymap at line 280",
+				"Keep only one keymap per action",
+				"Verify all keymaps work correctly",
+				"No Neovim errors on :JournalNew command"
+			],
+			"priority": 1,
+			"passes": false,
+			"notes": "CRITICAL: nvim/journal.lua lines 276 and 280 both define <leader>jn causing conflict"
+		},
+		{
+			"id": "US-002",
+			"title": "Fix accessibility contrast for gray-light color",
+			"acceptanceCriteria": [
+				"Update --gray-light from #999999 to at least #767676",
+				"Achieve WCAG AA contrast ratio (4.5:1) against white",
+				"Verify all text using gray-light remains readable",
+				"Test in both light and dark environments"
+			],
+			"priority": 2,
+			"passes": false,
+			"notes": "IMPORTANT: Current #999999 has 2.85:1 contrast ratio, fails WCAG AA (needs 4.5:1)"
+		},
+		{
+			"id": "US-003",
+			"title": "Add date validation bounds to journal_new",
+			"acceptanceCriteria": [
+				"Reject dates before 1900-01-01",
+				"Reject dates more than 1 year in the future",
+				"Show clear error message for invalid dates",
+				"Handle edge cases (leap years, month boundaries)"
+			],
+			"priority": 3,
+			"passes": false,
+			"notes": "IMPORTANT: No bounds checking on date parameter in journal.lua:64-74"
+		},
+		{
+			"id": "US-004",
+			"title": "Add Google Fonts EB Garamond import",
+			"acceptanceCriteria": [
+				"Import EB Garamond from Google Fonts in BaseLayout.astro",
+				"Apply EB Garamond to body text via CSS custom property",
+				"Maintain system font fallback stack",
+				"Verify font loads correctly on site"
+			],
+			"priority": 4,
+			"passes": false,
+			"notes": "ENHANCEMENT: Design system specifies EB Garamond but font not imported"
+		},
+		{
+			"id": "US-005",
+			"title": "Create tags index page",
+			"acceptanceCriteria": [
+				"Create /tags route listing all unique tags",
+				"Show entry count per tag",
+				"Sort tags alphabetically",
+				"Link each tag to its filtered view"
+			],
+			"priority": 5,
+			"passes": false,
+			"notes": "ENHANCEMENT: Currently tags only work via direct URL, no discovery page"
+		},
+		{
+			"id": "US-006",
+			"title": "Add full-text search functionality",
+			"acceptanceCriteria": [
+				"Create search page at /search",
+				"Support searching entry titles and content",
+				"Highlight matching terms in results",
+				"Show recent searches or suggestions"
+			],
+			"priority": 6,
+			"passes": false,
+			"notes": "ENHANCEMENT: No search capability exists, only tag filtering"
+		},
+		{
+			"id": "US-007",
+			"title": "Add yearly review template",
+			"acceptanceCriteria": [
+				"Create templates/yearly.md with annual reflection prompts",
+				"Add 'yearly' type to content schema",
+				"Support :JournalNew year command",
+				"Store in journal/YYYY/yearly/YYYY.md"
+			],
+			"priority": 7,
+			"passes": false,
+			"notes": "ENHANCEMENT: PRD mentions yearly reviews but not implemented"
+		},
+		{
+			"id": "US-008",
+			"title": "Add sleep tracking fields to daily template",
+			"acceptanceCriteria": [
+				"Add sleep_hours optional field to frontmatter schema",
+				"Add sleep quality prompt to daily template",
+				"Display sleep data in entry layout",
+				"Validate sleep_hours is 0-24 if provided"
+			],
+			"priority": 8,
+			"passes": false,
+			"notes": "ENHANCEMENT: PRD mentions sleep tracking as part of life replay"
+		},
+		{
+			"id": "US-009",
+			"title": "Add energy level tracking to daily template",
+			"acceptanceCriteria": [
+				"Add energy optional field (1-10 scale) to schema",
+				"Add energy level prompt to daily template",
+				"Display energy as visual indicator (dots or bar)",
+				"Include in evening reflection section"
+			],
+			"priority": 9,
+			"passes": false,
+			"notes": "ENHANCEMENT: PRD mentions energy tracking for life replay"
+		},
+		{
+			"id": "US-010",
+			"title": "Add dark mode support to site",
+			"acceptanceCriteria": [
+				"Add prefers-color-scheme media query support",
+				"Create dark mode CSS custom properties",
+				"Invert monochrome palette appropriately",
+				"Add manual toggle in site header"
+			],
+			"priority": 10,
+			"passes": false,
+			"notes": "ENHANCEMENT: Monochrome design should work well inverted for dark mode"
+		},
+		{
+			"id": "US-011",
+			"title": "Add timeline visualization for life replay",
+			"acceptanceCriteria": [
+				"Create /timeline route with chronological view",
+				"Show entries as points on vertical timeline",
+				"Support filtering by year/month",
+				"Display mood indicators along timeline"
+			],
+			"priority": 11,
+			"passes": false,
+			"notes": "ENHANCEMENT: PRD core feature - 'life replay' timeline view"
+		},
+		{
+			"id": "US-012",
+			"title": "Add calendar heat map view",
+			"acceptanceCriteria": [
+				"Create /calendar route with year-at-a-glance view",
+				"Color code days by mood or entry presence",
+				"Click day to navigate to entry",
+				"Show entry counts per month"
+			],
+			"priority": 12,
+			"passes": false,
+			"notes": "ENHANCEMENT: Visual way to see journaling consistency"
+		},
+		{
+			"id": "US-013",
+			"title": "Add export functionality",
+			"acceptanceCriteria": [
+				"Add :JournalExport command in Neovim",
+				"Support exporting to single markdown file",
+				"Support exporting to JSON format",
+				"Include date range selection"
+			],
+			"priority": 13,
+			"passes": false,
+			"notes": "ENHANCEMENT: Data portability for journal entries"
+		},
+		{
+			"id": "US-014",
+			"title": "Add random past entry command",
+			"acceptanceCriteria": [
+				"Add :JournalRandom command to open random past entry",
+				"Add <leader>jr keymap for random entry",
+				"Show notification with entry date",
+				"Skip entries from current week"
+			],
+			"priority": 14,
+			"passes": false,
+			"notes": "ENHANCEMENT: 'On this day' style rediscovery feature"
+		},
+		{
+			"id": "US-015",
+			"title": "Add streak tracking and display",
+			"acceptanceCriteria": [
+				"Calculate current journaling streak",
+				"Display streak on site index page",
+				"Show longest streak ever",
+				"Add streak indicator to Neovim notifications"
+			],
+			"priority": 15,
+			"passes": false,
+			"notes": "ENHANCEMENT: Motivation through gamification"
+		}
+	]
+}

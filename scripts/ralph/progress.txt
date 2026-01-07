@@ -1,0 +1,63 @@
+# Ralph Progress Log
+Started: 2025-01-07
+Target: Journal Enhancements
+
+## Codebase Patterns
+
+### Astro Site
+- Content collection: Use `getCollection('journal')` for entries
+- Schema: Defined in `site/src/content/config.ts` with Zod
+- CSS variables: Monochrome palette in `:root` of `global.css`
+- Entry types: daily, weekly, monthly (add yearly when needed)
+- File paths: `journal/YYYY/MM/YYYY-MM-DD.md` for daily entries
+
+### Neovim Lua
+- Dates: `os.date("*t")` returns table, `os.time()` for unix timestamp
+- Templates: Use `{{PLACEHOLDER}}` syntax for date substitution
+- Commands: Create with `nvim_create_user_command`
+- Keymaps: Create with `vim.keymap.set`
+- Async jobs: Use `vim.fn.jobstart` for non-blocking builds
+
+### Templates
+- Frontmatter: YAML between `---` markers
+- Required fields: title, date, type
+- Optional fields: mood, tags, draft
+- Placeholders: {{DATE}}, {{YEAR}}, {{MONTH}}, {{WEEK}}, {{WEEKDAY}}
+
+## Key Files
+
+- site/src/content/config.ts - Zod schema for frontmatter
+- site/src/styles/global.css - Monochrome design system
+- nvim/journal.lua - All Neovim commands and keymaps
+- templates/*.md - Entry templates
+
+---
+
+## 2025-01-07 - Initial Setup
+
+- Created journal project from PRD
+- Implemented Astro static site with monochrome design
+- Created Neovim integration without plugins
+- Set up templates for daily, weekly, monthly entries
+- **Learnings:**
+  - Astro content collections require explicit schema
+  - Neovim autocmd pattern must match exact directory path
+  - BufWritePost can trigger builds on save
+
+---
+
+## 2025-01-07 - Code Review
+
+- Ran 4 parallel review agents comparing codebase to plan
+- Identified critical issues:
+  - Duplicate keymap `<leader>jn` (lines 276, 280)
+  - Gray-light color fails WCAG AA (2.85:1 contrast)
+  - No date validation bounds
+  - Missing EB Garamond font import
+- Created prd.json with 15 user stories
+- **Learnings:**
+  - WCAG AA requires 4.5:1 contrast for normal text
+  - Neovim keymaps can silently override each other
+  - Always validate user input dates
+
+---
