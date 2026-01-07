@@ -834,8 +834,8 @@
 				"Cache similarity calculations at build time"
 			],
 			"priority": 61,
-			"passes": false,
-			"notes": "Gwern-inspired: Help readers discover related content. Start simple with tags, upgrade to ML later."
+			"passes": true,
+			"notes": "RESOLVED: Jaccard similarity on tags calculates intersection/union ratio. Excludes same-week entries via getWeekStart() comparison. Shows top 5 similar entries with type, date, title, and similarity score. Build-time calculation in EntryLayout frontmatter. CSS styled with editorial hover effect."
 		},
 		{
 			"id": "US-063",

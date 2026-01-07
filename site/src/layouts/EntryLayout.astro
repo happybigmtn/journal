@@ -123,6 +123,49 @@ const backlinks = allEntries
     context: extractContextSnippet(e.body, entry.slug),
   }))
   .sort((a, b) => b.date.getTime() - a.date.getTime());
+
+// Similar entries: based on shared tags (Jaccard similarity)
+function calculateSimilarity(tagsA: string[], tagsB: string[]): number {
+  if (tagsA.length === 0 && tagsB.length === 0) return 0;
+  const setA = new Set(tagsA);
+  const setB = new Set(tagsB);
+  const intersection = [...setA].filter(t => setB.has(t)).length;
+  const union = new Set([...setA, ...setB]).size;
+  return union > 0 ? intersection / union : 0;
+}
+
+function isSameWeek(dateA: Date, dateB: Date): boolean {
+  // Get week start (Monday) for each date
+  const getWeekStart = (d: Date) => {
+    const date = new Date(d);
+    const day = date.getDay();
+    const diff = date.getDate() - day + (day === 0 ? -6 : 1);
+    date.setDate(diff);
+    date.setHours(0, 0, 0, 0);
+    return date.getTime();
+  };
+  return getWeekStart(dateA) === getWeekStart(dateB);
+}
+
+const entryTags = entry.data.tags || [];
+const similarEntries = allEntries
+  .filter(e => {
+    if (e.slug === entry.slug) return false;
+    // Exclude same week entries
+    if (isSameWeek(e.data.date, entry.data.date)) return false;
+    return true;
+  })
+  .map(e => ({
+    slug: e.slug,
+    title: e.data.title,
+    date: e.data.date,
+    type: e.data.type,
+    mood: e.data.mood,
+    similarity: calculateSimilarity(entryTags, e.data.tags || []),
+  }))
+  .filter(e => e.similarity > 0) // Only entries with at least one shared tag
+  .sort((a, b) => b.similarity - a.similarity)
+  .slice(0, 5); // Top 5 similar entries
 ---
 
 <BaseLayout
@@ -241,6 +284,23 @@ const backlinks = allEntries
             {backlink.context && (
               <p class="backlink-context">"{backlink.context}"</p>
             )}
+          </li>
+        ))}
+      </ul>
+    </section>
+  )}
+
+  {similarEntries.length > 0 && (
+    <section class="similar-entries-section">
+      <h2>Related Entries</h2>
+      <ul class="similar-entries-list">
+        {similarEntries.map(similar => (
+          <li class="similar-entry-item">
+            <a href={`/${similar.slug}`} class="similar-entry-link">
+              <span class="similar-entry-date">{formatShortDate(similar.date)}</span>
+              <span class="similar-entry-title">{similar.title}</span>
+              {similar.mood && <span class="similar-entry-mood">{similar.mood}</span>}
+            </a>
           </li>
         ))}
       </ul>
@@ -473,6 +533,84 @@ const backlinks = allEntries
 
     .backlink-context {
       padding-left: 0;
+    }
+  }
+
+  /* Similar Entries Section */
+  .similar-entries-section {
+    margin-top: var(--space-8);
+    padding-top: var(--space-6);
+    border-top: var(--border-thin);
+  }
+
+  .similar-entries-section h2 {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    margin-bottom: var(--space-4);
+  }
+
+  .similar-entries-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .similar-entry-item {
+    border: var(--border-hairline);
+    transition: border-color 100ms ease;
+  }
+
+  .similar-entry-item:hover {
+    border-color: var(--black);
+  }
+
+  .similar-entry-link {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3);
+    color: var(--black);
+    text-decoration: none;
+    transition: background 100ms ease;
+  }
+
+  .similar-entry-link:hover {
+    background: var(--black);
+    color: var(--white);
+  }
+
+  .similar-entry-date {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-widest);
+    color: var(--muted-foreground);
+    min-width: 4rem;
+  }
+
+  .similar-entry-link:hover .similar-entry-date {
+    color: var(--white);
+  }
+
+  .similar-entry-title {
+    font-family: var(--font-display);
+    font-size: var(--text-sm);
+    flex: 1;
+  }
+
+  .similar-entry-mood {
+    font-size: var(--text-sm);
+  }
+
+  @media (max-width: 640px) {
+    .similar-entry-link {
+      flex-wrap: wrap;
+    }
+
+    .similar-entry-date {
+      min-width: auto;
     }
   }
 </style>

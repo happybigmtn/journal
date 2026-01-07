@@ -1029,3 +1029,32 @@ Target: Journal Enhancements
 
 ---
 
+
+## 2026-01-07 - US-062 Similar Entries Recommendation
+
+- Added "Related Entries" section to entry pages showing 3-5 similar entries
+- Implemented Jaccard similarity for tag-based matching:
+  - `calculateSimilarity(tagsA, tagsB)` computes intersection/union ratio
+  - Range 0-1 where 1 = identical tags, 0 = no overlap
+  - Filters out entries with 0 similarity (no common tags)
+- Excludes same-week entries:
+  - `isSameWeek(dateA, dateB)` calculates week start (Monday)
+  - Prevents obvious recommendations from recent entries
+- Display components:
+  - Shows type badge, formatted date, title
+  - Similarity score displayed as percentage
+  - Max 5 entries shown
+- CSS styling:
+  - Grid layout similar to "On This Day"
+  - Color inversion on hover (matching design system)
+  - Excluded from link type icons via `.similar-entry-link::after`
+- Build-time calculation in EntryLayout frontmatter (cached per build)
+- Files changed: `site/src/layouts/EntryLayout.astro`, `site/src/styles/global.css`
+- **Learnings:**
+  - Jaccard similarity is simple but effective for tag overlap: |A∩B| / |A∪B|
+  - Week calculation: normalize to midnight Monday using `getDay()` math
+  - Same-week filtering reduces obvious "adjacent entry" recommendations
+  - Percentage display (66%) more intuitive than decimal (0.66) for similarity
+
+---
+

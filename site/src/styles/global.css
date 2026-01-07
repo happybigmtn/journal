@@ -260,6 +260,7 @@ button a::after,
 a.archive-item::after,
 a.memory-item::after,
 a.backlink-link::after,
+a.similar-entry-link::after,
 a:has(img)::after {
   content: none !important;
 }
