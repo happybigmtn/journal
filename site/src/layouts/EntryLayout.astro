@@ -77,6 +77,52 @@ const excerpt = entry.body
 
 // OG image: use custom if set, otherwise use auto-generated (only for published)
 const ogImage = entry.data.og_image || (entry.data.published ? `/og/${entry.slug}.png` : undefined);
+
+// Backlinks: find entries that link to this entry
+function extractInternalLinks(body: string): string[] {
+  const links: string[] = [];
+  const linkRegex = /\[([^\]]+)\]\(\/(\d{4}\/\d{2}\/\d{2})(#[^)]+)?\)/g;
+  let match;
+  while ((match = linkRegex.exec(body)) !== null) {
+    links.push(match[2]);
+  }
+  return [...new Set(links)];
+}
+
+function extractContextSnippet(body: string, targetSlug: string): string {
+  // Find sentence containing the link
+  const linkPattern = new RegExp(
+    `[^.!?\\n]*\\[([^\\]]+)\\]\\(\\/${targetSlug.replace(/\//g, '\\/')}(#[^)]+)?\\)[^.!?\\n]*[.!?]?`,
+    'i'
+  );
+  const match = body.match(linkPattern);
+  if (match) {
+    let snippet = match[0]
+      .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+      .replace(/[*_~`]/g, '')
+      .trim();
+    if (snippet.length > 150) {
+      snippet = snippet.slice(0, 147) + '...';
+    }
+    return snippet;
+  }
+  return '';
+}
+
+const backlinks = allEntries
+  .filter(e => {
+    if (e.slug === entry.slug) return false;
+    const links = extractInternalLinks(e.body);
+    return links.includes(entry.slug);
+  })
+  .map(e => ({
+    slug: e.slug,
+    title: e.data.title,
+    date: e.data.date,
+    type: e.data.type,
+    context: extractContextSnippet(e.body, entry.slug),
+  }))
+  .sort((a, b) => b.date.getTime() - a.date.getTime());
 ---
 
 <BaseLayout
@@ -181,6 +227,26 @@ const ogImage = entry.data.og_image || (entry.data.published ? `/og/${entry.slug
     </section>
   )}
 
+  {backlinks.length > 0 && (
+    <section class="backlinks-section">
+      <h2>Referenced By</h2>
+      <ul class="backlinks-list">
+        {backlinks.map(backlink => (
+          <li class="backlink-item">
+            <a href={`/${backlink.slug}`} class="backlink-link">
+              <span class="backlink-date">{formatShortDate(backlink.date)}</span>
+              <span class="backlink-type">{backlink.type}</span>
+              <span class="backlink-title">{backlink.title}</span>
+            </a>
+            {backlink.context && (
+              <p class="backlink-context">"{backlink.context}"</p>
+            )}
+          </li>
+        ))}
+      </ul>
+    </section>
+  )}
+
   <nav class="nav">
     {prevEntry ? (
       <a href={`/${prevEntry.slug}`}>← {formatShortDate(prevEntry.data.date)}</a>
@@ -199,7 +265,10 @@ const ogImage = entry.data.og_image || (entry.data.published ? `/og/${entry.slug
     <h3 class="preview-title"></h3>
     <p class="preview-excerpt"></p>
     <div class="preview-tags"></div>
-    <div class="preview-mood"></div>
+    <div class="preview-footer">
+      <span class="preview-mood"></span>
+      <span class="preview-backlinks"></span>
+    </div>
   </div>
 </BaseLayout>
 
@@ -274,14 +343,22 @@ const ogImage = entry.data.og_image || (entry.data.published ? `/og/${entry.slug
     color: var(--muted-foreground);
   }
 
-  .preview-mood {
+  .preview-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     font-family: var(--font-mono);
     font-size: var(--text-xs);
     color: var(--muted-foreground);
   }
 
-  .preview-mood:empty {
+  .preview-mood:empty,
+  .preview-backlinks:empty {
     display: none;
+  }
+
+  .preview-backlinks {
+    opacity: 0.7;
   }
 
   /* Highlight links that have previews */
@@ -298,6 +375,106 @@ const ogImage = entry.data.og_image || (entry.data.published ? `/og/${entry.slug
       display: none;
     }
   }
+
+  /* Backlinks Section */
+  .backlinks-section {
+    margin-top: var(--space-12);
+    padding-top: var(--space-8);
+    border-top: var(--border-thick);
+  }
+
+  .backlinks-section h2 {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    margin-bottom: var(--space-4);
+  }
+
+  .backlinks-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .backlink-item {
+    padding: var(--space-4) 0;
+    border-bottom: var(--border-hairline);
+  }
+
+  .backlink-item:last-child {
+    border-bottom: none;
+  }
+
+  .backlink-link {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    color: var(--black);
+    text-decoration: none;
+    transition: background 100ms ease;
+    margin: calc(-1 * var(--space-2));
+    padding: var(--space-2);
+  }
+
+  .backlink-link:hover {
+    background: var(--black);
+    color: var(--white);
+  }
+
+  .backlink-date {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-widest);
+    color: var(--muted-foreground);
+    min-width: 5rem;
+  }
+
+  .backlink-link:hover .backlink-date {
+    color: var(--white);
+  }
+
+  .backlink-type {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-widest);
+    padding: 2px 6px;
+    background: var(--muted);
+  }
+
+  .backlink-link:hover .backlink-type {
+    background: var(--muted-foreground);
+    color: var(--white);
+  }
+
+  .backlink-title {
+    font-family: var(--font-display);
+    font-size: var(--text-base);
+    flex: 1;
+  }
+
+  .backlink-context {
+    margin: var(--space-2) 0 0 0;
+    padding-left: calc(5rem + var(--space-3));
+    font-size: var(--text-sm);
+    font-style: italic;
+    color: var(--muted-foreground);
+    line-height: var(--leading-relaxed);
+  }
+
+  @media (max-width: 640px) {
+    .backlink-link {
+      flex-wrap: wrap;
+    }
+
+    .backlink-date {
+      min-width: auto;
+    }
+
+    .backlink-context {
+      padding-left: 0;
+    }
+  }
 </style>
 
 <script>
@@ -311,6 +488,7 @@ const ogImage = entry.data.og_image || (entry.data.published ? `/og/${entry.slug
     mood: string | null;
     excerpt: string;
     tags: string[];
+    backlinkCount: number;
   }> | null = null;
 
   // Timers for hover delay
@@ -366,6 +544,7 @@ const ogImage = entry.data.og_image || (entry.data.published ? `/og/${entry.slug
     const excerptEl = popup.querySelector('.preview-excerpt');
     const tagsEl = popup.querySelector('.preview-tags');
     const moodEl = popup.querySelector('.preview-mood');
+    const backlinksEl = popup.querySelector('.preview-backlinks');
 
     if (typeEl) typeEl.textContent = preview.type;
     if (dateEl) dateEl.textContent = preview.date;
@@ -376,6 +555,11 @@ const ogImage = entry.data.og_image || (entry.data.published ? `/og/${entry.slug
     }
     if (moodEl) {
       moodEl.textContent = preview.mood ? `Mood: ${preview.mood}` : '';
+    }
+    if (backlinksEl) {
+      backlinksEl.textContent = preview.backlinkCount > 0
+        ? `← ${preview.backlinkCount} reference${preview.backlinkCount !== 1 ? 's' : ''}`
+        : '';
     }
 
     // Position popup using Floating UI

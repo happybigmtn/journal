@@ -908,3 +908,34 @@ Target: Journal Enhancements
 
 ---
 
+
+## 2026-01-07 - US-058 Bidirectional Backlinks System (Gwern-inspired)
+
+- Implemented build-time backlink computation in EntryLayout:
+  - `extractInternalLinks()` parses markdown for `[text](/YYYY/MM/DD)` patterns
+  - `extractContextSnippet()` finds sentence containing the link
+  - Filters entries to find those linking to current entry
+  - Returns sorted backlinks (most recent first)
+- Added "Referenced by" section to entry pages:
+  - Displays below "On This Day" section
+  - Shows date, type badge, title for each backlink
+  - Context snippet shows the sentence containing the reference
+  - Full color inversion on hover (matching design system)
+- Updated previews.json endpoint:
+  - First pass collects outgoing links per entry
+  - Second pass inverts to compute backlink counts
+  - Added `backlinkCount` field to preview data
+- Updated link popup to show backlink count:
+  - Displays "← N references" in preview footer
+  - Singular/plural handling for count
+  - Empty state hidden when count is 0
+- Also created /backlinks.json endpoint (optional, for API access)
+- Files changed: `site/src/layouts/EntryLayout.astro`, `site/src/pages/previews.json.ts`, `site/src/pages/backlinks.json.ts`
+- **Learnings:**
+  - Graph inversion: collect outgoing links, then iterate sources to build backlinks map
+  - Context extraction regex: `[^.!?\\n]*\\[text\\]\\([^)]+\\)[^.!?\\n]*[.!?]?` finds sentence boundaries
+  - Build-time computation is efficient for static sites (vs client-side fetch)
+  - Backlink preview in popup provides immediate context about entry's connections
+
+---
+

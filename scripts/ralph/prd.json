@@ -774,8 +774,8 @@
 				"Integrate backlinks data into link popup previews"
 			],
 			"priority": 57,
-			"passes": false,
-			"notes": "Gwern-inspired: Surface connections in your journal. Shows WHERE current page is linked FROM with in-context snippets."
+			"passes": true,
+			"notes": "RESOLVED: Build-time backlink computation in EntryLayout parses all entries for internal links. 'Referenced by' section shows backlinks with date, type, title, and context snippet. Updated previews.json to include backlinkCount. Link popup shows reference count (← N references). CSS styled with color inversion on hover."
 		},
 		{
 			"id": "US-059",
