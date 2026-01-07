@@ -253,6 +253,170 @@ function M.publish()
   })
 end
 
+-- Export entries to a single file
+-- Supports markdown and JSON formats with optional date range
+function M.journal_export(args)
+  args = args or {}
+  local format = args.format or "markdown"
+  local start_date = args.start_date
+  local end_date = args.end_date
+  local output_path = args.output
+
+  -- Parse date range if provided
+  local start_time, end_time
+  if start_date then
+    local y, m, d = start_date:match("(%d+)-(%d+)-(%d+)")
+    if y then
+      start_time = os.time({ year = tonumber(y), month = tonumber(m), day = tonumber(d) })
+    end
+  end
+  if end_date then
+    local y, m, d = end_date:match("(%d+)-(%d+)-(%d+)")
+    if y then
+      end_time = os.time({ year = tonumber(y), month = tonumber(m), day = tonumber(d), hour = 23, min = 59, sec = 59 })
+    end
+  end
+
+  -- Collect all entries
+  local entries = {}
+  local pattern = M.config.journal_dir .. "/**/*.md"
+  local files = vim.fn.glob(pattern, false, true)
+
+  for _, filepath in ipairs(files) do
+    local name = vim.fn.fnamemodify(filepath, ":t:r")
+    -- Only include dated daily entries
+    local y, m, d = name:match("^(%d%d%d%d)-(%d%d)-(%d%d)$")
+    if y then
+      local entry_time = os.time({ year = tonumber(y), month = tonumber(m), day = tonumber(d) })
+
+      -- Apply date range filter
+      local in_range = true
+      if start_time and entry_time < start_time then
+        in_range = false
+      end
+      if end_time and entry_time > end_time then
+        in_range = false
+      end
+
+      if in_range then
+        -- Read file content
+        local file = io.open(filepath, "r")
+        if file then
+          local content = file:read("*all")
+          file:close()
+
+          -- Parse frontmatter
+          local frontmatter = {}
+          local body = content
+          local fm_start, fm_end = content:find("^%-%-%-\n")
+          if fm_start then
+            local _, fm_close = content:find("\n%-%-%-\n", fm_end)
+            if fm_close then
+              local fm_text = content:sub(fm_end + 1, fm_close - 4)
+              body = content:sub(fm_close + 1)
+              -- Simple YAML parsing for common fields
+              for line in fm_text:gmatch("[^\n]+") do
+                local key, value = line:match("^(%w+):%s*(.+)$")
+                if key and value then
+                  -- Remove quotes if present
+                  value = value:gsub("^[\"'](.+)[\"']$", "%1")
+                  frontmatter[key] = value
+                end
+              end
+            end
+          end
+
+          table.insert(entries, {
+            date = name,
+            filepath = filepath,
+            frontmatter = frontmatter,
+            content = body,
+          })
+        end
+      end
+    end
+  end
+
+  -- Sort by date ascending
+  table.sort(entries, function(a, b)
+    return a.date < b.date
+  end)
+
+  if #entries == 0 then
+    vim.notify("No entries found in specified date range", vim.log.levels.WARN)
+    return
+  end
+
+  -- Generate output
+  local output
+  if format == "json" then
+    -- Build JSON manually (Lua doesn't have native JSON)
+    local json_entries = {}
+    for _, entry in ipairs(entries) do
+      local meta_parts = {}
+      for key, value in pairs(entry.frontmatter) do
+        -- Escape special characters in JSON strings
+        local escaped = value:gsub('\\', '\\\\'):gsub('"', '\\"'):gsub('\n', '\\n')
+        table.insert(meta_parts, string.format('"%s": "%s"', key, escaped))
+      end
+      local body_escaped = entry.content:gsub('\\', '\\\\'):gsub('"', '\\"'):gsub('\n', '\\n'):gsub('\t', '\\t')
+      local json_entry = string.format(
+        '    {\n      "date": "%s",\n      "metadata": {%s},\n      "content": "%s"\n    }',
+        entry.date,
+        table.concat(meta_parts, ", "),
+        body_escaped
+      )
+      table.insert(json_entries, json_entry)
+    end
+    output = "{\n  \"entries\": [\n" .. table.concat(json_entries, ",\n") .. "\n  ]\n}"
+  else
+    -- Markdown format: concatenate with section headers
+    local md_parts = {}
+    table.insert(md_parts, "# Journal Export")
+    table.insert(md_parts, "")
+    if start_date or end_date then
+      table.insert(md_parts, string.format("Date range: %s to %s", start_date or "beginning", end_date or "present"))
+      table.insert(md_parts, "")
+    end
+    table.insert(md_parts, string.format("Total entries: %d", #entries))
+    table.insert(md_parts, "")
+    table.insert(md_parts, "---")
+    table.insert(md_parts, "")
+
+    for _, entry in ipairs(entries) do
+      table.insert(md_parts, "## " .. entry.date)
+      if entry.frontmatter.mood then
+        table.insert(md_parts, "*Mood: " .. entry.frontmatter.mood .. "*")
+      end
+      table.insert(md_parts, "")
+      table.insert(md_parts, entry.content)
+      table.insert(md_parts, "")
+      table.insert(md_parts, "---")
+      table.insert(md_parts, "")
+    end
+    output = table.concat(md_parts, "\n")
+  end
+
+  -- Determine output path
+  if not output_path then
+    local timestamp = os.date("%Y%m%d_%H%M%S")
+    local ext = format == "json" and "json" or "md"
+    output_path = vim.fn.expand("~/journal_export_" .. timestamp .. "." .. ext)
+  end
+
+  -- Write output file
+  local file = io.open(output_path, "w")
+  if file then
+    file:write(output)
+    file:close()
+    vim.notify(string.format("Exported %d entries to %s", #entries, output_path), vim.log.levels.INFO)
+    -- Open the exported file
+    vim.cmd("edit " .. output_path)
+  else
+    vim.notify("Failed to write export file: " .. output_path, vim.log.levels.ERROR)
+  end
+end
+
 -- List recent entries
 function M.journal_list()
   local entries = {}
@@ -334,6 +498,31 @@ function M.setup(opts)
     desc = "List journal entries",
   })
 
+  vim.api.nvim_create_user_command("JournalExport", function(args)
+    local export_args = {}
+
+    -- Parse arguments: [start_date] [end_date] [format]
+    for _, arg in ipairs(args.fargs) do
+      if arg == "json" or arg == "markdown" or arg == "md" then
+        export_args.format = arg == "md" and "markdown" or arg
+      elseif arg:match("^%d%d%d%d%-%d%d%-%d%d$") then
+        if not export_args.start_date then
+          export_args.start_date = arg
+        else
+          export_args.end_date = arg
+        end
+      end
+    end
+
+    M.journal_export(export_args)
+  end, {
+    nargs = "*",
+    desc = "Export journal entries (args: [start_date] [end_date] [json|markdown])",
+    complete = function()
+      return { "json", "markdown", os.date("%Y-%m-%d") }
+    end,
+  })
+
   -- Auto-publish on save (if enabled)
   if M.config.auto_publish then
     vim.api.nvim_create_autocmd("BufWritePost", {
@@ -355,6 +544,7 @@ function M.setup(opts)
     vim.keymap.set("n", "<leader>j]", M.journal_next, { desc = "Next entry" })
     vim.keymap.set("n", "<leader>jp", M.publish, { desc = "Publish journal" })
     vim.keymap.set("n", "<leader>jl", M.journal_list, { desc = "List entries" })
+    vim.keymap.set("n", "<leader>je", ":JournalExport<CR>", { desc = "Export entries" })
   end
 
   vim.notify("Journal loaded. Use :JournalNew to start.", vim.log.levels.INFO)

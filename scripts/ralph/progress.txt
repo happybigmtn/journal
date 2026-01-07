@@ -223,3 +223,22 @@ Target: Journal Enhancements
   - Binary (black/white) heat map is cleaner than gradient for monochrome design
 
 ---
+
+## 2026-01-07 - US-013 Export Functionality
+
+- Added `:JournalExport` command with optional date range and format arguments
+- Usage: `:JournalExport [start_date] [end_date] [json|markdown]`
+- Markdown export: concatenated entries with ## headers, mood metadata, section dividers
+- JSON export: structured `{entries: [{date, metadata, content}]}` format
+- Simple YAML frontmatter parsing (handles common fields)
+- JSON escaping for special characters (\n, \t, ", \\)
+- Output file auto-named with timestamp, opens after creation
+- Added `<leader>je` keymap for quick export
+- Files changed: `nvim/journal.lua`
+- **Learnings:**
+  - Lua lacks native JSON; manual string building works for simple structures
+  - YAML frontmatter parsing via regex handles most common cases
+  - `os.time()` comparison enables efficient date range filtering
+  - Export is read-only, doesn't modify source files
+
+---

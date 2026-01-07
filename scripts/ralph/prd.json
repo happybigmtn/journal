@@ -353,8 +353,8 @@
 				"Include date range selection"
 			],
 			"priority": 27,
-			"passes": false,
-			"notes": "ENHANCEMENT: Data portability for journal entries"
+			"passes": true,
+			"notes": "RESOLVED: :JournalExport [start] [end] [json|markdown], <leader>je keymap"
 		},
 		{
 			"id": "US-014",
