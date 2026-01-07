@@ -132,6 +132,20 @@ a:hover {
   padding: 0 2px;
 }
 
+/* Focus states for accessibility - use focus-visible to prevent mouse click outlines */
+a:focus-visible {
+  outline: 3px solid var(--black);
+  outline-offset: 3px;
+}
+
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: none;
+  border-width: 2px;
+  border-color: var(--black);
+}
+
 /* Layout */
 .container {
   max-width: var(--max-width);
