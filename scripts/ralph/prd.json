@@ -819,8 +819,8 @@
 				"Apply to all tables in entry content automatically"
 			],
 			"priority": 60,
-			"passes": false,
-			"notes": "Gwern-inspired: Dynamic table reordering for data-heavy entries. Low effort via third-party library."
+			"passes": true,
+			"notes": "RESOLVED: Vanilla JS implementation in BaseLayout auto-enables sorting on all tables with thead/tbody. Click headers to toggle asc/desc sort. ▲/▼ indicators via CSS data-sort attribute. Supports numeric and string sorting. Keyboard accessible (Enter/Space). Tables display correctly without JS (graceful degradation). Editorial CSS styling with hover states."
 		},
 		{
 			"id": "US-062",

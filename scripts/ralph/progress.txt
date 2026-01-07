@@ -1000,3 +1000,32 @@ Target: Journal Enhancements
 
 ---
 
+
+## 2026-01-07 - US-061 Sortable Tables
+
+- Added editorial CSS styling for tables:
+  - Monospace uppercase headers with tracking-widest
+  - Medium border on thead, hairline borders on rows
+  - Muted background on header with color inversion on hover
+  - Row hover highlighting
+  - Responsive: horizontal scroll on mobile
+- Sort indicator system:
+  - `data-sort="asc"` / `data-sort="desc"` attributes on th
+  - ▲ / ▼ symbols via ::after pseudo-element
+  - `data-no-sort` attribute to exclude columns from sorting
+- Vanilla JS sortable implementation in BaseLayout:
+  - Auto-discovers tables with thead and tbody
+  - Click handlers toggle between asc/desc sort
+  - Smart type detection: numeric vs string comparison
+  - `data-value` attribute for custom sort values
+  - Keyboard accessible: tabindex="0", Enter/Space triggers sort
+- Graceful degradation: tables render correctly without JS
+- Files changed: `site/src/styles/global.css`, `site/src/layouts/BaseLayout.astro`
+- **Learnings:**
+  - `Array.from(tbody.querySelectorAll('tr'))` creates sortable array
+  - `tbody.appendChild(row)` moves existing DOM node (no clone needed)
+  - `parseFloat(value.replace(/[^0-9.-]/g, ''))` extracts numbers from formatted values
+  - `localeCompare()` handles unicode string sorting correctly
+
+---
+

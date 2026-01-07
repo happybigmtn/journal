@@ -171,5 +171,87 @@ const navItems = [
     window.addEventListener('offline', updateOnlineStatus);
     updateOnlineStatus();
   </script>
+  <script>
+    // Sortable tables - automatically enable on all tables with thead
+    function initSortableTables() {
+      const tables = document.querySelectorAll('table');
+
+      tables.forEach(table => {
+        const thead = table.querySelector('thead');
+        const tbody = table.querySelector('tbody');
+        if (!thead || !tbody) return;
+
+        const headers = thead.querySelectorAll('th');
+        if (headers.length === 0) return;
+
+        headers.forEach((header, columnIndex) => {
+          // Skip if marked as non-sortable
+          if (header.hasAttribute('data-no-sort')) return;
+
+          header.addEventListener('click', () => {
+            sortTable(table, tbody, headers, columnIndex);
+          });
+
+          // Make keyboard accessible
+          header.setAttribute('tabindex', '0');
+          header.setAttribute('role', 'button');
+          header.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              sortTable(table, tbody, headers, columnIndex);
+            }
+          });
+        });
+      });
+    }
+
+    function sortTable(table, tbody, headers, columnIndex) {
+      const header = headers[columnIndex];
+
+      // Determine sort direction
+      const currentSort = header.getAttribute('data-sort');
+      const newSort = currentSort === 'asc' ? 'desc' : 'asc';
+
+      // Clear all sort indicators
+      headers.forEach(h => h.removeAttribute('data-sort'));
+      header.setAttribute('data-sort', newSort);
+
+      // Get rows and sort
+      const rows = Array.from(tbody.querySelectorAll('tr'));
+
+      rows.sort((a, b) => {
+        const cellA = a.cells[columnIndex];
+        const cellB = b.cells[columnIndex];
+        if (!cellA || !cellB) return 0;
+
+        let valueA = cellA.getAttribute('data-value') || cellA.textContent || '';
+        let valueB = cellB.getAttribute('data-value') || cellB.textContent || '';
+
+        // Detect and handle different data types
+        const numA = parseFloat(valueA.replace(/[^0-9.-]/g, ''));
+        const numB = parseFloat(valueB.replace(/[^0-9.-]/g, ''));
+
+        let comparison = 0;
+
+        if (!isNaN(numA) && !isNaN(numB)) {
+          // Numeric comparison
+          comparison = numA - numB;
+        } else {
+          // String comparison (case-insensitive)
+          comparison = valueA.toString().toLowerCase().localeCompare(
+            valueB.toString().toLowerCase()
+          );
+        }
+
+        return newSort === 'asc' ? comparison : -comparison;
+      });
+
+      // Re-append rows in sorted order
+      rows.forEach(row => tbody.appendChild(row));
+    }
+
+    // Initialize on DOM ready
+    document.addEventListener('DOMContentLoaded', initSortableTables);
+  </script>
 </body>
 </html>
