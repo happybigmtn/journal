@@ -535,3 +535,23 @@ Target: Journal Enhancements
   - `apple-mobile-web-app-capable` enables iOS home screen mode
 
 ---
+
+## 2026-01-07 - US-047 Quick Entry Mode for Micro-journaling
+
+- Added `quick_entry()` function for rapid note capture
+- Uses `vim.ui.input` for inline note prompt (no buffer switching)
+- Timestamped format: `**HH:MM** — note content`
+- Behavior:
+  - If today's entry exists: appends timestamped note to end of file
+  - If no entry: creates minimal file with frontmatter + "Quick Notes" section
+- Minimal frontmatter: title, date, type, tags, draft, published (no prompts)
+- Auto-reloads buffer if the entry file is already open
+- Added `:JournalQuick` command and `<leader>jq` keymap
+- Files changed: `nvim/journal.lua`
+- **Learnings:**
+  - `vim.ui.input` is async; callback pattern required for file operations
+  - `io.open(path, "a")` appends without reading entire file
+  - `vim.fn.bufnr()` returns -1 if file not in buffer list
+  - Minimal friction: no template, no buffer switch, just capture and go
+
+---

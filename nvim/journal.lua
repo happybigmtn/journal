@@ -764,6 +764,74 @@ function M.import_entries(format, input_path)
   })
 end
 
+-- Quick entry mode for micro-journaling
+-- Appends to today's entry or creates minimal one if it doesn't exist
+function M.quick_entry()
+  local date = os.date("*t")
+  local parts = get_date_parts(date)
+  local dir = M.config.journal_dir .. "/" .. parts.year .. "/" .. parts.month
+  local filepath = dir .. "/" .. parts.full .. ".md"
+  local file_exists = vim.fn.filereadable(filepath) == 1
+
+  ensure_dir(dir)
+
+  -- Prompt for the quick note
+  vim.ui.input({ prompt = "Quick note: " }, function(note)
+    if not note or note == "" then
+      return
+    end
+
+    -- Get current time for timestamp
+    local timestamp = os.date("%H:%M")
+
+    if file_exists then
+      -- Append to existing entry
+      local file = io.open(filepath, "a")
+      if file then
+        file:write("\n\n**" .. timestamp .. "** — " .. note)
+        file:close()
+        vim.notify("Added quick note to " .. parts.full, vim.log.levels.INFO)
+
+        -- If the file is already open, reload it
+        local bufnr = vim.fn.bufnr(filepath)
+        if bufnr ~= -1 then
+          vim.api.nvim_buf_call(bufnr, function()
+            vim.cmd("edit!")
+          end)
+        end
+      else
+        vim.notify("Failed to write to entry", vim.log.levels.ERROR)
+      end
+    else
+      -- Create minimal new entry with the quick note
+      local minimal_frontmatter = {
+        "---",
+        "title: " .. '"' .. parts.full .. '"',
+        "date: " .. parts.full,
+        "type: daily",
+        "tags: []",
+        "draft: false",
+        "published: false",
+        "---",
+        "",
+        "## Quick Notes",
+        "",
+        "**" .. timestamp .. "** — " .. note,
+        ""
+      }
+
+      local file = io.open(filepath, "w")
+      if file then
+        file:write(table.concat(minimal_frontmatter, "\n"))
+        file:close()
+        vim.notify("Created quick entry: " .. parts.full, vim.log.levels.INFO)
+      else
+        vim.notify("Failed to create entry", vim.log.levels.ERROR)
+      end
+    end
+  end)
+end
+
 -- List recent entries
 function M.journal_list()
   local entries = {}
@@ -904,6 +972,11 @@ function M.setup(opts)
     M.share_entry()
   end, { desc = "Copy shareable link to clipboard" })
 
+  -- Quick entry command
+  vim.api.nvim_create_user_command("JournalQuick", function()
+    M.quick_entry()
+  end, { desc = "Add quick note to today's entry" })
+
   -- Import command
   vim.api.nvim_create_user_command("JournalImport", function(args)
     if #args.fargs < 2 then
@@ -942,6 +1015,7 @@ function M.setup(opts)
     vim.keymap.set("n", "<leader>ji", M.insert_image, { desc = "Insert image" })
     vim.keymap.set("n", "<leader>jP", M.toggle_published, { desc = "Toggle published status" })
     vim.keymap.set("n", "<leader>jS", M.share_entry, { desc = "Copy share link" })
+    vim.keymap.set("n", "<leader>jq", M.quick_entry, { desc = "Quick note" })
   end
 
   -- Show streak in startup notification

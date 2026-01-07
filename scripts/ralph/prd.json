@@ -616,8 +616,8 @@
 				"Support voice input transcription (future)"
 			],
 			"priority": 46,
-			"passes": false,
-			"notes": "Reduce friction for quick thoughts - not every entry needs full structure"
+			"passes": true,
+			"notes": "RESOLVED: :JournalQuick prompts for note, appends timestamped entry to today, creates minimal file if none exists, <leader>jq keymap"
 		},
 		{
 			"id": "US-048",
