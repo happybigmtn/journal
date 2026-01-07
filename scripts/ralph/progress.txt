@@ -417,3 +417,21 @@ Target: Journal Enhancements
   - Word count varies based on how aggressively syntax is stripped
 
 ---
+
+## 2026-01-07 - US-042 Mood Analytics and Visualization
+
+- Created `/insights` page with comprehensive mood analytics
+- Emoji-to-score mapping (1-5 scale): 😊=5, 🙂=4, 😐=3, 😕=2, 😞=1
+- Bar charts for mood by day of week and by month
+- Mood distribution showing most frequent moods with counts
+- Recent trend chart (last 30 entries as horizontal points)
+- Overall statistics: entry count and average mood
+- Added "Insights" to main navigation
+- Files changed: `site/src/pages/insights.astro`, `site/src/layouts/BaseLayout.astro`
+- **Learnings:**
+  - CSS bar charts: percentage width in container for horizontal bars
+  - Emoji detection requires mapping table (no semantic parsing)
+  - `getDay()` returns 0=Sunday, useful for weekday analysis
+  - Empty state important when no mood data exists
+
+---

@@ -546,8 +546,8 @@
 				"Identify patterns (e.g., better moods on weekends)"
 			],
 			"priority": 41,
-			"passes": false,
-			"notes": "Self-reflection through data - understand emotional patterns"
+			"passes": true,
+			"notes": "RESOLVED: /insights with day-of-week bars, month bars, mood distribution, recent trend chart; emoji→score mapping"
 		},
 		{
 			"id": "US-043",

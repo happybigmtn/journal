@@ -1,0 +1,330 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+// In production, only show published entries; in dev, show all non-draft entries
+const allEntries = await getCollection('journal', ({ data }) =>
+  !data.draft && (import.meta.env.DEV || data.published)
+);
+
+// Map emoji moods to numeric scores (1-5 scale)
+const moodScores: Record<string, number> = {
+  '😊': 5, '🥰': 5, '😄': 5, '🤩': 5, '😎': 5,
+  '🙂': 4, '😌': 4, '🤗': 4, '😏': 4,
+  '😐': 3, '🤔': 3, '😑': 3,
+  '😕': 2, '😢': 2, '😔': 2, '😟': 2, '🫤': 2,
+  '😞': 1, '😭': 1, '😤': 1, '😠': 1, '😩': 1,
+};
+
+// Get entries with mood data
+const entriesWithMood = allEntries
+  .filter(e => e.data.mood && moodScores[e.data.mood])
+  .map(e => ({
+    date: e.data.date,
+    mood: e.data.mood,
+    score: moodScores[e.data.mood],
+    dayOfWeek: e.data.date.getDay(),
+    month: e.data.date.getMonth(),
+    year: e.data.date.getFullYear(),
+  }))
+  .sort((a, b) => a.date.getTime() - b.date.getTime());
+
+// Calculate overall statistics
+const totalEntries = entriesWithMood.length;
+const avgMood = totalEntries > 0
+  ? (entriesWithMood.reduce((sum, e) => sum + e.score, 0) / totalEntries).toFixed(1)
+  : 'N/A';
+
+// Group by day of week
+const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const byDayOfWeek = dayNames.map((name, i) => {
+  const dayEntries = entriesWithMood.filter(e => e.dayOfWeek === i);
+  const count = dayEntries.length;
+  const avg = count > 0
+    ? (dayEntries.reduce((sum, e) => sum + e.score, 0) / count).toFixed(1)
+    : null;
+  return { name, count, avg };
+});
+
+// Group by month
+const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const byMonth = monthNames.map((name, i) => {
+  const monthEntries = entriesWithMood.filter(e => e.month === i);
+  const count = monthEntries.length;
+  const avg = count > 0
+    ? (monthEntries.reduce((sum, e) => sum + e.score, 0) / count).toFixed(1)
+    : null;
+  return { name, count, avg };
+});
+
+// Mood distribution
+const moodCounts: Record<string, number> = {};
+entriesWithMood.forEach(e => {
+  moodCounts[e.mood] = (moodCounts[e.mood] || 0) + 1;
+});
+const moodDistribution = Object.entries(moodCounts)
+  .sort((a, b) => b[1] - a[1])
+  .slice(0, 10);
+
+// Recent mood trend (last 30 entries)
+const recentEntries = entriesWithMood.slice(-30);
+---
+
+<BaseLayout title="Insights">
+  <header class="page-hero">
+    <h1>Insights</h1>
+    <p class="hero-subtitle">Patterns and trends from your journal</p>
+  </header>
+
+  {totalEntries === 0 ? (
+    <p class="empty-state">No mood data yet. Add mood emojis to your journal entries to see insights.</p>
+  ) : (
+    <>
+      <section class="stats-overview">
+        <div class="stat-card">
+          <span class="stat-value">{totalEntries}</span>
+          <span class="stat-label">Entries with mood</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value">{avgMood}</span>
+          <span class="stat-label">Average mood (1-5)</span>
+        </div>
+      </section>
+
+      <section class="insight-section">
+        <h2>Mood by Day of Week</h2>
+        <p class="section-subtitle">When are you happiest?</p>
+        <div class="bar-chart">
+          {byDayOfWeek.map(day => (
+            <div class="bar-item">
+              <span class="bar-label">{day.name}</span>
+              <div class="bar-container">
+                {day.avg && (
+                  <div
+                    class="bar-fill"
+                    style={`width: ${(Number(day.avg) / 5) * 100}%`}
+                  />
+                )}
+              </div>
+              <span class="bar-value">{day.avg || '-'}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section class="insight-section">
+        <h2>Mood by Month</h2>
+        <p class="section-subtitle">Seasonal patterns</p>
+        <div class="bar-chart">
+          {byMonth.map(month => (
+            <div class="bar-item">
+              <span class="bar-label">{month.name}</span>
+              <div class="bar-container">
+                {month.avg && (
+                  <div
+                    class="bar-fill"
+                    style={`width: ${(Number(month.avg) / 5) * 100}%`}
+                  />
+                )}
+              </div>
+              <span class="bar-value">{month.avg || '-'}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section class="insight-section">
+        <h2>Most Frequent Moods</h2>
+        <div class="mood-distribution">
+          {moodDistribution.map(([emoji, count]) => (
+            <div class="mood-item">
+              <span class="mood-emoji">{emoji}</span>
+              <span class="mood-count">{count}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {recentEntries.length > 5 && (
+        <section class="insight-section">
+          <h2>Recent Mood Trend</h2>
+          <p class="section-subtitle">Last {recentEntries.length} entries</p>
+          <div class="trend-chart">
+            {recentEntries.map((entry, i) => (
+              <div
+                class="trend-point"
+                style={`bottom: ${(entry.score / 5) * 100}%`}
+                title={`${entry.date.toLocaleDateString()}: ${entry.mood}`}
+              />
+            ))}
+          </div>
+        </section>
+      )}
+    </>
+  )}
+</BaseLayout>
+
+<style>
+  .page-hero {
+    padding: 4rem 0;
+    margin-bottom: 3rem;
+    border-bottom: var(--border-thick);
+  }
+
+  .page-hero h1 {
+    font-family: var(--font-display);
+    font-size: var(--text-5xl);
+    letter-spacing: var(--tracking-tight);
+    margin-bottom: 0.5rem;
+  }
+
+  .hero-subtitle {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-widest);
+    color: var(--muted-foreground);
+  }
+
+  .empty-state {
+    color: var(--muted-foreground);
+    font-style: italic;
+    padding: 4rem 0;
+  }
+
+  .stats-overview {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 4rem;
+  }
+
+  .stat-card {
+    padding: 2rem;
+    background: var(--muted);
+    text-align: center;
+  }
+
+  .stat-value {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: var(--text-4xl);
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  .stat-label {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-widest);
+    color: var(--muted-foreground);
+  }
+
+  .insight-section {
+    margin-bottom: 4rem;
+  }
+
+  .insight-section h2 {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    margin-bottom: 0.5rem;
+  }
+
+  .section-subtitle {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-widest);
+    color: var(--muted-foreground);
+    margin-bottom: 2rem;
+  }
+
+  .bar-chart {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .bar-item {
+    display: grid;
+    grid-template-columns: 3rem 1fr 2.5rem;
+    gap: 1rem;
+    align-items: center;
+  }
+
+  .bar-label {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+  }
+
+  .bar-container {
+    height: 1.5rem;
+    background: var(--muted);
+    position: relative;
+  }
+
+  .bar-fill {
+    height: 100%;
+    background: var(--black);
+    transition: width 100ms;
+  }
+
+  .bar-value {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    text-align: right;
+  }
+
+  .mood-distribution {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+  }
+
+  .mood-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .mood-emoji {
+    font-size: var(--text-3xl);
+  }
+
+  .mood-count {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    color: var(--muted-foreground);
+  }
+
+  .trend-chart {
+    height: 150px;
+    background: var(--muted);
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    padding: 0.5rem;
+    gap: 2px;
+  }
+
+  .trend-point {
+    width: 8px;
+    height: 8px;
+    background: var(--black);
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 640px) {
+    .page-hero h1 {
+      font-size: var(--text-3xl);
+    }
+
+    .bar-item {
+      grid-template-columns: 2.5rem 1fr 2rem;
+      gap: 0.5rem;
+    }
+  }
+</style>
