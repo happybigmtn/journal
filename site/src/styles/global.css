@@ -228,6 +228,27 @@ a:hover {
   top: 0;
 }
 
+/* Offline indicator */
+.offline-indicator {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: var(--black);
+  color: var(--white);
+  padding: 0.5rem 1rem;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-widest);
+  z-index: 10001;
+}
+
+.offline-indicator[hidden] {
+  display: none;
+}
+
 /* Theme toggle button */
 .theme-toggle {
   position: fixed;

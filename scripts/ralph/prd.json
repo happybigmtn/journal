@@ -602,8 +602,8 @@
 				"Show offline indicator when disconnected"
 			],
 			"priority": 45,
-			"passes": false,
-			"notes": "Read your journal anywhere, even without internet"
+			"passes": true,
+			"notes": "RESOLVED: manifest.json with icons, sw.js with network-first caching, offline indicator banner, apple-mobile-web-app meta tags"
 		},
 		{
 			"id": "US-047",

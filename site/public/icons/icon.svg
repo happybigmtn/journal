@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Background -->
+  <rect width="512" height="512" fill="#000000"/>
+  <!-- Journal page representation -->
+  <rect x="96" y="64" width="320" height="384" fill="#FFFFFF" stroke="#000" stroke-width="0"/>
+  <!-- Lines on page -->
+  <line x1="128" y1="140" x2="384" y2="140" stroke="#E5E5E5" stroke-width="4"/>
+  <line x1="128" y1="200" x2="384" y2="200" stroke="#E5E5E5" stroke-width="4"/>
+  <line x1="128" y1="260" x2="384" y2="260" stroke="#E5E5E5" stroke-width="4"/>
+  <line x1="128" y1="320" x2="384" y2="320" stroke="#E5E5E5" stroke-width="4"/>
+  <line x1="128" y1="380" x2="320" y2="380" stroke="#E5E5E5" stroke-width="4"/>
+  <!-- Pen/pencil icon -->
+  <path d="M400 120 L440 80 L460 100 L420 140 Z" fill="#000000"/>
+  <path d="M380 140 L420 140 L380 180 Z" fill="#000000"/>
+</svg>

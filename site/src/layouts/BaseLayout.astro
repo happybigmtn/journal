@@ -65,6 +65,14 @@ const navItems = [
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Playfair+Display:wght@400;500;600&family=Source+Serif+4:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
   <!-- RSS autodiscovery -->
   <link rel="alternate" type="application/rss+xml" title="Journal RSS Feed" href="/rss.xml" />
+  <!-- PWA manifest and icons -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#000000">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="Journal">
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
   <script is:inline>
     // Apply saved theme before render to prevent flash
     (function() {
@@ -76,6 +84,9 @@ const navItems = [
   </script>
 </head>
 <body>
+  <div id="offline-indicator" class="offline-indicator" aria-live="polite" hidden>
+    You are offline
+  </div>
   <a href="#main" class="skip-link">Skip to content</a>
   <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">
     <span class="theme-icon-light">☀</span>
@@ -130,6 +141,33 @@ const navItems = [
     });
 
     updateToggleVisibility();
+  </script>
+  <script>
+    // Service Worker registration
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then((registration) => {
+            console.log('SW registered:', registration.scope);
+          })
+          .catch((error) => {
+            console.log('SW registration failed:', error);
+          });
+      });
+    }
+
+    // Offline indicator
+    const offlineIndicator = document.getElementById('offline-indicator');
+
+    function updateOnlineStatus() {
+      if (offlineIndicator) {
+        offlineIndicator.hidden = navigator.onLine;
+      }
+    }
+
+    window.addEventListener('online', updateOnlineStatus);
+    window.addEventListener('offline', updateOnlineStatus);
+    updateOnlineStatus();
   </script>
 </body>
 </html>

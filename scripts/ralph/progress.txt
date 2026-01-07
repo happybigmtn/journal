@@ -505,3 +505,33 @@ Target: Journal Enhancements
   - Preserving original dates is crucial for "On This Day" and timeline features
 
 ---
+
+## 2026-01-07 - US-046 PWA Support for Offline Access
+
+- Created web app manifest at `/manifest.json`:
+  - App name, description, theme colors (black/white)
+  - Icons at 192x192 and 512x512 for different devices
+  - `display: standalone` for app-like experience
+- Generated PWA icons using Sharp from SVG source:
+  - Icon design: black background, white page with lines, pen accent
+  - Apple touch icon at 180x180
+  - Favicon at 32x32
+- Created service worker (`sw.js`) with caching strategies:
+  - Static assets: cache first, background fetch for updates
+  - HTML pages: network first, cache fallback
+  - Dynamic content: network first, cache fallback
+  - Version-based cache busting
+- Added offline indicator banner:
+  - Fixed position at top of viewport
+  - Shows "You are offline" when disconnected
+  - Uses `navigator.onLine` events for detection
+- Added Apple PWA meta tags for iOS home screen installation
+- Registered service worker in BaseLayout on page load
+- Files changed: `manifest.json`, `sw.js`, `icons/*`, `BaseLayout.astro`, `global.css`, `scripts/generate-icons.mjs`
+- **Learnings:**
+  - Service workers intercept ALL fetches; must whitelist external origins
+  - `skipWaiting()` + `clients.claim()` activates new SW immediately
+  - PWA requires icons at specific sizes (192, 512) for manifest
+  - `apple-mobile-web-app-capable` enables iOS home screen mode
+
+---
