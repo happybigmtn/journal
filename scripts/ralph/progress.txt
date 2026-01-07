@@ -112,14 +112,18 @@ Target: Journal Enhancements
 
 ---
 
-## Session Complete
+## 2026-01-07 - US-006 Full-text Search
 
-- **Stories Completed:** 22 of 34 (65%)
-- **Stories Remaining:** 12 (enhancement features)
-- **Key Accomplishments:**
-  - Fixed all critical issues (keymaps, contrast, date validation)
-  - Implemented complete design system overhaul
-  - Added accessibility features (focus states, skip link, contrast)
-  - Created tags discovery page
+- Created `/search` route with client-side search functionality
+- Built JSON search index at build time containing title, content, tags, mood
+- Implemented weighted scoring: title (10) > tags (8) > mood (5) > content (3)
+- Added term highlighting using `<mark>` tags with color inversion
+- Stored recent searches in localStorage (max 5)
+- Files changed: `site/src/pages/search.astro`
+- **Learnings:**
+  - Static sites can implement search via build-time JSON index + client-side JS
+  - `define:vars` in Astro scripts injects server data into client scripts
+  - Debounced input (200ms) prevents excessive re-renders during typing
+  - `:global(mark)` in scoped CSS targets dynamically injected elements
 
 ---
