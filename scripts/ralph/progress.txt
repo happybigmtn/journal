@@ -347,3 +347,23 @@ Target: Journal Enhancements
   - Grid layout with `grid-template-columns: auto auto 1fr` creates flexible row structure
 
 ---
+
+## 2026-01-07 - US-038 Image/Photo Support
+
+- Enhanced CSS for editorial image styling:
+  - Full-width with thin border in `.entry-content img`
+  - Figure/figcaption support for captioned images
+  - `.full-bleed` class for images extending beyond content width
+  - `.image-gallery` grid component for multiple images
+  - Grayscale filter maintains monochrome aesthetic
+- Created `site/public/journal/assets/` directory structure with YYYY/MM/ pattern
+- Added `:JournalImage` command + `<leader>ji` keymap in Neovim
+- Command prompts for filename, creates assets directory, inserts markdown
+- Files changed: `site/src/styles/global.css`, `nvim/journal.lua`
+- **Learnings:**
+  - Astro serves `public/` files at root path (e.g., `/journal/assets/...`)
+  - `vim.ui.input` provides async input modal in Neovim
+  - `gsub("[-_]", " ")` converts filename to readable alt text
+  - Negative margins create full-bleed images without breaking container
+
+---

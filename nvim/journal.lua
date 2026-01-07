@@ -573,6 +573,55 @@ function M.journal_random()
   )
 end
 
+-- Insert image markdown at cursor
+-- Creates assets directory and inserts markdown image syntax
+function M.insert_image()
+  -- Get current date from file or today
+  local date = os.date("*t")
+  local current_file = vim.fn.expand("%:t:r")
+  if current_file:match("^%d%d%d%d%-%d%d%-%d%d$") then
+    local y, m, d = current_file:match("(%d%d%d%d)%-(%d%d)%-(%d%d)")
+    date = { year = tonumber(y), month = tonumber(m), day = tonumber(d) }
+  end
+
+  -- Construct assets path
+  local assets_dir = string.format(
+    "%s/site/public/journal/assets/%04d/%02d",
+    M.config.journal_dir:gsub("/site/src/content/journal$", ""),
+    date.year,
+    date.month
+  )
+
+  -- Ensure assets directory exists
+  vim.fn.mkdir(assets_dir, "p")
+
+  -- Prompt for image filename
+  vim.ui.input({ prompt = "Image filename (e.g., morning-coffee.jpg): " }, function(filename)
+    if not filename or filename == "" then
+      return
+    end
+
+    -- Construct relative path from journal entry to public assets
+    local image_path = string.format("/journal/assets/%04d/%02d/%s", date.year, date.month, filename)
+    local alt_text = filename:gsub("%.[^.]+$", ""):gsub("[-_]", " ")
+
+    -- Insert markdown at cursor
+    local row, col = unpack(vim.api.nvim_win_get_cursor(0))
+    local line = vim.api.nvim_get_current_line()
+    local before = line:sub(1, col)
+    local after = line:sub(col + 1)
+    local markdown = string.format("![%s](%s)", alt_text, image_path)
+
+    vim.api.nvim_set_current_line(before .. markdown .. after)
+    vim.api.nvim_win_set_cursor(0, { row, col + #markdown })
+
+    vim.notify(
+      string.format("Image inserted. Place file at:\n%s/%s", assets_dir, filename),
+      vim.log.levels.INFO
+    )
+  end)
+end
+
 -- List recent entries
 function M.journal_list()
   local entries = {}
@@ -698,6 +747,11 @@ function M.setup(opts)
     })
   end
 
+  -- Image insertion command
+  vim.api.nvim_create_user_command("JournalImage", function()
+    M.insert_image()
+  end, { desc = "Insert image markdown" })
+
   -- Keymaps (disabled when using LazyVim, which handles its own keymaps)
   if M.config.keymaps then
     vim.keymap.set("n", "<leader>jj", ":JournalNew<CR>", { desc = "New journal entry (today)" })
@@ -711,6 +765,7 @@ function M.setup(opts)
     vim.keymap.set("n", "<leader>je", ":JournalExport<CR>", { desc = "Export entries" })
     vim.keymap.set("n", "<leader>jr", M.journal_random, { desc = "Random past entry" })
     vim.keymap.set("n", "<leader>js", M.show_streak, { desc = "Show streak" })
+    vim.keymap.set("n", "<leader>ji", M.insert_image, { desc = "Insert image" })
   end
 
   -- Show streak in startup notification

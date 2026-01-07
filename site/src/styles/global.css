@@ -691,11 +691,75 @@ textarea:focus-visible {
   }
 }
 
-/* Images grayscale */
+/* ==========================================================================
+   Images - Editorial styling
+   ========================================================================== */
+
+/* Base image styling - monochrome filter for editorial consistency */
 img {
   filter: grayscale(100%);
   max-width: 100%;
-  margin: 1.5rem 0;
+  margin: 2rem 0;
+}
+
+/* Entry content images - full-width with editorial framing */
+.entry-content img {
+  display: block;
+  width: 100%;
+  margin: 3rem 0;
+  border: var(--border-thin);
+}
+
+/* Image with caption via figure */
+.entry-content figure {
+  margin: 3rem 0;
+}
+
+.entry-content figure img {
+  margin: 0 0 1rem 0;
+}
+
+.entry-content figcaption {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-widest);
+  color: var(--muted-foreground);
+  text-align: center;
+}
+
+/* Full-bleed images - extend beyond content width */
+.entry-content img.full-bleed {
+  width: calc(100% + 4rem);
+  max-width: none;
+  margin-left: -2rem;
+  margin-right: -2rem;
+}
+
+/* Image gallery - grid of images */
+.image-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin: 3rem 0;
+}
+
+.image-gallery img {
+  margin: 0;
+  aspect-ratio: 1;
+  object-fit: cover;
+}
+
+@media (max-width: 640px) {
+  .entry-content img.full-bleed {
+    width: calc(100% + 2rem);
+    margin-left: -1rem;
+    margin-right: -1rem;
+  }
+
+  .image-gallery {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 /* Code - sharp corners only (design system non-negotiable) */

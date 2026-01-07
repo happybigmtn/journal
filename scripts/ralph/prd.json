@@ -490,8 +490,8 @@
 				"Display images with editorial styling (full-width, bordered)"
 			],
 			"priority": 37,
-			"passes": false,
-			"notes": "Multimedia entries significantly increase journaling engagement"
+			"passes": true,
+			"notes": "RESOLVED: Editorial image CSS (full-width, bordered, grayscale), assets dir structure, :JournalImage command + <leader>ji keymap"
 		},
 		{
 			"id": "US-039",
