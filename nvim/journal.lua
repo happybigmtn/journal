@@ -1179,6 +1179,38 @@ function M.setup(opts)
     M.list_backups()
   end, { desc = "List existing journal backups" })
 
+  -- Wrapped/Year summary command
+  vim.api.nvim_create_user_command("JournalWrapped", function(args)
+    local year = args.fargs[1] or tostring(os.date("*t").year)
+    local site_dir = M.config.site_dir
+    local url = "http://localhost:4321/wrapped/" .. year
+
+    -- Open in browser (try multiple commands)
+    local open_cmd
+    if vim.fn.executable("xdg-open") == 1 then
+      open_cmd = "xdg-open"
+    elseif vim.fn.executable("open") == 1 then
+      open_cmd = "open"
+    else
+      vim.notify("Could not find browser opener. Visit: " .. url, vim.log.levels.INFO)
+      return
+    end
+
+    vim.fn.jobstart(open_cmd .. " " .. url, { detach = true })
+    vim.notify("Opening " .. year .. " Wrapped in browser", vim.log.levels.INFO)
+  end, {
+    nargs = "?",
+    desc = "View yearly journal wrapped/summary",
+    complete = function()
+      local years = {}
+      local current_year = os.date("*t").year
+      for y = current_year, current_year - 5, -1 do
+        table.insert(years, tostring(y))
+      end
+      return years
+    end,
+  })
+
   -- Keymaps (disabled when using LazyVim, which handles its own keymaps)
   if M.config.keymaps then
     vim.keymap.set("n", "<leader>jj", ":JournalNew<CR>", { desc = "New journal entry (today)" })

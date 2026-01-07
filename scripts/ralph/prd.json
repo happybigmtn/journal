@@ -658,8 +658,8 @@
 				"Export as shareable image or page"
 			],
 			"priority": 49,
-			"passes": false,
-			"notes": "Spotify Wrapped but for your journal - celebrate your year"
+			"passes": true,
+			"notes": "RESOLVED: Created /wrapped/[year] dynamic page with comprehensive stats - entries, words, streaks, month/day distribution, mood breakdown, top tags, wellness averages, entry types. Share card with copy-to-clipboard. Navigation between years. Added :JournalWrapped command to open in browser."
 		},
 		{
 			"id": "US-051",

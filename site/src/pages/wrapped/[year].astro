@@ -1,0 +1,649 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('journal', (e) => !e.data.draft);
+  const years = [...new Set(entries.map((e) => e.data.date.getFullYear()))];
+  return years.map((year) => ({ params: { year: year.toString() } }));
+}
+
+const { year } = Astro.params;
+const yearNum = parseInt(year);
+
+const allEntries = await getCollection('journal', (e) => !e.data.draft);
+const yearEntries = allEntries.filter((e) => e.data.date.getFullYear() === yearNum);
+
+// Calculate statistics
+const stats = {
+  totalEntries: yearEntries.length,
+  totalWords: 0,
+  longestStreak: 0,
+  currentStreak: 0,
+  avgWordsPerEntry: 0,
+  entriesPerMonth: new Array(12).fill(0),
+  dayOfWeekCounts: new Array(7).fill(0),
+  moodCounts: {} as Record<string, number>,
+  tagCounts: {} as Record<string, number>,
+  mostProductiveMonth: 0,
+  mostProductiveDay: 0,
+  firstEntry: null as Date | null,
+  lastEntry: null as Date | null,
+  sleepAvg: 0,
+  energyAvg: 0,
+  publishedCount: 0,
+  typeBreakdown: {} as Record<string, number>,
+};
+
+// Calculate word counts and other metrics
+let sleepTotal = 0;
+let sleepCount = 0;
+let energyTotal = 0;
+let energyCount = 0;
+
+for (const entry of yearEntries) {
+  // Word count
+  const words = entry.body.replace(/---[\s\S]*?---/, '').replace(/[#*`\[\]]/g, '').split(/\s+/).filter(w => w.length > 0).length;
+  stats.totalWords += words;
+
+  // Month distribution
+  const month = entry.data.date.getMonth();
+  stats.entriesPerMonth[month]++;
+
+  // Day of week distribution
+  const dayOfWeek = entry.data.date.getDay();
+  stats.dayOfWeekCounts[dayOfWeek]++;
+
+  // Mood tracking
+  if (entry.data.mood) {
+    stats.moodCounts[entry.data.mood] = (stats.moodCounts[entry.data.mood] || 0) + 1;
+  }
+
+  // Tag tracking
+  for (const tag of entry.data.tags || []) {
+    stats.tagCounts[tag] = (stats.tagCounts[tag] || 0) + 1;
+  }
+
+  // Sleep tracking
+  if (entry.data.sleep_hours) {
+    sleepTotal += entry.data.sleep_hours;
+    sleepCount++;
+  }
+
+  // Energy tracking
+  if (entry.data.energy) {
+    energyTotal += entry.data.energy;
+    energyCount++;
+  }
+
+  // Published count
+  if (entry.data.published) {
+    stats.publishedCount++;
+  }
+
+  // Type breakdown
+  const entryType = entry.data.type || 'daily';
+  stats.typeBreakdown[entryType] = (stats.typeBreakdown[entryType] || 0) + 1;
+
+  // Track first/last entries
+  if (!stats.firstEntry || entry.data.date < stats.firstEntry) {
+    stats.firstEntry = entry.data.date;
+  }
+  if (!stats.lastEntry || entry.data.date > stats.lastEntry) {
+    stats.lastEntry = entry.data.date;
+  }
+}
+
+// Calculate averages
+stats.avgWordsPerEntry = stats.totalEntries > 0 ? Math.round(stats.totalWords / stats.totalEntries) : 0;
+stats.sleepAvg = sleepCount > 0 ? Math.round(sleepTotal / sleepCount * 10) / 10 : 0;
+stats.energyAvg = energyCount > 0 ? Math.round(energyTotal / energyCount * 10) / 10 : 0;
+
+// Find most productive month and day
+stats.mostProductiveMonth = stats.entriesPerMonth.indexOf(Math.max(...stats.entriesPerMonth));
+stats.mostProductiveDay = stats.dayOfWeekCounts.indexOf(Math.max(...stats.dayOfWeekCounts));
+
+// Calculate streaks
+const entryDates = yearEntries.map(e => e.data.date.toISOString().split('T')[0]).sort();
+const dateSet = new Set(entryDates);
+
+let currentStreak = 0;
+let maxStreak = 0;
+let tempStreak = 0;
+let prevDate: Date | null = null;
+
+for (const dateStr of entryDates) {
+  const date = new Date(dateStr);
+  if (prevDate) {
+    const diff = Math.round((date.getTime() - prevDate.getTime()) / (1000 * 60 * 60 * 24));
+    if (diff === 1) {
+      tempStreak++;
+    } else {
+      tempStreak = 1;
+    }
+  } else {
+    tempStreak = 1;
+  }
+  maxStreak = Math.max(maxStreak, tempStreak);
+  prevDate = date;
+}
+stats.longestStreak = maxStreak;
+
+// Sort tags by count
+const topTags = Object.entries(stats.tagCounts)
+  .sort((a, b) => b[1] - a[1])
+  .slice(0, 10);
+
+// Sort moods by count
+const topMoods = Object.entries(stats.moodCounts)
+  .sort((a, b) => b[1] - a[1])
+  .slice(0, 5);
+
+// Day and month names
+const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+// Generate shareable summary text
+const summaryText = `My ${year} Journal Wrapped:
+📝 ${stats.totalEntries} entries
+✍️ ${stats.totalWords.toLocaleString()} words written
+🔥 ${stats.longestStreak} day longest streak
+📅 Most active: ${monthNames[stats.mostProductiveMonth]}
+${topMoods.length > 0 ? `😊 Top mood: ${topMoods[0][0]}` : ''}
+`;
+---
+
+<BaseLayout title={`${year} Wrapped`}>
+  <main id="main" class="wrapped-page">
+    <header class="wrapped-header">
+      <h1 class="wrapped-year">{year}</h1>
+      <p class="wrapped-subtitle">Your Year in Journal</p>
+    </header>
+
+    <section class="wrapped-section">
+      <h2>By the Numbers</h2>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <span class="stat-value">{stats.totalEntries}</span>
+          <span class="stat-label">Entries Written</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value">{stats.totalWords.toLocaleString()}</span>
+          <span class="stat-label">Words Total</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value">{stats.avgWordsPerEntry}</span>
+          <span class="stat-label">Words per Entry</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value">{stats.longestStreak}</span>
+          <span class="stat-label">Day Longest Streak</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="wrapped-section">
+      <h2>Most Productive Times</h2>
+      <div class="highlight-cards">
+        <div class="highlight-card">
+          <span class="highlight-emoji">📅</span>
+          <span class="highlight-value">{monthNames[stats.mostProductiveMonth]}</span>
+          <span class="highlight-label">Your most active month</span>
+          <span class="highlight-count">{stats.entriesPerMonth[stats.mostProductiveMonth]} entries</span>
+        </div>
+        <div class="highlight-card">
+          <span class="highlight-emoji">📆</span>
+          <span class="highlight-value">{dayNames[stats.mostProductiveDay]}</span>
+          <span class="highlight-label">Your journaling day</span>
+          <span class="highlight-count">{stats.dayOfWeekCounts[stats.mostProductiveDay]} entries</span>
+        </div>
+      </div>
+    </section>
+
+    {topMoods.length > 0 && (
+      <section class="wrapped-section">
+        <h2>Your Moods</h2>
+        <div class="mood-breakdown">
+          {topMoods.map(([mood, count], i) => (
+            <div class="mood-item" style={`--rank: ${i + 1}`}>
+              <span class="mood-emoji">{mood}</span>
+              <span class="mood-count">{count}</span>
+              <div class="mood-bar" style={`width: ${(count / topMoods[0][1]) * 100}%`}></div>
+            </div>
+          ))}
+        </div>
+      </section>
+    )}
+
+    {topTags.length > 0 && (
+      <section class="wrapped-section">
+        <h2>Top Themes</h2>
+        <div class="tag-cloud">
+          {topTags.map(([tag, count], i) => (
+            <span class="tag-item" style={`--size: ${1 + (topTags.length - i) / topTags.length * 0.5}`}>
+              {tag}
+              <span class="tag-count">×{count}</span>
+            </span>
+          ))}
+        </div>
+      </section>
+    )}
+
+    <section class="wrapped-section">
+      <h2>Monthly Activity</h2>
+      <div class="month-chart">
+        {monthNames.map((month, i) => (
+          <div class="month-bar-container">
+            <div
+              class="month-bar"
+              style={`height: ${stats.entriesPerMonth[i] > 0 ? Math.max(10, (stats.entriesPerMonth[i] / Math.max(...stats.entriesPerMonth)) * 100) : 0}%`}
+            >
+              {stats.entriesPerMonth[i] > 0 && <span class="month-count">{stats.entriesPerMonth[i]}</span>}
+            </div>
+            <span class="month-label">{month.slice(0, 3)}</span>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    {(stats.sleepAvg > 0 || stats.energyAvg > 0) && (
+      <section class="wrapped-section">
+        <h2>Wellness Averages</h2>
+        <div class="wellness-stats">
+          {stats.sleepAvg > 0 && (
+            <div class="wellness-item">
+              <span class="wellness-emoji">😴</span>
+              <span class="wellness-value">{stats.sleepAvg}h</span>
+              <span class="wellness-label">Average Sleep</span>
+            </div>
+          )}
+          {stats.energyAvg > 0 && (
+            <div class="wellness-item">
+              <span class="wellness-emoji">⚡</span>
+              <span class="wellness-value">{stats.energyAvg}/10</span>
+              <span class="wellness-label">Average Energy</span>
+            </div>
+          )}
+        </div>
+      </section>
+    )}
+
+    {Object.keys(stats.typeBreakdown).length > 1 && (
+      <section class="wrapped-section">
+        <h2>Entry Types</h2>
+        <div class="type-breakdown">
+          {Object.entries(stats.typeBreakdown).sort((a, b) => b[1] - a[1]).map(([type, count]) => (
+            <div class="type-item">
+              <span class="type-name">{type}</span>
+              <span class="type-count">{count}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+    )}
+
+    <section class="wrapped-section share-section">
+      <h2>Share Your Year</h2>
+      <div class="share-card" id="share-card">
+        <div class="share-content">
+          <h3>{year} Journal Wrapped</h3>
+          <div class="share-stats">
+            <span>📝 {stats.totalEntries} entries</span>
+            <span>✍️ {stats.totalWords.toLocaleString()} words</span>
+            <span>🔥 {stats.longestStreak} day streak</span>
+          </div>
+        </div>
+      </div>
+      <button id="copy-btn" class="copy-button" data-summary={summaryText}>
+        Copy Summary
+      </button>
+    </section>
+
+    <nav class="wrapped-nav">
+      <a href={`/wrapped/${yearNum - 1}`}>← {yearNum - 1}</a>
+      <a href="/calendar">Back to Calendar</a>
+      <a href={`/wrapped/${yearNum + 1}`}>{yearNum + 1} →</a>
+    </nav>
+  </main>
+</BaseLayout>
+
+<script>
+  const copyBtn = document.getElementById('copy-btn');
+  if (copyBtn) {
+    copyBtn.addEventListener('click', async () => {
+      const summary = copyBtn.getAttribute('data-summary');
+      if (summary) {
+        await navigator.clipboard.writeText(summary);
+        copyBtn.textContent = 'Copied!';
+        setTimeout(() => {
+          copyBtn.textContent = 'Copy Summary';
+        }, 2000);
+      }
+    });
+  }
+</script>
+
+<style>
+  .wrapped-page {
+    max-width: 72rem;
+    margin: 0 auto;
+    padding: var(--space-8);
+  }
+
+  .wrapped-header {
+    text-align: center;
+    padding: var(--space-16) 0;
+    border-bottom: var(--border-ultra);
+    margin-bottom: var(--space-12);
+  }
+
+  .wrapped-year {
+    font-family: var(--font-mono);
+    font-size: var(--text-9xl);
+    letter-spacing: var(--tracking-tight);
+    line-height: 1;
+  }
+
+  .wrapped-subtitle {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    color: var(--muted-foreground);
+    margin-top: var(--space-4);
+  }
+
+  .wrapped-section {
+    margin-bottom: var(--space-16);
+  }
+
+  .wrapped-section h2 {
+    font-family: var(--font-display);
+    font-size: var(--text-3xl);
+    margin-bottom: var(--space-8);
+    border-bottom: var(--border-thin);
+    padding-bottom: var(--space-4);
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-6);
+  }
+
+  @media (min-width: 768px) {
+    .stats-grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  .stat-card {
+    border: var(--border-medium);
+    padding: var(--space-8);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .stat-value {
+    font-family: var(--font-mono);
+    font-size: var(--text-5xl);
+    font-weight: bold;
+    letter-spacing: var(--tracking-tight);
+  }
+
+  .stat-label {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-widest);
+    color: var(--muted-foreground);
+  }
+
+  .highlight-cards {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-6);
+  }
+
+  .highlight-card {
+    background: var(--black);
+    color: var(--white);
+    padding: var(--space-8);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .highlight-emoji {
+    font-size: var(--text-5xl);
+  }
+
+  .highlight-value {
+    font-family: var(--font-display);
+    font-size: var(--text-3xl);
+    font-weight: bold;
+  }
+
+  .highlight-label {
+    font-size: var(--text-sm);
+    opacity: 0.8;
+  }
+
+  .highlight-count {
+    font-family: var(--font-mono);
+    font-size: var(--text-lg);
+  }
+
+  .mood-breakdown {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .mood-item {
+    display: grid;
+    grid-template-columns: 3rem 3rem 1fr;
+    align-items: center;
+    gap: var(--space-4);
+  }
+
+  .mood-emoji {
+    font-size: var(--text-3xl);
+  }
+
+  .mood-count {
+    font-family: var(--font-mono);
+    font-size: var(--text-lg);
+  }
+
+  .mood-bar {
+    height: 1.5rem;
+    background: var(--black);
+    transition: width 0.3s ease;
+  }
+
+  .tag-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    align-items: center;
+  }
+
+  .tag-item {
+    font-family: var(--font-mono);
+    font-size: calc(var(--text-base) * var(--size, 1));
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-widest);
+    border: var(--border-thin);
+    padding: var(--space-2) var(--space-4);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .tag-count {
+    font-size: var(--text-xs);
+    color: var(--muted-foreground);
+  }
+
+  .month-chart {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    height: 200px;
+    border-bottom: var(--border-thin);
+    padding-top: var(--space-4);
+  }
+
+  .month-bar-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+    gap: var(--space-2);
+  }
+
+  .month-bar {
+    width: 80%;
+    background: var(--black);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: var(--space-1);
+    min-height: 0;
+  }
+
+  .month-count {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--white);
+  }
+
+  .month-label {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-widest);
+  }
+
+  .wellness-stats {
+    display: flex;
+    gap: var(--space-8);
+    justify-content: center;
+  }
+
+  .wellness-item {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .wellness-emoji {
+    font-size: var(--text-4xl);
+  }
+
+  .wellness-value {
+    font-family: var(--font-mono);
+    font-size: var(--text-4xl);
+    font-weight: bold;
+  }
+
+  .wellness-label {
+    font-size: var(--text-sm);
+    color: var(--muted-foreground);
+  }
+
+  .type-breakdown {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+  }
+
+  .type-item {
+    border: var(--border-thin);
+    padding: var(--space-3) var(--space-4);
+    display: flex;
+    gap: var(--space-3);
+    align-items: center;
+  }
+
+  .type-name {
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-widest);
+  }
+
+  .type-count {
+    font-family: var(--font-mono);
+    font-weight: bold;
+  }
+
+  .share-section {
+    text-align: center;
+    border-top: var(--border-thick);
+    padding-top: var(--space-12);
+  }
+
+  .share-card {
+    background: var(--black);
+    color: var(--white);
+    padding: var(--space-8);
+    max-width: 400px;
+    margin: 0 auto var(--space-6);
+  }
+
+  .share-content h3 {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    margin-bottom: var(--space-4);
+  }
+
+  .share-stats {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    font-family: var(--font-mono);
+    font-size: var(--text-lg);
+  }
+
+  .copy-button {
+    font-family: var(--font-mono);
+    font-size: var(--text-base);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-widest);
+    border: var(--border-medium);
+    padding: var(--space-3) var(--space-6);
+    background: var(--white);
+    color: var(--black);
+    cursor: pointer;
+    transition: all 100ms;
+  }
+
+  .copy-button:hover {
+    background: var(--black);
+    color: var(--white);
+  }
+
+  .wrapped-nav {
+    display: flex;
+    justify-content: space-between;
+    padding-top: var(--space-8);
+    border-top: var(--border-thin);
+    margin-top: var(--space-12);
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-widest);
+  }
+
+  .wrapped-nav a {
+    padding: var(--space-2) var(--space-4);
+  }
+
+  .wrapped-nav a:hover {
+    background: var(--black);
+    color: var(--white);
+  }
+</style>

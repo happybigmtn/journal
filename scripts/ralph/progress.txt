@@ -614,3 +614,34 @@ Target: Journal Enhancements
   - Neovim floating windows: `nvim_open_win` with relative="editor"
 
 ---
+
+## 2026-01-07 - US-050 Yearly Wrapped Summary
+
+- Created `/wrapped/[year]` dynamic page with Spotify Wrapped-style summary:
+  - Statistics: total entries, words written, avg words/entry, longest streak
+  - Most productive month and day of week (highlighted cards)
+  - Mood breakdown with bar chart visualization
+  - Top 10 tags cloud (sized by frequency)
+  - Monthly activity bar chart (12 months)
+  - Wellness averages (sleep hours, energy level)
+  - Entry type breakdown (daily, weekly, project, etc.)
+- Share functionality:
+  - Inverted share card with key stats
+  - "Copy Summary" button generates text for social sharing
+  - Summary includes emojis for engagement
+- Navigation:
+  - Previous/next year links
+  - Back to calendar link
+  - getStaticPaths generates pages for all years with entries
+- Added `:JournalWrapped [year]` command in Neovim:
+  - Opens wrapped page in default browser
+  - Tab completion for recent 5 years
+  - Uses xdg-open (Linux) or open (Mac)
+- Files changed: `site/src/pages/wrapped/[year].astro`, `site/src/pages/wrapped/index.astro`, `nvim/journal.lua`
+- **Learnings:**
+  - Astro dynamic routes: `[year].astro` + `getStaticPaths()` generates pages per year
+  - CSS custom properties via `style` attribute: `--size: ${calculated}` enables dynamic sizing
+  - Streak calculation: track consecutive dates, reset on gap > 1 day
+  - Date math: `getDay()` returns 0-6 (Sunday-Saturday)
+
+---

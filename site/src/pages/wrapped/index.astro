@@ -1,0 +1,5 @@
+---
+// Redirect to current year's wrapped page
+const currentYear = new Date().getFullYear();
+return Astro.redirect(`/wrapped/${currentYear}`);
+---
