@@ -1,11 +1,9 @@
 :root {
+  /* Pure monochrome palette - no intermediate shades */
   --black: #000000;
-  --charcoal: #1a1a1a;
-  --gray-dark: #333333;
-  --gray-mid: #666666;
-  --gray-light: #525252; /* WCAG AA compliant (7.14:1 contrast vs white) */
-  --off-white: #fafafa;
-  --white: #ffffff;
+  --white: #FFFFFF;
+  --muted: #F5F5F5;
+  --muted-foreground: #525252;
 
   --font-serif: 'Georgia', 'Times New Roman', serif;
   --font-sans: 'Helvetica Neue', Arial, sans-serif;
@@ -27,7 +25,7 @@ html {
 body {
   font-family: var(--font-serif);
   line-height: var(--line-height);
-  color: var(--charcoal);
+  color: var(--black);
   background: var(--white);
   -webkit-font-smoothing: antialiased;
 }
@@ -55,21 +53,21 @@ li { margin-bottom: 0.5rem; }
 
 hr {
   border: none;
-  border-top: 1px solid var(--gray-light);
+  border-top: 1px solid var(--muted-foreground);
   margin: 2rem 0;
 }
 
 blockquote {
-  border-left: 2px solid var(--gray-light);
+  border-left: 2px solid var(--muted-foreground);
   padding-left: 1rem;
   margin: 1.5rem 0;
-  color: var(--gray-dark);
+  color: var(--muted-foreground);
   font-style: italic;
 }
 
 /* Links */
 a {
-  color: var(--charcoal);
+  color: var(--black);
   text-decoration: underline;
   text-underline-offset: 2px;
   transition: all 0.15s ease;
@@ -98,7 +96,7 @@ a:hover {
   text-decoration: none;
   font-family: var(--font-sans);
   font-size: 0.875rem;
-  color: var(--gray-mid);
+  color: var(--muted-foreground);
 }
 
 /* Entry styles */
@@ -109,7 +107,7 @@ a:hover {
 .entry-date {
   font-family: var(--font-sans);
   font-size: 0.875rem;
-  color: var(--gray-mid);
+  color: var(--muted-foreground);
   letter-spacing: 0.05em;
   text-transform: uppercase;
   margin-bottom: 0.5rem;
@@ -117,26 +115,26 @@ a:hover {
 
 .entry-mood {
   font-size: 0.875rem;
-  color: var(--gray-light);
+  color: var(--muted-foreground);
 }
 
 .entry-content h2 {
   font-size: 1.125rem;
   margin: 2.5rem 0 1rem;
   padding-top: 1rem;
-  border-top: 1px solid var(--off-white);
+  border-top: 1px solid var(--muted);
 }
 
 .entry-content h3 {
   font-size: 1rem;
   font-style: italic;
-  color: var(--gray-dark);
+  color: var(--muted-foreground);
   margin: 1.5rem 0 0.5rem;
 }
 
 /* Archive */
 .archive-intro {
-  color: var(--gray-mid);
+  color: var(--muted-foreground);
   margin-bottom: 2rem;
 }
 
@@ -146,13 +144,13 @@ a:hover {
   font-weight: 400;
   margin: 2.5rem 0 1rem;
   padding-bottom: 0.5rem;
-  border-bottom: 1px solid var(--gray-light);
+  border-bottom: 1px solid var(--muted-foreground);
 }
 
 .archive-month {
   font-family: var(--font-sans);
   font-size: 0.75rem;
-  color: var(--gray-mid);
+  color: var(--muted-foreground);
   text-transform: uppercase;
   letter-spacing: 0.1em;
   margin: 1.5rem 0 0.5rem;
@@ -178,12 +176,12 @@ a:hover {
 .archive-list a:hover {
   background: none;
   color: var(--black);
-  border-bottom-color: var(--gray-light);
+  border-bottom-color: var(--muted-foreground);
   padding: 0.375rem 0;
 }
 
 .archive-list .mood {
-  color: var(--gray-light);
+  color: var(--muted-foreground);
   font-size: 0.875rem;
 }
 
@@ -195,12 +193,12 @@ a:hover {
   font-size: 0.875rem;
   margin-top: 3rem;
   padding-top: 1.5rem;
-  border-top: 1px solid var(--gray-light);
+  border-top: 1px solid var(--muted-foreground);
 }
 
 .nav a {
   text-decoration: none;
-  color: var(--gray-mid);
+  color: var(--muted-foreground);
 }
 
 .nav a:hover {
@@ -213,10 +211,10 @@ a:hover {
 .tags {
   margin-top: 2.5rem;
   padding-top: 1.5rem;
-  border-top: 1px solid var(--off-white);
+  border-top: 1px solid var(--muted);
   font-family: var(--font-sans);
   font-size: 0.75rem;
-  color: var(--gray-mid);
+  color: var(--muted-foreground);
 }
 
 .tags a {
@@ -233,7 +231,7 @@ a:hover {
 
 /* Tag page */
 .tag-count {
-  color: var(--gray-mid);
+  color: var(--muted-foreground);
   font-size: 0.875rem;
   margin-bottom: 2rem;
 }
@@ -256,13 +254,13 @@ img {
 code {
   font-family: 'SF Mono', 'Monaco', monospace;
   font-size: 0.875em;
-  background: var(--off-white);
+  background: var(--muted);
   padding: 0.125rem 0.375rem;
   border-radius: 2px;
 }
 
 pre {
-  background: var(--off-white);
+  background: var(--muted);
   padding: 1rem;
   overflow-x: auto;
   margin: 1.5rem 0;
