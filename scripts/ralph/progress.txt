@@ -169,3 +169,19 @@ Target: Journal Enhancements
   - Unicode filled/empty circles (●○) work well for monochrome displays
 
 ---
+
+## 2026-01-07 - US-010 Dark Mode Support
+
+- Added `prefers-color-scheme: dark` media query with CSS custom property overrides
+- Inverted palette: --black↔--white, --muted→#1A1A1A, --muted-foreground→#A3A3A3
+- Added neutral gray texture (128,128,128) that works in both modes
+- Created fixed toggle button with sun/moon icons (44px touch target)
+- Applied theme before render using inline script to prevent flash
+- Persisted choice in localStorage
+- Files changed: `site/src/styles/global.css`, `site/src/layouts/BaseLayout.astro`
+- **Learnings:**
+  - `:root:not([data-theme="light"])` respects system preference unless overridden
+  - Inline script in `<head>` with `is:inline` runs before render in Astro
+  - Monochrome designs invert perfectly - just swap black/white values
+
+---

@@ -314,8 +314,8 @@
 				"Add manual toggle in site header"
 			],
 			"priority": 24,
-			"passes": false,
-			"notes": "ENHANCEMENT: Monochrome design inverts perfectly for dark mode"
+			"passes": true,
+			"notes": "RESOLVED: CSS custom properties invert, localStorage persistence, sun/moon toggle"
 		},
 		{
 			"id": "US-011",
