@@ -455,3 +455,26 @@ Target: Journal Enhancements
   - Monochrome progress bars (black on light gray) match editorial aesthetic
 
 ---
+
+## 2026-01-07 - US-044 Shareable Entry Cards for Social Media
+
+- Created OG image generation endpoint at `/og/[...slug].png.ts`
+- Used `satori` for React→SVG and `sharp` for SVG→PNG conversion
+- Editorial OG card design: 4px black border, large uppercase date, excerpt, mood emoji, site branding
+- Loaded JetBrains Mono + Playfair Display fonts from jsDelivr CDN
+- Added `og_image` optional field to content schema for custom override images
+- Enhanced BaseLayout with full Open Graph and Twitter Card meta tags:
+  - `og:type`, `og:url`, `og:title`, `og:description`, `og:image`
+  - `twitter:card` (summary_large_image), `twitter:title`, `twitter:description`, `twitter:image`
+  - `article:published_time`, `article:tag` for article metadata
+- Updated EntryLayout to pass meta props to BaseLayout (excerpt, OG image URL, date, tags)
+- Added `:JournalShare` command + `<leader>jS` keymap to copy shareable URL to clipboard
+- Files changed: `site/src/pages/og/[...slug].png.ts`, `site/src/content/config.ts`, `site/src/layouts/BaseLayout.astro`, `site/src/layouts/EntryLayout.astro`, `nvim/journal.lua`, `site/package.json`
+- **Learnings:**
+  - Satori uses React-like VDOM syntax in plain objects: `{ type, props: { style, children } }`
+  - Font loading at module top-level runs once per build, not per page
+  - OG images must be 1200x630 for optimal display on all platforms
+  - Twitter uses `summary_large_image` card type for images (vs `summary` without)
+  - Astro's `getStaticPaths` generates PNG endpoints at build time like any other static route
+
+---

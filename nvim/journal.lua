@@ -673,6 +673,28 @@ function M.toggle_published()
   vim.notify("Entry marked as " .. status, vim.log.levels.INFO)
 end
 
+-- Copy shareable link for current entry to clipboard
+function M.share_entry()
+  local current_file = vim.fn.expand("%:t:r")
+  local y, m, d = current_file:match("^(%d%d%d%d)%-(%d%d)%-(%d%d)$")
+
+  if not y then
+    vim.notify("Not in a dated journal entry", vim.log.levels.WARN)
+    return
+  end
+
+  -- Construct the public URL
+  local site_url = "https://rizz.dad"
+  local slug = string.format("%s/%s/%s-%s-%s", y, m, y, m, d)
+  local share_url = site_url .. "/" .. slug
+
+  -- Copy to system clipboard
+  vim.fn.setreg("+", share_url)
+  vim.fn.setreg("*", share_url)
+
+  vim.notify("Copied to clipboard: " .. share_url, vim.log.levels.INFO)
+end
+
 -- List recent entries
 function M.journal_list()
   local entries = {}
@@ -803,10 +825,15 @@ function M.setup(opts)
     M.insert_image()
   end, { desc = "Insert image markdown" })
 
-  -- Publish toggle command
+  -- Publish toggle command (note: this overrides the earlier JournalPublish for site building)
   vim.api.nvim_create_user_command("JournalPublish", function()
     M.toggle_published()
   end, { desc = "Toggle entry published status" })
+
+  -- Share command
+  vim.api.nvim_create_user_command("JournalShare", function()
+    M.share_entry()
+  end, { desc = "Copy shareable link to clipboard" })
 
   -- Keymaps (disabled when using LazyVim, which handles its own keymaps)
   if M.config.keymaps then
@@ -823,6 +850,7 @@ function M.setup(opts)
     vim.keymap.set("n", "<leader>js", M.show_streak, { desc = "Show streak" })
     vim.keymap.set("n", "<leader>ji", M.insert_image, { desc = "Insert image" })
     vim.keymap.set("n", "<leader>jP", M.toggle_published, { desc = "Toggle published status" })
+    vim.keymap.set("n", "<leader>jS", M.share_entry, { desc = "Copy share link" })
   end
 
   -- Show streak in startup notification

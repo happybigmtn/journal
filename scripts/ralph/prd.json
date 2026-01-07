@@ -574,8 +574,8 @@
 				"Support custom share images per entry"
 			],
 			"priority": 43,
-			"passes": false,
-			"notes": "Beautiful previews when sharing journal entries on social media"
+			"passes": true,
+			"notes": "RESOLVED: satori+sharp OG image generation at /og/[slug].png, editorial design with border/date/excerpt, og_image schema field, BaseLayout meta tags, :JournalShare command + <leader>jS keymap"
 		},
 		{
 			"id": "US-045",
@@ -730,6 +730,127 @@
 			"priority": 54,
 			"passes": false,
 			"notes": "Capture interesting web content directly to your journal"
+		},
+		{
+			"id": "US-056",
+			"title": "Add sidenotes/marginalia system (Gwern-inspired)",
+			"acceptanceCriteria": [
+				"Footnotes appear in page margins on wide screens (>1200px)",
+				"Use sidenotes.js or Tufte CSS approach for positioning",
+				"Gracefully fall back to inline footnotes on mobile/narrow screens",
+				"Support both left and right margins for dense annotation",
+				"Add remark plugin to transform [^1] footnotes to sidenote divs",
+				"Style sidenotes with muted text, smaller font size"
+			],
+			"priority": 55,
+			"passes": false,
+			"notes": "Gwern-inspired: Maintain reading context by keeping notes near referenced text. Biggest UX win for annotations."
+		},
+		{
+			"id": "US-057",
+			"title": "Add link popup/preview system (Gwern-inspired)",
+			"acceptanceCriteria": [
+				"Hovering over internal links shows popup with entry preview",
+				"Use Floating UI for popup positioning",
+				"Display entry title, date, mood, and excerpt in popup",
+				"Popup appears after 300ms hover delay",
+				"Popup dismisses on mouseout with 100ms grace period",
+				"Support keyboard navigation (Escape to close)",
+				"Start with internal links only, external optional later"
+			],
+			"priority": 56,
+			"passes": false,
+			"notes": "Gwern-inspired: Dramatically lowers barrier to following links without losing context. The killer feature."
+		},
+		{
+			"id": "US-058",
+			"title": "Add bidirectional backlinks system (Gwern-inspired)",
+			"acceptanceCriteria": [
+				"Build-time: parse all entries and extract internal links",
+				"Generate backlinks data mapping each entry to entries that reference it",
+				"Display 'Referenced by' section in EntryLayout sidebar/footer",
+				"Show backlink with context snippet (surrounding sentence)",
+				"Link to the referencing entry's specific section if possible",
+				"Integrate backlinks data into link popup previews"
+			],
+			"priority": 57,
+			"passes": false,
+			"notes": "Gwern-inspired: Surface connections in your journal. Shows WHERE current page is linked FROM with in-context snippets."
+		},
+		{
+			"id": "US-059",
+			"title": "Add link type icons (Gwern-inspired)",
+			"acceptanceCriteria": [
+				"Add small icons after links indicating destination type",
+				"Icon types: external (↗), internal entry (◈), tag (#), PDF (doc), section (§)",
+				"Use CSS ::after pseudo-elements with Unicode symbols",
+				"Match monochrome aesthetic (no colors)",
+				"Pattern match on href attributes at build time",
+				"Icons should be subtle, not distracting"
+			],
+			"priority": 58,
+			"passes": false,
+			"notes": "Gwern-inspired: Instant visual hint about link destination without clicking. Low effort, high information density."
+		},
+		{
+			"id": "US-060",
+			"title": "Add collapsible/expandable sections",
+			"acceptanceCriteria": [
+				"Support <details>/<summary> HTML elements in markdown",
+				"Add custom CSS styling matching editorial design",
+				"Collapsed state shows indicator icon (< or ▶)",
+				"Smooth expand/collapse animation (optional)",
+				"Use for long code blocks, tangential content, spoilers",
+				"Add remark plugin for :::collapse syntax sugar"
+			],
+			"priority": 59,
+			"passes": false,
+			"notes": "Gwern-inspired: Manage entry length by hiding supplementary content. Native HTML, progressive enhancement."
+		},
+		{
+			"id": "US-061",
+			"title": "Add sortable tables",
+			"acceptanceCriteria": [
+				"Click table column headers to sort by that column",
+				"Toggle ascending/descending on repeated clicks",
+				"Visual indicator showing current sort column and direction",
+				"Use tablesorter library or native JS implementation",
+				"Works without JavaScript (graceful degradation)",
+				"Apply to all tables in entry content automatically"
+			],
+			"priority": 60,
+			"passes": false,
+			"notes": "Gwern-inspired: Dynamic table reordering for data-heavy entries. Low effort via third-party library."
+		},
+		{
+			"id": "US-062",
+			"title": "Add similar entries recommendation",
+			"acceptanceCriteria": [
+				"Show 'Related Entries' section on each entry page",
+				"Calculate similarity based on shared tags",
+				"Display 3-5 most similar entries with title and date",
+				"Exclude entries from same week (too obvious)",
+				"Optional: use text embeddings for semantic similarity (future)",
+				"Cache similarity calculations at build time"
+			],
+			"priority": 61,
+			"passes": false,
+			"notes": "Gwern-inspired: Help readers discover related content. Start simple with tags, upgrade to ML later."
+		},
+		{
+			"id": "US-063",
+			"title": "Add smart dark mode image handling (Gwern-inspired)",
+			"acceptanceCriteria": [
+				"Color photos get grayscale filter in dark mode",
+				"Monochrome/diagram images get inverted in dark mode",
+				"Add 'invert' frontmatter option to override auto-detection",
+				"Use CSS filter: grayscale(1) and filter: invert(1)",
+				"Build-time detection of image type if possible",
+				"Manual .invert-dark class for explicit control"
+			],
+			"priority": 62,
+			"passes": false,
+			"notes": "Gwern-inspired: Intelligent dark mode that handles images appropriately. Your monochrome aesthetic makes this easier."
 		}
 	],
 	"technicalDebt": [

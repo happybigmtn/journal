@@ -65,9 +65,28 @@ const wordCount = entry.body
   .length;
 
 const readingTime = Math.max(1, Math.ceil(wordCount / WORDS_PER_MINUTE));
+
+// Generate excerpt for OG description
+const excerpt = entry.body
+  .replace(/---[\s\S]*?---/, '')
+  .replace(/```[\s\S]*?```/g, '')
+  .replace(/[#*_~`\[\]()>|-]/g, '')
+  .replace(/\n+/g, ' ')
+  .trim()
+  .slice(0, 150) + '...';
+
+// OG image: use custom if set, otherwise use auto-generated (only for published)
+const ogImage = entry.data.og_image || (entry.data.published ? `/og/${entry.slug}.png` : undefined);
 ---
 
-<BaseLayout title={entry.data.title}>
+<BaseLayout
+  title={entry.data.title}
+  description={excerpt}
+  ogImage={ogImage}
+  ogType="article"
+  publishedTime={entry.data.date}
+  tags={entry.data.tags}
+>
   <header class="site-header">
     <a href="/">← Archive</a>
   </header>
