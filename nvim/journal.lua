@@ -50,6 +50,36 @@ local function ensure_dir(path)
   vim.fn.mkdir(path, "p")
 end
 
+-- Utility: Validate date is within acceptable bounds
+-- Rejects dates before 1900-01-01 or more than 1 year in the future
+local function validate_date(date)
+  -- Check year bounds
+  if date.year < 1900 then
+    return false, "Date cannot be before 1900-01-01"
+  end
+
+  -- Check if date is valid (handles leap years, month boundaries)
+  local time = os.time({ year = date.year, month = date.month, day = date.day })
+  if not time then
+    return false, "Invalid date (check month/day values)"
+  end
+
+  -- Verify date didn't get normalized (e.g., Feb 30 -> Mar 2)
+  local normalized = os.date("*t", time)
+  if normalized.year ~= date.year or normalized.month ~= date.month or normalized.day ~= date.day then
+    return false, string.format("Invalid date: %04d-%02d-%02d does not exist", date.year, date.month, date.day)
+  end
+
+  -- Check if more than 1 year in the future
+  local now = os.time()
+  local one_year_ahead = now + (365 * 24 * 60 * 60)
+  if time > one_year_ahead then
+    return false, "Date cannot be more than 1 year in the future"
+  end
+
+  return true, nil
+end
+
 -- Utility: Read template file
 local function read_template(template_type)
   local template_path = M.config.template_dir .. "/" .. template_type .. ".md"
@@ -97,6 +127,12 @@ function M.journal_new(args)
     local y, m, d = date_str:match("(%d+)-(%d+)-(%d+)")
     if y then
       date = { year = tonumber(y), month = tonumber(m), day = tonumber(d) }
+      -- Validate date bounds
+      local valid, err = validate_date(date)
+      if not valid then
+        vim.notify(err, vim.log.levels.ERROR)
+        return
+      end
     else
       vim.notify("Invalid date format. Use YYYY-MM-DD", vim.log.levels.ERROR)
       return
