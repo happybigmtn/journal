@@ -155,3 +155,17 @@ Target: Journal Enhancements
   - Keep frontmatter fields optional when user may not always track them
 
 ---
+
+## 2026-01-07 - US-009 Energy Level Tracking
+
+- Added `energy` optional field (1-10 integer) to content schema
+- Added Energy Level section with scale prompt in Evening section
+- Display energy as visual dot indicator: filled (●) + empty (○)
+- Used JS string repeat for dynamic dot generation
+- Files changed: `site/src/content/config.ts`, `templates/daily.md`, `site/src/layouts/EntryLayout.astro`, `site/src/styles/global.css`
+- **Learnings:**
+  - Zod `.int()` ensures whole numbers only
+  - String `.repeat(n)` is elegant for generating visual indicators
+  - Unicode filled/empty circles (●○) work well for monochrome displays
+
+---
