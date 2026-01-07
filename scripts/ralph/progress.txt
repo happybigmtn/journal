@@ -871,3 +871,40 @@ Target: Journal Enhancements
 
 ---
 
+
+## 2026-01-07 - US-057 Link Popup/Preview System (Gwern-inspired)
+
+- Created `/previews.json` API endpoint for entry preview data:
+  - Generates JSON keyed by entry slug (YYYY/MM/DD)
+  - Includes: title, date, type, mood, excerpt, tags
+  - Excerpt extracted from first non-header paragraph (max 200 chars)
+  - Filters to non-draft entries (production-aware like other pages)
+- Installed `@floating-ui/dom` for popup positioning:
+  - `computePosition()` calculates optimal placement
+  - `flip` middleware handles viewport edge collision
+  - `shift` middleware prevents horizontal overflow
+  - `offset(8)` adds spacing between link and popup
+- Added link preview popup to EntryLayout:
+  - HTML: popup div with type, date, title, excerpt, tags, mood sections
+  - CSS: positioned absolutely, 320px max-width, shadow, editorial styling
+  - JavaScript: event-driven hover system with timing controls
+- Hover behavior:
+  - Internal links detected via `/YYYY/MM/DD` regex pattern
+  - Show delay: 300ms before popup appears
+  - Hide grace period: 100ms after mouseout
+  - Popup hover: keeps popup open when mouse enters popup
+- Additional features:
+  - Escape key dismisses active popup
+  - Links with previews get dotted underline (solid on hover)
+  - Disabled on mobile (<640px media query)
+  - Preview data cached after first fetch
+- Files changed: `site/src/pages/previews.json.ts`, `site/src/layouts/EntryLayout.astro`, `site/package.json`
+- **Learnings:**
+  - Floating UI's `flip` middleware tries fallback placements in order
+  - Timer-based hover delays need careful cleanup (clearTimeout on state change)
+  - Slug extraction from href requires precise regex: `/^\/(\d{4}\/\d{2}\/\d{2})$/`
+  - Popup mouse events need separate handlers to extend visibility window
+  - `data-has-preview` attribute enables CSS styling for preview-enabled links
+
+---
+

@@ -759,8 +759,8 @@
 				"Start with internal links only, external optional later"
 			],
 			"priority": 56,
-			"passes": false,
-			"notes": "Gwern-inspired: Dramatically lowers barrier to following links without losing context. The killer feature."
+			"passes": true,
+			"notes": "RESOLVED: Created /previews.json endpoint generating preview data (title, date, type, mood, excerpt, tags) for all entries. Added link preview popup to EntryLayout using Floating UI for positioning. Internal links (matching /YYYY/MM/DD pattern) show popup on 300ms hover delay with 100ms grace period. Popup shows type badge, date, title, excerpt, tags, and mood. Escape key dismisses popup. Links with previews have dotted underline. Disabled on mobile (<640px)."
 		},
 		{
 			"id": "US-058",

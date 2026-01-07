@@ -189,4 +189,300 @@ const ogImage = entry.data.og_image || (entry.data.published ? `/og/${entry.slug
       <a href={`/${nextEntry.slug}`}>{formatShortDate(nextEntry.data.date)} →</a>
     ) : <span></span>}
   </nav>
+
+  <!-- Link Preview Popup -->
+  <div id="link-preview-popup" class="link-preview-popup" role="tooltip" aria-hidden="true">
+    <div class="preview-header">
+      <span class="preview-type"></span>
+      <span class="preview-date"></span>
+    </div>
+    <h3 class="preview-title"></h3>
+    <p class="preview-excerpt"></p>
+    <div class="preview-tags"></div>
+    <div class="preview-mood"></div>
+  </div>
 </BaseLayout>
+
+<style>
+  .link-preview-popup {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    max-width: 320px;
+    padding: var(--space-4);
+    background: var(--white);
+    border: var(--border-thin);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.15s ease, visibility 0.15s ease;
+    pointer-events: none;
+  }
+
+  .link-preview-popup.visible {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  .preview-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-2);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-widest);
+    color: var(--muted-foreground);
+  }
+
+  .preview-type {
+    padding: 2px 6px;
+    background: var(--muted);
+  }
+
+  .preview-title {
+    font-family: var(--font-display);
+    font-size: var(--text-base);
+    margin: 0 0 var(--space-2) 0;
+    line-height: var(--leading-tight);
+  }
+
+  .preview-excerpt {
+    font-size: var(--text-sm);
+    color: var(--muted-foreground);
+    margin: 0 0 var(--space-2) 0;
+    line-height: var(--leading-relaxed);
+  }
+
+  .preview-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+    margin-bottom: var(--space-2);
+  }
+
+  .preview-tags:empty {
+    display: none;
+  }
+
+  .preview-tags span {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--muted-foreground);
+  }
+
+  .preview-mood {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--muted-foreground);
+  }
+
+  .preview-mood:empty {
+    display: none;
+  }
+
+  /* Highlight links that have previews */
+  .entry-content a[data-has-preview] {
+    text-decoration-style: dotted;
+  }
+
+  .entry-content a[data-has-preview]:hover {
+    text-decoration-style: solid;
+  }
+
+  @media (max-width: 640px) {
+    .link-preview-popup {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  import { computePosition, flip, shift, offset } from '@floating-ui/dom';
+
+  // Cache for preview data
+  let previewsCache: Record<string, {
+    title: string;
+    date: string;
+    type: string;
+    mood: string | null;
+    excerpt: string;
+    tags: string[];
+  }> | null = null;
+
+  // Timers for hover delay
+  let showTimer: ReturnType<typeof setTimeout> | null = null;
+  let hideTimer: ReturnType<typeof setTimeout> | null = null;
+
+  // Current active link
+  let activeLink: HTMLAnchorElement | null = null;
+
+  async function loadPreviews() {
+    if (previewsCache) return previewsCache;
+
+    try {
+      const response = await fetch('/previews.json');
+      if (response.ok) {
+        previewsCache = await response.json();
+        return previewsCache;
+      }
+    } catch (e) {
+      console.error('Failed to load previews:', e);
+    }
+    return null;
+  }
+
+  function getSlugFromHref(href: string): string | null {
+    // Handle relative URLs like /2026/01/07
+    const match = href.match(/^\/(\d{4}\/\d{2}\/\d{2})$/);
+    if (match) {
+      return match[1];
+    }
+    return null;
+  }
+
+  async function showPreview(link: HTMLAnchorElement) {
+    const popup = document.getElementById('link-preview-popup');
+    if (!popup) return;
+
+    const href = link.getAttribute('href');
+    if (!href) return;
+
+    const slug = getSlugFromHref(href);
+    if (!slug) return;
+
+    const previews = await loadPreviews();
+    if (!previews || !previews[slug]) return;
+
+    const preview = previews[slug];
+
+    // Populate popup content
+    const typeEl = popup.querySelector('.preview-type');
+    const dateEl = popup.querySelector('.preview-date');
+    const titleEl = popup.querySelector('.preview-title');
+    const excerptEl = popup.querySelector('.preview-excerpt');
+    const tagsEl = popup.querySelector('.preview-tags');
+    const moodEl = popup.querySelector('.preview-mood');
+
+    if (typeEl) typeEl.textContent = preview.type;
+    if (dateEl) dateEl.textContent = preview.date;
+    if (titleEl) titleEl.textContent = preview.title;
+    if (excerptEl) excerptEl.textContent = preview.excerpt;
+    if (tagsEl) {
+      tagsEl.innerHTML = preview.tags.map(t => `<span>#${t}</span>`).join('');
+    }
+    if (moodEl) {
+      moodEl.textContent = preview.mood ? `Mood: ${preview.mood}` : '';
+    }
+
+    // Position popup using Floating UI
+    const { x, y } = await computePosition(link, popup, {
+      placement: 'bottom-start',
+      middleware: [
+        offset(8),
+        flip({ fallbackPlacements: ['top-start', 'bottom-end', 'top-end'] }),
+        shift({ padding: 8 })
+      ]
+    });
+
+    popup.style.left = `${x}px`;
+    popup.style.top = `${y}px`;
+    popup.classList.add('visible');
+    popup.setAttribute('aria-hidden', 'false');
+    activeLink = link;
+  }
+
+  function hidePreview() {
+    const popup = document.getElementById('link-preview-popup');
+    if (popup) {
+      popup.classList.remove('visible');
+      popup.setAttribute('aria-hidden', 'true');
+    }
+    activeLink = null;
+  }
+
+  function handleLinkMouseEnter(e: MouseEvent) {
+    const link = e.currentTarget as HTMLAnchorElement;
+
+    // Clear any pending hide timer
+    if (hideTimer) {
+      clearTimeout(hideTimer);
+      hideTimer = null;
+    }
+
+    // Set show timer with 300ms delay
+    showTimer = setTimeout(() => {
+      showPreview(link);
+    }, 300);
+  }
+
+  function handleLinkMouseLeave() {
+    // Clear show timer if still pending
+    if (showTimer) {
+      clearTimeout(showTimer);
+      showTimer = null;
+    }
+
+    // Set hide timer with 100ms grace period
+    hideTimer = setTimeout(() => {
+      hidePreview();
+    }, 100);
+  }
+
+  function handlePopupMouseEnter() {
+    // Clear hide timer when entering popup
+    if (hideTimer) {
+      clearTimeout(hideTimer);
+      hideTimer = null;
+    }
+  }
+
+  function handlePopupMouseLeave() {
+    // Hide after leaving popup
+    hideTimer = setTimeout(() => {
+      hidePreview();
+    }, 100);
+  }
+
+  function handleKeyDown(e: KeyboardEvent) {
+    if (e.key === 'Escape' && activeLink) {
+      hidePreview();
+    }
+  }
+
+  function initLinkPreviews() {
+    const contentArea = document.querySelector('.entry-content');
+    if (!contentArea) return;
+
+    // Find all internal entry links
+    const links = contentArea.querySelectorAll<HTMLAnchorElement>('a[href^="/"]');
+
+    links.forEach(link => {
+      const href = link.getAttribute('href');
+      if (href && getSlugFromHref(href)) {
+        // Mark link as having preview
+        link.setAttribute('data-has-preview', 'true');
+
+        // Add event listeners
+        link.addEventListener('mouseenter', handleLinkMouseEnter);
+        link.addEventListener('mouseleave', handleLinkMouseLeave);
+      }
+    });
+
+    // Popup hover listeners
+    const popup = document.getElementById('link-preview-popup');
+    if (popup) {
+      popup.addEventListener('mouseenter', handlePopupMouseEnter);
+      popup.addEventListener('mouseleave', handlePopupMouseLeave);
+    }
+
+    // Keyboard listener
+    document.addEventListener('keydown', handleKeyDown);
+  }
+
+  // Initialize on DOM ready
+  document.addEventListener('DOMContentLoaded', initLinkPreviews);
+</script>
