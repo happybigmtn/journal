@@ -980,3 +980,112 @@ pre code {
   background: var(--black);
   color: var(--white);
 }
+
+/* =================================================================
+   SIDENOTES / MARGINALIA (Tufte-style)
+   =================================================================
+   Footnotes appear in page margins on wide screens (>1200px).
+   Falls back to inline toggleable footnotes on narrower screens.
+   ================================================================= */
+
+/* Hide the checkbox - we use it for mobile toggle */
+.sidenote-checkbox {
+  display: none;
+}
+
+/* Sidenote toggle (the superscript number in text) */
+.sidenote-toggle {
+  cursor: pointer;
+}
+
+.sidenote-toggle.sidenote-number {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--muted-foreground);
+  vertical-align: super;
+  padding: 0 0.15em;
+  text-decoration: none;
+}
+
+.sidenote-toggle.sidenote-number::before {
+  content: "[";
+}
+
+.sidenote-toggle.sidenote-number::after {
+  content: "]";
+}
+
+/* The sidenote content */
+.sidenote {
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  color: var(--muted-foreground);
+}
+
+.sidenote .sidenote-number {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  margin-right: 0.5em;
+}
+
+.sidenote .sidenote-number::after {
+  content: ".";
+}
+
+/* Wide screens: Position sidenotes in the margin */
+@media (min-width: 1200px) {
+  .entry-content {
+    position: relative;
+  }
+
+  .sidenote-toggle.sidenote-number {
+    cursor: default; /* No toggle needed on wide screens */
+  }
+
+  .sidenote {
+    position: absolute;
+    right: calc(-18rem - 2rem); /* Position in right margin */
+    width: 16rem;
+    margin-top: -0.25rem;
+    padding-left: 1rem;
+    border-left: var(--border-thin);
+    font-family: var(--font-body);
+    text-align: left;
+  }
+
+  /* Alternating sidenotes: odd in right margin, even in left */
+  .sidenote:nth-of-type(even) {
+    right: auto;
+    left: calc(-18rem - 2rem);
+    padding-left: 0;
+    padding-right: 1rem;
+    border-left: none;
+    border-right: var(--border-thin);
+    text-align: right;
+  }
+}
+
+/* Narrow screens: Toggle-based inline sidenotes */
+@media (max-width: 1199px) {
+  .sidenote {
+    display: none;
+    background: var(--muted);
+    padding: 0.75rem 1rem;
+    margin: 0.5rem 0;
+    font-style: italic;
+  }
+
+  /* Show sidenote when checkbox is checked */
+  .sidenote-checkbox:checked + .sidenote {
+    display: block;
+  }
+
+  .sidenote-toggle.sidenote-number {
+    color: var(--black);
+    cursor: pointer;
+  }
+
+  .sidenote-toggle.sidenote-number:hover {
+    text-decoration: underline;
+  }
+}
