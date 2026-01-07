@@ -204,3 +204,22 @@ Target: Journal Enhancements
   - Square timeline points match editorial "sharp corners" design system
 
 ---
+
+## 2026-01-07 - US-012 Calendar Heat Map
+
+- Created `/calendar` route with year-at-a-glance 12-month grid
+- 4-column responsive layout (3 on tablet, 2 on mobile, 1 on small screens)
+- Binary heat map: black fill = entry exists, white = no entry
+- Each month shows 7-column day grid with weekday headers (S M T W T F S)
+- Entry counts displayed per month and total for year
+- Year selector allows switching between years (client-side rendering)
+- Days with entries are clickable links to the entry page
+- Inverted hover state on entry days (white text on black becomes black on white)
+- Files changed: `site/src/pages/calendar.astro`
+- **Learnings:**
+  - Calendar generation needs `startDayOfWeek` offset for proper alignment
+  - `aspect-ratio: 1` keeps day cells square regardless of content
+  - Pre-computing all years' data allows instant client-side switching
+  - Binary (black/white) heat map is cleaner than gradient for monochrome design
+
+---

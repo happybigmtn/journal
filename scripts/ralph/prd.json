@@ -340,8 +340,8 @@
 				"Show entry counts per month"
 			],
 			"priority": 26,
-			"passes": false,
-			"notes": "ENHANCEMENT: Visual consistency with monochrome design"
+			"passes": true,
+			"notes": "RESOLVED: 4-column grid of months, black-filled days for entries, year selector"
 		},
 		{
 			"id": "US-013",

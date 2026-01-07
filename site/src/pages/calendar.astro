@@ -1,0 +1,387 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const allEntries = await getCollection('journal', ({ data }) => !data.draft);
+
+// Create a map of date strings to entries for quick lookup
+const entryMap = new Map<string, typeof allEntries[0]>();
+allEntries.forEach(entry => {
+  const dateStr = new Date(entry.data.date).toISOString().split('T')[0];
+  entryMap.set(dateStr, entry);
+});
+
+// Get available years
+const years = [...new Set(allEntries.map(e => new Date(e.data.date).getFullYear()))].sort((a, b) => b - a);
+const currentYear = years[0] || new Date().getFullYear();
+
+// Generate calendar data for a year
+function generateYearCalendar(year: number) {
+  const months = [];
+  const monthNames = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ];
+
+  for (let month = 0; month < 12; month++) {
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const daysInMonth = lastDay.getDate();
+    const startDayOfWeek = firstDay.getDay(); // 0 = Sunday
+
+    const days: Array<{ date: Date | null; dateStr: string | null; hasEntry: boolean; slug: string | null }> = [];
+
+    // Add empty cells for days before the 1st
+    for (let i = 0; i < startDayOfWeek; i++) {
+      days.push({ date: null, dateStr: null, hasEntry: false, slug: null });
+    }
+
+    // Add actual days
+    for (let day = 1; day <= daysInMonth; day++) {
+      const date = new Date(year, month, day);
+      const dateStr = date.toISOString().split('T')[0];
+      const entry = entryMap.get(dateStr);
+      days.push({
+        date,
+        dateStr,
+        hasEntry: !!entry,
+        slug: entry?.slug || null
+      });
+    }
+
+    // Count entries for this month
+    const entryCount = days.filter(d => d.hasEntry).length;
+
+    months.push({
+      name: monthNames[month],
+      days,
+      entryCount
+    });
+  }
+
+  return months;
+}
+
+const yearData = generateYearCalendar(currentYear);
+const totalEntries = allEntries.filter(e => new Date(e.data.date).getFullYear() === currentYear).length;
+
+// Pass data to client for year switching
+const allYearsData: Record<number, ReturnType<typeof generateYearCalendar>> = {};
+years.forEach(year => {
+  allYearsData[year] = generateYearCalendar(year);
+});
+---
+
+<BaseLayout title="Calendar | Journal">
+  <header class="calendar-header">
+    <h1 class="calendar-title">Calendar</h1>
+    <p class="calendar-subtitle">Year at a glance</p>
+  </header>
+
+  <div class="calendar-controls">
+    <select id="year-select" class="year-select">
+      {years.map(year => (
+        <option value={year} selected={year === currentYear}>{year}</option>
+      ))}
+    </select>
+    <div class="calendar-stats">
+      <span id="entry-count">{totalEntries}</span> entries
+    </div>
+  </div>
+
+  <div class="calendar-legend">
+    <span class="legend-item">
+      <span class="legend-box legend-empty"></span>
+      No entry
+    </span>
+    <span class="legend-item">
+      <span class="legend-box legend-filled"></span>
+      Entry
+    </span>
+  </div>
+
+  <div class="calendar-grid" id="calendar-grid">
+    {yearData.map(month => (
+      <div class="calendar-month">
+        <div class="month-header">
+          <span class="month-name">{month.name}</span>
+          <span class="month-count">{month.entryCount}</span>
+        </div>
+        <div class="month-days-header">
+          <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
+        </div>
+        <div class="month-days">
+          {month.days.map(day => (
+            day.date === null ? (
+              <span class="day empty"></span>
+            ) : day.hasEntry ? (
+              <a href={`/${day.slug}`} class="day has-entry" title={day.dateStr}>
+                {day.date.getDate()}
+              </a>
+            ) : (
+              <span class="day" title={day.dateStr}>
+                {day.date.getDate()}
+              </span>
+            )
+          ))}
+        </div>
+      </div>
+    ))}
+  </div>
+</BaseLayout>
+
+<style>
+  .calendar-header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .calendar-title {
+    font-family: var(--font-display);
+    font-size: var(--text-5xl);
+    font-weight: 500;
+    letter-spacing: var(--tracking-tight);
+    margin-bottom: 0.5rem;
+  }
+
+  .calendar-subtitle {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    letter-spacing: var(--tracking-widest);
+    text-transform: uppercase;
+    color: var(--muted-foreground);
+    margin: 0;
+  }
+
+  .calendar-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .year-select {
+    font-family: var(--font-mono);
+    font-size: var(--text-2xl);
+    padding: 0.5rem 1rem;
+    background: var(--white);
+    border: var(--border-medium);
+    color: var(--black);
+    cursor: pointer;
+    font-weight: 500;
+  }
+
+  .year-select:hover {
+    background: var(--muted);
+  }
+
+  .calendar-stats {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    color: var(--muted-foreground);
+  }
+
+  .calendar-stats #entry-count {
+    font-size: var(--text-lg);
+    color: var(--black);
+    font-weight: 500;
+  }
+
+  .calendar-legend {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-bottom: 3rem;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-wide);
+    color: var(--muted-foreground);
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .legend-box {
+    width: 16px;
+    height: 16px;
+    border: 1px solid var(--black);
+  }
+
+  .legend-empty {
+    background: var(--white);
+  }
+
+  .legend-filled {
+    background: var(--black);
+  }
+
+  .calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2rem;
+    max-width: var(--max-width);
+    margin: 0 auto;
+  }
+
+  .calendar-month {
+    border: var(--border-thin);
+    padding: 1rem;
+  }
+
+  .month-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: var(--border-thin);
+  }
+
+  .month-name {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+  }
+
+  .month-count {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--muted-foreground);
+  }
+
+  .month-days-header {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+    margin-bottom: 0.25rem;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--muted-foreground);
+    text-align: center;
+  }
+
+  .month-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+  }
+
+  .day {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    border: 1px solid transparent;
+    color: var(--muted-foreground);
+  }
+
+  .day.empty {
+    background: transparent;
+  }
+
+  .day.has-entry {
+    background: var(--black);
+    color: var(--white);
+    text-decoration: none;
+    border-color: var(--black);
+    transition: all 100ms;
+  }
+
+  .day.has-entry:hover {
+    background: var(--white);
+    color: var(--black);
+    border-color: var(--black);
+    border-width: 2px;
+  }
+
+  /* Responsive: 3 columns on tablet, 2 on mobile */
+  @media (max-width: 1024px) {
+    .calendar-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .calendar-title {
+      font-size: var(--text-3xl);
+    }
+
+    .calendar-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+
+    .calendar-month {
+      padding: 0.75rem;
+    }
+
+    .calendar-controls {
+      flex-direction: column;
+      gap: 1rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .calendar-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script define:vars={{ allYearsData, years }}>
+  const yearSelect = document.getElementById('year-select');
+  const calendarGrid = document.getElementById('calendar-grid');
+  const entryCount = document.getElementById('entry-count');
+
+  function renderYear(year) {
+    const yearData = allYearsData[year];
+    if (!yearData) return;
+
+    let totalEntries = 0;
+    let html = '';
+
+    yearData.forEach(month => {
+      totalEntries += month.entryCount;
+
+      html += `
+        <div class="calendar-month">
+          <div class="month-header">
+            <span class="month-name">${month.name}</span>
+            <span class="month-count">${month.entryCount}</span>
+          </div>
+          <div class="month-days-header">
+            <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
+          </div>
+          <div class="month-days">
+            ${month.days.map(day => {
+              if (day.date === null) {
+                return '<span class="day empty"></span>';
+              } else if (day.hasEntry) {
+                const dayNum = new Date(day.date).getDate();
+                return `<a href="/${day.slug}" class="day has-entry" title="${day.dateStr}">${dayNum}</a>`;
+              } else {
+                const dayNum = new Date(day.date).getDate();
+                return `<span class="day" title="${day.dateStr}">${dayNum}</span>`;
+              }
+            }).join('')}
+          </div>
+        </div>
+      `;
+    });
+
+    calendarGrid.innerHTML = html;
+    entryCount.textContent = totalEntries;
+  }
+
+  yearSelect.addEventListener('change', (e) => {
+    renderYear(parseInt(e.target.value));
+  });
+</script>
