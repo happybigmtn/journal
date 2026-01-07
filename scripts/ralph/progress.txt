@@ -675,3 +675,44 @@ Target: Journal Enhancements
   - Context extraction via sentence-boundary regex: `[^.!?]*@name[^.!?]*[.!?]`
 
 ---
+
+## 2026-01-07 - US-052 Gratitude Tracking with Visualization
+
+- Created `/gratitude` page with comprehensive gratitude tracking
+- Parses numbered items from "### I am grateful for..." section
+- Regex extraction: section match + numbered list parsing
+- Categorization via keyword matching:
+  - People: family, friend, partner, mentor, @mentions, etc.
+  - Experiences: moment, opportunity, feeling, journey, learning, etc.
+  - Things: home, food, coffee, health, weather, nature, etc.
+  - Other: catch-all for uncategorized items
+- Statistics displayed:
+  - Total gratitudes count
+  - Days practiced
+  - Current gratitude streak (consecutive days)
+  - Average gratitudes per day
+- Category cards with:
+  - Icon, name, count
+  - Progress bar showing relative proportion
+- Word cloud visualization:
+  - Stops common words (the, a, and, etc.)
+  - Size scaled by frequency
+  - Opacity varies with frequency
+  - Hover shows exact count
+- Monthly practice bar chart (last 12 months)
+- Interactive filter tabs:
+  - All / People / Experiences / Things
+  - Client-side JS filtering (no page reload)
+- Full gratitude list:
+  - Date, text, category badge
+  - Category-specific border colors
+- Added to main navigation with Insights, People
+- Files changed: `site/src/pages/gratitude.astro`, `site/src/layouts/BaseLayout.astro`
+- **Learnings:**
+  - Regex section extraction: `###\s*I am grateful for.*?\n([\s\S]*?)(?=\n###|\n---|$)` handles boundaries
+  - Word cloud sizing: `0.8 + (count/max) * 1.5` creates readable range
+  - Stop words filter dramatically improves word cloud relevance
+  - Gratitude streak different from journaling streak (tracks days with gratitudes specifically)
+
+---
+
