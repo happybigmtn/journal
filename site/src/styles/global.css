@@ -4,6 +4,8 @@
   --white: #FFFFFF;
   --muted: #F5F5F5;
   --muted-foreground: #525252;
+  --border-hairline-color: #E5E5E5;
+  --texture-opacity: 0.015;
 
   /* Editorial typography */
   --font-display: 'Playfair Display', Georgia, serif;
@@ -32,7 +34,7 @@
   --tracking-widest: 0.1em;
 
   /* Line-based border system */
-  --border-hairline: 1px solid #E5E5E5;
+  --border-hairline: 1px solid var(--border-hairline-color);
   --border-thin: 1px solid var(--black);
   --border-medium: 2px solid var(--black);
   --border-thick: 4px solid var(--black);
@@ -41,6 +43,28 @@
   --max-width: 72rem; /* 1152px for dramatic whitespace */
   --content-width: 42rem; /* 672px for readable body text */
   --line-height: 1.7;
+}
+
+/* Dark mode - system preference */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --black: #FFFFFF;
+    --white: #000000;
+    --muted: #1A1A1A;
+    --muted-foreground: #A3A3A3;
+    --border-hairline-color: #333333;
+    --texture-opacity: 0.03;
+  }
+}
+
+/* Dark mode - manual override */
+[data-theme="dark"] {
+  --black: #FFFFFF;
+  --white: #000000;
+  --muted: #1A1A1A;
+  --muted-foreground: #A3A3A3;
+  --border-hairline-color: #333333;
+  --texture-opacity: 0.03;
 }
 
 * {
@@ -72,13 +96,13 @@ body::before {
   width: 100%;
   height: 100%;
   pointer-events: none;
-  /* Horizontal line texture */
+  /* Horizontal line texture - adjusts with dark mode via filter */
   background: repeating-linear-gradient(
     to bottom,
     transparent,
     transparent 3px,
-    rgba(0, 0, 0, 0.015) 3px,
-    rgba(0, 0, 0, 0.015) 4px
+    rgba(128, 128, 128, 0.03) 3px,
+    rgba(128, 128, 128, 0.03) 4px
   );
   z-index: 9999;
 }
@@ -202,6 +226,41 @@ a:hover {
 
 .skip-link:focus {
   top: 0;
+}
+
+/* Theme toggle button */
+.theme-toggle {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  width: 44px;
+  height: 44px;
+  background: var(--white);
+  border: var(--border-thin);
+  cursor: pointer;
+  font-size: var(--text-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  transition: background 100ms, color 100ms;
+}
+
+.theme-toggle:hover {
+  background: var(--black);
+  color: var(--white);
+}
+
+.theme-icon-dark {
+  display: none;
+}
+
+.theme-toggle.is-dark .theme-icon-light {
+  display: none;
+}
+
+.theme-toggle.is-dark .theme-icon-dark {
+  display: block;
 }
 
 /* Focus states for accessibility - use focus-visible to prevent mouse click outlines */
