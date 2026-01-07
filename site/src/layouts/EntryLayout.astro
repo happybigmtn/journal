@@ -14,6 +14,21 @@ const currentIndex = sortedEntries.findIndex(e => e.slug === entry.slug);
 const prevEntry = sortedEntries[currentIndex + 1];
 const nextEntry = sortedEntries[currentIndex - 1];
 
+// "On This Day" - find entries from same month-day in previous years
+const currentDate = entry.data.date;
+const currentMonth = currentDate.getMonth();
+const currentDay = currentDate.getDate();
+const currentYear = currentDate.getFullYear();
+
+const onThisDayEntries = allEntries
+  .filter(e => {
+    const d = e.data.date;
+    return d.getMonth() === currentMonth &&
+           d.getDate() === currentDay &&
+           d.getFullYear() !== currentYear;
+  })
+  .sort((a, b) => b.data.date.getFullYear() - a.data.date.getFullYear());
+
 const formatDate = (date: Date) => {
   return date.toLocaleDateString('en-US', {
     weekday: 'long',
@@ -28,6 +43,11 @@ const formatShortDate = (date: Date) => {
     month: 'short',
     day: 'numeric'
   });
+};
+
+const yearsAgo = (year: number) => {
+  const diff = currentYear - year;
+  return diff === 1 ? '1 year ago' : `${diff} years ago`;
 };
 ---
 
@@ -64,6 +84,25 @@ const formatShortDate = (date: Date) => {
       </div>
     )}
   </article>
+
+  {onThisDayEntries.length > 0 && (
+    <section class="on-this-day">
+      <h2>On This Day</h2>
+      <ul class="memories-list">
+        {onThisDayEntries.map(pastEntry => (
+          <li class="memory-item">
+            <a href={`/${pastEntry.slug}`}>
+              <span class="memory-year">{pastEntry.data.date.getFullYear()}</span>
+              <span class="memory-ago">{yearsAgo(pastEntry.data.date.getFullYear())}</span>
+              {pastEntry.data.mood && <span class="memory-mood">{pastEntry.data.mood}</span>}
+              <span class="memory-title">{pastEntry.data.title}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+      <a href="/on-this-day" class="view-all-memories">View all memories →</a>
+    </section>
+  )}
 
   <nav class="nav">
     {prevEntry ? (

@@ -1,0 +1,208 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const allEntries = await getCollection('journal', ({ data }) => !data.draft);
+
+// Group entries by month-day (ignoring year)
+const entriesByMonthDay = new Map<string, typeof allEntries>();
+
+allEntries.forEach(entry => {
+  const date = entry.data.date;
+  const monthDay = `${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+
+  if (!entriesByMonthDay.has(monthDay)) {
+    entriesByMonthDay.set(monthDay, []);
+  }
+  entriesByMonthDay.get(monthDay)!.push(entry);
+});
+
+// Filter to only dates with entries from multiple years
+const memorableDates = Array.from(entriesByMonthDay.entries())
+  .filter(([_, entries]) => entries.length > 1)
+  .map(([monthDay, entries]) => {
+    const years = new Set(entries.map(e => e.data.date.getFullYear()));
+    return {
+      monthDay,
+      entries: entries.sort((a, b) => b.data.date.getFullYear() - a.data.date.getFullYear()),
+      yearCount: years.size
+    };
+  })
+  .sort((a, b) => a.monthDay.localeCompare(b.monthDay));
+
+// Also calculate today's memories for highlight
+const today = new Date();
+const todayMonthDay = `${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+const todayEntries = entriesByMonthDay.get(todayMonthDay) || [];
+const todayPastEntries = todayEntries.filter(e => e.data.date.getFullYear() !== today.getFullYear());
+
+const formatMonthDay = (monthDay: string) => {
+  const [month, day] = monthDay.split('-').map(Number);
+  const date = new Date(2000, month - 1, day);
+  return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
+};
+---
+
+<BaseLayout title="On This Day">
+  <header class="page-hero">
+    <h1>On This Day</h1>
+    <p class="hero-subtitle">Rediscover your memories from years past</p>
+  </header>
+
+  {todayPastEntries.length > 0 && (
+    <section class="today-memories">
+      <h2>Today's Memories — {formatMonthDay(todayMonthDay)}</h2>
+      <ul class="memories-list">
+        {todayPastEntries.map(entry => {
+          const yearsAgo = today.getFullYear() - entry.data.date.getFullYear();
+          return (
+            <li class="memory-item">
+              <a href={`/${entry.slug}`}>
+                <span class="memory-year">{entry.data.date.getFullYear()}</span>
+                <span class="memory-ago">{yearsAgo === 1 ? '1 year ago' : `${yearsAgo} years ago`}</span>
+                {entry.data.mood && <span class="memory-mood">{entry.data.mood}</span>}
+                <span class="memory-title">{entry.data.title}</span>
+              </a>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  )}
+
+  <section class="all-memories">
+    <h2>All Memorable Dates</h2>
+    {memorableDates.length === 0 ? (
+      <p class="empty-state">No dates with entries from multiple years yet. Keep journaling!</p>
+    ) : (
+      <div class="memorable-dates">
+        {memorableDates.map(({ monthDay, entries, yearCount }) => (
+          <article class="date-group">
+            <header class="date-header">
+              <h3>{formatMonthDay(monthDay)}</h3>
+              <span class="year-count">{yearCount} years</span>
+            </header>
+            <ul class="memories-list compact">
+              {entries.map(entry => (
+                <li class="memory-item">
+                  <a href={`/${entry.slug}`}>
+                    <span class="memory-year">{entry.data.date.getFullYear()}</span>
+                    {entry.data.mood && <span class="memory-mood">{entry.data.mood}</span>}
+                    <span class="memory-title">{entry.data.title}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </article>
+        ))}
+      </div>
+    )}
+  </section>
+</BaseLayout>
+
+<style>
+  .page-hero {
+    padding: 4rem 0;
+    margin-bottom: 3rem;
+    border-bottom: var(--border-thick);
+  }
+
+  .page-hero h1 {
+    font-family: var(--font-display);
+    font-size: var(--text-5xl);
+    letter-spacing: var(--tracking-tight);
+    margin-bottom: 0.5rem;
+  }
+
+  .hero-subtitle {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-widest);
+    color: var(--muted-foreground);
+  }
+
+  .today-memories {
+    margin-bottom: 4rem;
+    padding: 2rem;
+    background: var(--muted);
+  }
+
+  .today-memories h2 {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    margin-bottom: 1.5rem;
+  }
+
+  .all-memories h2 {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: var(--border-medium);
+  }
+
+  .empty-state {
+    color: var(--muted-foreground);
+    font-style: italic;
+  }
+
+  .memorable-dates {
+    display: grid;
+    gap: 3rem;
+  }
+
+  .date-group {
+    border-bottom: var(--border-hairline);
+    padding-bottom: 2rem;
+  }
+
+  .date-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 1rem;
+  }
+
+  .date-header h3 {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+  }
+
+  .year-count {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-widest);
+    color: var(--muted-foreground);
+  }
+
+  .memories-list.compact .memory-item a {
+    grid-template-columns: auto auto 1fr;
+    grid-template-rows: 1fr;
+    padding: 0.75rem 0;
+  }
+
+  .memories-list.compact .memory-year {
+    grid-row: 1;
+  }
+
+  .memories-list.compact .memory-mood {
+    grid-row: 1;
+  }
+
+  .memories-list.compact .memory-title {
+    grid-row: 1;
+  }
+
+  @media (max-width: 640px) {
+    .page-hero h1 {
+      font-size: var(--text-3xl);
+    }
+
+    .date-header {
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+  }
+</style>

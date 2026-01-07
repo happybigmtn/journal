@@ -327,3 +327,23 @@ Target: Journal Enhancements
   - Two-job workflow (build → deploy) allows artifact inspection between stages
 
 ---
+
+## 2026-01-07 - US-037 On This Day Feature
+
+- Added "On This Day" memory surfacing to EntryLayout.astro
+- Queries entries matching current month-day from previous years
+- Displays year, "X years ago", mood emoji, and title in grid layout
+- Full color inversion hover effect matching design system
+- Created dedicated `/on-this-day` page with:
+  - Today's memories section (highlighted if entries exist)
+  - All memorable dates (only dates with multi-year entries)
+  - Grouped by month-day, sorted chronologically
+- Added CSS for `.on-this-day`, `.memories-list`, `.memory-item` components
+- Files changed: `site/src/layouts/EntryLayout.astro`, `site/src/pages/on-this-day.astro`, `site/src/styles/global.css`
+- **Learnings:**
+  - `getMonth()` returns 0-11, need to compare raw values not formatted strings
+  - Map with month-day key efficiently groups entries across years
+  - "Years ago" helper handles singular/plural for better UX
+  - Grid layout with `grid-template-columns: auto auto 1fr` creates flexible row structure
+
+---

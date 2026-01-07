@@ -475,8 +475,8 @@
 				"Add dedicated /on-this-day page showing all same-date entries"
 			],
 			"priority": 36,
-			"passes": false,
-			"notes": "Top requested feature from journaling app research - rediscover memories"
+			"passes": true,
+			"notes": "RESOLVED: Component on entry pages with year, mood, title; /on-this-day page groups by month-day with today highlight"
 		},
 		{
 			"id": "US-038",
