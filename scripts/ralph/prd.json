@@ -518,8 +518,8 @@
 				"Update feed on each build"
 			],
 			"priority": 39,
-			"passes": false,
-			"notes": "Allow followers to subscribe to your public journal"
+			"passes": true,
+			"notes": "RESOLVED: @astrojs/rss generates /rss.xml with title, date, description, link, categories; autodiscovery link in head"
 		},
 		{
 			"id": "US-041",

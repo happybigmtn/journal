@@ -385,3 +385,19 @@ Target: Journal Enhancements
   - Capital keymap `<leader>jP` distinguishes from lowercase `<leader>jp` (publish site)
 
 ---
+
+## 2026-01-07 - US-040 RSS Feed
+
+- Installed `@astrojs/rss` package
+- Created `/rss.xml` endpoint at `site/src/pages/rss.xml.ts`
+- Feed includes only published entries (filters by `!data.draft && data.published`)
+- RSS items include: title, pubDate, description, link, categories (tags)
+- Added RSS autodiscovery link in BaseLayout.astro head
+- Files changed: `site/src/pages/rss.xml.ts`, `site/src/layouts/BaseLayout.astro`, `site/package.json`
+- **Learnings:**
+  - Astro `.xml.ts` files are server endpoints that generate static XML at build
+  - `@astrojs/rss` requires `site` in astro.config.mjs for full URLs
+  - RSS 2.0 uses `<pubDate>` in RFC 822 format (handled automatically by rss())
+  - Autodiscovery via `<link rel="alternate" type="application/rss+xml">` enables browsers/readers to find feed
+
+---
