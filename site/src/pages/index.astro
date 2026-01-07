@@ -26,10 +26,10 @@ const formatDay = (date: Date) => {
 ---
 
 <BaseLayout title="Journal">
-  <h1>Journal</h1>
-  <p class="archive-intro">
-    A record of days. Thoughts, gratitude, lessons.
-  </p>
+  <header class="hero">
+    <h1>Journal</h1>
+    <p>A record of days</p>
+  </header>
 
   {years.length === 0 ? (
     <p style="color: var(--gray-mid); margin-top: 2rem;">

@@ -165,6 +165,33 @@ textarea:focus-visible {
   color: var(--muted-foreground);
 }
 
+/* Inverted hero section */
+.hero {
+  background: var(--black);
+  color: var(--white);
+  margin: -3rem -1.5rem 3rem;
+  padding: 4rem 1.5rem;
+  text-align: center;
+}
+
+.hero h1 {
+  font-family: var(--font-display);
+  font-size: var(--text-7xl);
+  font-weight: 500;
+  letter-spacing: var(--tracking-tight);
+  color: var(--white);
+  margin-bottom: 0.5rem;
+}
+
+.hero p {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+  margin: 0;
+}
+
 /* Entry styles */
 .entry-header {
   margin-bottom: 2rem;
