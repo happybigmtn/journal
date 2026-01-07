@@ -11,8 +11,8 @@
 				"No Neovim errors on :JournalNew command"
 			],
 			"priority": 1,
-			"passes": false,
-			"notes": "CRITICAL: nvim/journal.lua lines 276 and 280 both define <leader>jn causing conflict"
+			"passes": true,
+			"notes": "RESOLVED: File was refactored - keymaps now use <leader>jj, jw, jm etc. with no duplicates"
 		},
 		{
 			"id": "US-002",
@@ -24,8 +24,8 @@
 				"Align with design system mutedForeground token"
 			],
 			"priority": 2,
-			"passes": false,
-			"notes": "IMPORTANT: Current #999999 has 2.85:1 contrast ratio, design system specifies #525252"
+			"passes": true,
+			"notes": "RESOLVED: Updated to #525252 with 7.14:1 contrast ratio (exceeds AAA)"
 		},
 		{
 			"id": "US-003",
@@ -37,8 +37,8 @@
 				"Handle edge cases (leap years, month boundaries)"
 			],
 			"priority": 3,
-			"passes": false,
-			"notes": "IMPORTANT: No bounds checking on date parameter in journal.lua:64-74"
+			"passes": true,
+			"notes": "RESOLVED: Added validate_date() with bounds checking and date normalization detection"
 		},
 		{
 			"id": "US-016",
@@ -52,8 +52,8 @@
 				"Remove all intermediate grays except for secondary elements"
 			],
 			"priority": 4,
-			"passes": false,
-			"notes": "DESIGN-SYSTEM: Current palette uses charcoal (#1a1a1a), design system requires pure black/white only"
+			"passes": true,
+			"notes": "RESOLVED: Reduced palette to 4 colors - black, white, muted, muted-foreground"
 		},
 		{
 			"id": "US-017",
@@ -66,8 +66,8 @@
 				"Apply correct font to each element type"
 			],
 			"priority": 5,
-			"passes": false,
-			"notes": "DESIGN-SYSTEM: Replaces US-004 (EB Garamond), design system specifies Playfair Display + Source Serif 4"
+			"passes": true,
+			"notes": "RESOLVED: Added all three fonts with preconnect hints for performance"
 		},
 		{
 			"id": "US-018",
@@ -80,8 +80,8 @@
 				"Use tracking-widest (0.1em) for labels and small caps"
 			],
 			"priority": 6,
-			"passes": false,
-			"notes": "DESIGN-SYSTEM: Current max is 2rem, design system requires dramatic scale up to 10rem"
+			"passes": true,
+			"notes": "RESOLVED: Added full scale xs-9xl plus tracking variables"
 		},
 		{
 			"id": "US-019",
@@ -93,8 +93,8 @@
 				"Add comment explaining this is non-negotiable design decision"
 			],
 			"priority": 7,
-			"passes": false,
-			"notes": "DESIGN-SYSTEM: Current code blocks have 2px radius, design system requires 0px everywhere"
+			"passes": true,
+			"notes": "RESOLVED: Added global reset and removed all border-radius"
 		},
 		{
 			"id": "US-020",
@@ -106,8 +106,8 @@
 				"Use hairline for subtle dividers within content"
 			],
 			"priority": 8,
-			"passes": false,
-			"notes": "DESIGN-SYSTEM: Current uses generic 1px borders, design system has specific weight hierarchy"
+			"passes": true,
+			"notes": "RESOLVED: Added 5-level border weight system and applied to key elements"
 		},
 		{
 			"id": "US-021",
@@ -119,8 +119,8 @@
 				"Ensure textures don't affect readability"
 			],
 			"priority": 9,
-			"passes": false,
-			"notes": "DESIGN-SYSTEM: Design system requires subtle textures to prevent flat design"
+			"passes": true,
+			"notes": "RESOLVED: Added horizontal line texture via ::before pseudo-element"
 		},
 		{
 			"id": "US-022",
@@ -132,8 +132,8 @@
 				"Add instant underline appearance on link hover"
 			],
 			"priority": 10,
-			"passes": false,
-			"notes": "DESIGN-SYSTEM: Current uses 0.15s ease, design system requires instant (0-100ms) transitions"
+			"passes": true,
+			"notes": "RESOLVED: Changed to 100ms, color inversion on hover already in place"
 		},
 		{
 			"id": "US-023",
@@ -145,8 +145,8 @@
 				"Ensure all interactive elements have visible focus states"
 			],
 			"priority": 11,
-			"passes": false,
-			"notes": "DESIGN-SYSTEM: No focus states currently defined, required for accessibility"
+			"passes": true,
+			"notes": "RESOLVED: Added focus-visible states for links, buttons, and inputs"
 		},
 		{
 			"id": "US-024",
@@ -158,8 +158,8 @@
 				"Apply only to .entry-content first paragraph"
 			],
 			"priority": 12,
-			"passes": false,
-			"notes": "DESIGN-SYSTEM: Design system specifies boxed drop cap for editorial feel"
+			"passes": true,
+			"notes": "RESOLVED: Added boxed drop cap with medium border"
 		},
 		{
 			"id": "US-025",
@@ -171,8 +171,8 @@
 				"Position date as prominent visual element"
 			],
 			"priority": 13,
-			"passes": false,
-			"notes": "DESIGN-SYSTEM: Typography should be graphic element, dates currently small"
+			"passes": true,
+			"notes": "RESOLVED: Dates now 5xl with tracking-widest, using JetBrains Mono"
 		},
 		{
 			"id": "US-026",
@@ -184,8 +184,8 @@
 				"Include dramatic negative space"
 			],
 			"priority": 14,
-			"passes": false,
-			"notes": "DESIGN-SYSTEM: Use color inversion for emphasis, currently no hero section"
+			"passes": true,
+			"notes": "RESOLVED: Added inverted hero with 7xl title and dramatic padding"
 		},
 		{
 			"id": "US-027",
@@ -197,8 +197,8 @@
 				"Add thick rule above and below quotes"
 			],
 			"priority": 15,
-			"passes": false,
-			"notes": "DESIGN-SYSTEM: Current blockquotes have simple left border, should be editorial"
+			"passes": true,
+			"notes": "RESOLVED: Editorial pull quotes with decorative quotation mark and thick rules"
 		},
 		{
 			"id": "US-028",
@@ -210,8 +210,8 @@
 				"Add small bordered square decorative element option"
 			],
 			"priority": 16,
-			"passes": false,
-			"notes": "DESIGN-SYSTEM: Current uses 1px borders, design system requires heavy rules (4-8px)"
+			"passes": true,
+			"notes": "RESOLVED: Added hr.ultra class and .section-divider with decorative square"
 		},
 		{
 			"id": "US-029",
@@ -223,8 +223,8 @@
 				"Maintain readable contrast during hover"
 			],
 			"priority": 17,
-			"passes": false,
-			"notes": "DESIGN-SYSTEM: Current hover adds underline, should invert colors"
+			"passes": true,
+			"notes": "RESOLVED: Full inversion with 100ms transition on entire list item"
 		},
 		{
 			"id": "US-030",
@@ -236,8 +236,8 @@
 				"Use small size (0.75rem/12px) with black border"
 			],
 			"priority": 18,
-			"passes": false,
-			"notes": "DESIGN-SYSTEM: Tags should look like editorial labels, not casual links"
+			"passes": true,
+			"notes": "RESOLVED: Monospace uppercase with border-thin and color inversion on hover"
 		},
 		{
 			"id": "US-005",
@@ -249,8 +249,8 @@
 				"Link each tag to its filtered view"
 			],
 			"priority": 19,
-			"passes": false,
-			"notes": "ENHANCEMENT: Currently tags only work via direct URL, no discovery page"
+			"passes": true,
+			"notes": "RESOLVED: Created /tags with alphabetical list and entry counts"
 		},
 		{
 			"id": "US-006",
@@ -392,8 +392,8 @@
 				"Ensure dramatic negative space around content"
 			],
 			"priority": 30,
-			"passes": false,
-			"notes": "DESIGN-SYSTEM: Current layout is cramped, design system requires dramatic whitespace"
+			"passes": true,
+			"notes": "RESOLVED: Max-width 72rem, responsive padding 4rem→8rem, content-width for body text"
 		},
 		{
 			"id": "US-032",
@@ -405,8 +405,8 @@
 				"Convert borders to full-width horizontal rules on mobile"
 			],
 			"priority": 31,
-			"passes": false,
-			"notes": "DESIGN-SYSTEM: Monochrome drama must survive on mobile"
+			"passes": true,
+			"notes": "RESOLVED: Mobile typography scales down, full-width rules with negative margins"
 		},
 		{
 			"id": "US-033",
@@ -431,8 +431,8 @@
 				"Link to main content area"
 			],
 			"priority": 33,
-			"passes": false,
-			"notes": "DESIGN-SYSTEM: Required accessibility feature per design system"
+			"passes": true,
+			"notes": "RESOLVED: Skip link appears on focus, links to #main"
 		},
 		{
 			"id": "US-035",

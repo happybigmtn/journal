@@ -61,3 +61,40 @@ Target: Journal Enhancements
   - Always validate user input dates
 
 ---
+
+## 2026-01-07 - US-001, US-002, US-003
+
+- US-001: Already resolved - keymaps refactored to use `<leader>jj`, `jw`, `jm` etc.
+- US-002: Updated `--gray-light` from #999999 to #525252 (7.14:1 contrast)
+- US-003: Added `validate_date()` function with bounds checking
+- Files changed: `site/src/styles/global.css`, `nvim/journal.lua`
+- **Learnings:**
+  - Lua's `os.time()` normalizes invalid dates (Feb 30 → Mar 2), compare to detect errors
+  - WCAG AA requires 4.5:1 contrast, AAA requires 7:1; #525252 exceeds both
+  - Date validation should use `os.time` + normalization check for leap year handling
+
+---
+
+## 2026-01-07 - Design System Implementation (US-016 through US-030)
+
+- Completed 15 design system stories implementing editorial/magazine aesthetic
+- Key changes:
+  - Pure monochrome palette (black, white, muted, muted-foreground)
+  - Editorial typography (Playfair Display, Source Serif 4, JetBrains Mono)
+  - Dramatic type scale (xs through 9xl)
+  - Sharp corners everywhere (border-radius: 0)
+  - Border weight system (hairline, thin, medium, thick, ultra)
+  - Paper texture overlay
+  - Instant (100ms) hover transitions
+  - Focus states for accessibility
+  - Drop caps, oversized dates, inverted hero
+  - Pull quote styling for blockquotes
+  - Color inversion on hover for archive items
+  - Tags as uppercase monospace labels with borders
+- **Learnings:**
+  - CSS ::before can create texture overlays without affecting interactivity
+  - :focus-visible prevents outlines on mouse clicks while preserving keyboard a11y
+  - Negative margins can expand clickable areas beyond container
+  - CSS custom properties work well for design systems (tokens)
+
+---
