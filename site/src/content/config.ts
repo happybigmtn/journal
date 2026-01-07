@@ -7,7 +7,7 @@ const journal = defineCollection({
     date: z.coerce.date(),
     mood: z.string().optional(),
     tags: z.array(z.string()).default([]),
-    type: z.enum(['daily', 'weekly', 'monthly']).default('daily'),
+    type: z.enum(['daily', 'weekly', 'monthly', 'yearly']).default('daily'),
     draft: z.boolean().default(false),
   }),
 });

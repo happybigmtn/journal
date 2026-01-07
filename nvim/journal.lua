@@ -153,6 +153,9 @@ function M.journal_new(args)
   elseif entry_type == "monthly" then
     dir = M.config.journal_dir .. "/" .. parts.year .. "/monthly"
     filename = parts.year .. "-" .. parts.month .. ".md"
+  elseif entry_type == "yearly" then
+    dir = M.config.journal_dir .. "/" .. parts.year .. "/yearly"
+    filename = parts.year .. ".md"
   else
     vim.notify("Unknown entry type: " .. entry_type, vim.log.levels.ERROR)
     return
@@ -299,6 +302,8 @@ function M.setup(opts)
         entry_type = "weekly"
       elseif arg == "month" or arg == "monthly" then
         entry_type = "monthly"
+      elseif arg == "year" or arg == "yearly" then
+        entry_type = "yearly"
       elseif arg:match("%d+-%d+-%d+") then
         date = arg
       end
@@ -309,7 +314,7 @@ function M.setup(opts)
     nargs = "*",
     desc = "Create new journal entry",
     complete = function()
-      return { "daily", "weekly", "monthly" }
+      return { "daily", "weekly", "monthly", "yearly" }
     end,
   })
 
@@ -345,6 +350,7 @@ function M.setup(opts)
     vim.keymap.set("n", "<leader>jj", ":JournalNew<CR>", { desc = "New journal entry (today)" })
     vim.keymap.set("n", "<leader>jw", ":JournalNew week<CR>", { desc = "Weekly review" })
     vim.keymap.set("n", "<leader>jm", ":JournalNew month<CR>", { desc = "Monthly review" })
+    vim.keymap.set("n", "<leader>jy", ":JournalNew year<CR>", { desc = "Yearly review" })
     vim.keymap.set("n", "<leader>j[", M.journal_prev, { desc = "Previous entry" })
     vim.keymap.set("n", "<leader>j]", M.journal_next, { desc = "Next entry" })
     vim.keymap.set("n", "<leader>jp", M.publish, { desc = "Publish journal" })
