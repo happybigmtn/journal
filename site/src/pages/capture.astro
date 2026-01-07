@@ -1,0 +1,476 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+// Generate the bookmarklet JavaScript
+const bookmarkletCode = `
+(function() {
+  var title = document.title;
+  var url = window.location.href;
+  var selection = window.getSelection().toString().trim();
+  var date = new Date().toISOString().split('T')[0];
+  var time = new Date().toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit', hour12: false});
+
+  var markdown = '## Captured: ' + date + ' ' + time + '\\n\\n';
+  markdown += '**[' + title + '](' + url + ')**\\n\\n';
+
+  if (selection) {
+    markdown += '> ' + selection.split('\\n').join('\\n> ') + '\\n\\n';
+  }
+
+  markdown += '<!-- Notes: -->\\n\\n';
+
+  try {
+    navigator.clipboard.writeText(markdown).then(function() {
+      alert('Captured to clipboard!\\n\\n' + title);
+    });
+  } catch(e) {
+    prompt('Copy this markdown:', markdown);
+  }
+})();
+`.trim().replace(/\s+/g, ' ');
+
+// URL-encode the bookmarklet
+const bookmarkletUrl = 'javascript:' + encodeURIComponent(bookmarkletCode);
+
+// Also create a version that saves to localStorage for later
+const saveBookmarkletCode = `
+(function() {
+  var title = document.title;
+  var url = window.location.href;
+  var selection = window.getSelection().toString().trim();
+  var timestamp = new Date().toISOString();
+
+  var capture = {
+    title: title,
+    url: url,
+    selection: selection,
+    timestamp: timestamp
+  };
+
+  var captures = JSON.parse(localStorage.getItem('journal_captures') || '[]');
+  captures.push(capture);
+  localStorage.setItem('journal_captures', JSON.stringify(captures));
+
+  alert('Saved for later! (' + captures.length + ' captures)\\n\\n' + title);
+})();
+`.trim().replace(/\s+/g, ' ');
+
+const saveBookmarkletUrl = 'javascript:' + encodeURIComponent(saveBookmarkletCode);
+---
+
+<BaseLayout title="Web Capture">
+  <header class="page-hero">
+    <h1>Web Capture</h1>
+    <p class="hero-subtitle">Capture interesting content for your journal</p>
+  </header>
+
+  <section class="intro-section">
+    <p>
+      Use these bookmarklets to quickly capture web content for your journal.
+      Drag them to your bookmarks bar, or right-click and add to bookmarks.
+    </p>
+  </section>
+
+  <section class="bookmarklet-section">
+    <h2>Bookmarklets</h2>
+
+    <div class="bookmarklet-card">
+      <h3>Capture to Clipboard</h3>
+      <p class="bookmarklet-desc">
+        Captures the page title, URL, and any selected text as markdown.
+        Copies directly to clipboard for pasting into your journal entry.
+      </p>
+      <div class="bookmarklet-link-wrapper">
+        <a href={bookmarkletUrl} class="bookmarklet-link" onclick="return false;">
+          Capture to Journal
+        </a>
+      </div>
+      <p class="instruction">Drag this to your bookmarks bar</p>
+    </div>
+
+    <div class="bookmarklet-card">
+      <h3>Save for Later</h3>
+      <p class="bookmarklet-desc">
+        Saves captures to browser localStorage for batch processing later.
+        View and export your saved captures below.
+      </p>
+      <div class="bookmarklet-link-wrapper">
+        <a href={saveBookmarkletUrl} class="bookmarklet-link" onclick="return false;">
+          Save for Later
+        </a>
+      </div>
+      <p class="instruction">Drag this to your bookmarks bar</p>
+    </div>
+  </section>
+
+  <section class="captures-section">
+    <h2>Saved Captures</h2>
+    <p class="section-desc">Captures saved with "Save for Later" bookmarklet</p>
+
+    <div id="captures-list" class="captures-list">
+      <p class="empty-state">No saved captures</p>
+    </div>
+
+    <div class="captures-actions">
+      <button id="export-captures" class="action-btn">Export All as Markdown</button>
+      <button id="clear-captures" class="action-btn action-btn--danger">Clear All</button>
+    </div>
+  </section>
+
+  <section class="usage-section">
+    <h2>Usage</h2>
+
+    <h3>Capture to Clipboard</h3>
+    <ol>
+      <li>Navigate to any interesting web page</li>
+      <li>Optionally select text you want to quote</li>
+      <li>Click the "Capture to Journal" bookmarklet</li>
+      <li>Open your journal entry and paste (Ctrl/Cmd + V)</li>
+    </ol>
+
+    <h3>Output Format</h3>
+    <pre class="code-example">## Captured: 2026-01-07 14:30
+
+**[Article Title](https://example.com/article)**
+
+> Selected text appears as a blockquote
+
+&lt;!-- Notes: --&gt;</pre>
+
+    <h3>Save for Later</h3>
+    <ol>
+      <li>Click "Save for Later" on pages you want to capture</li>
+      <li>Return to this page to view your saved captures</li>
+      <li>Click "Export All as Markdown" to get a single file</li>
+      <li>Paste into your journal or weekly review</li>
+    </ol>
+  </section>
+</BaseLayout>
+
+<style>
+  .page-hero {
+    padding: 4rem 0;
+    margin-bottom: 3rem;
+    border-bottom: var(--border-thick);
+  }
+
+  .page-hero h1 {
+    font-family: var(--font-display);
+    font-size: var(--text-5xl);
+    letter-spacing: var(--tracking-tight);
+    margin-bottom: 0.5rem;
+  }
+
+  .hero-subtitle {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-widest);
+    color: var(--muted-foreground);
+  }
+
+  .intro-section,
+  .bookmarklet-section,
+  .captures-section,
+  .usage-section {
+    margin-bottom: 4rem;
+  }
+
+  .bookmarklet-section h2,
+  .captures-section h2,
+  .usage-section h2 {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    border-bottom: var(--border-thin);
+    padding-bottom: var(--space-2);
+    margin-bottom: var(--space-6);
+  }
+
+  .usage-section h3 {
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    margin-top: var(--space-6);
+    margin-bottom: var(--space-3);
+  }
+
+  .bookmarklet-card {
+    background: var(--muted);
+    padding: var(--space-6);
+    margin-bottom: var(--space-4);
+  }
+
+  .bookmarklet-card h3 {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    margin-bottom: var(--space-2);
+  }
+
+  .bookmarklet-desc {
+    color: var(--muted-foreground);
+    margin-bottom: var(--space-4);
+  }
+
+  .bookmarklet-link-wrapper {
+    margin: var(--space-4) 0;
+  }
+
+  .bookmarklet-link {
+    display: inline-block;
+    padding: var(--space-3) var(--space-6);
+    background: var(--black);
+    color: var(--white);
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-widest);
+    cursor: grab;
+    user-select: none;
+  }
+
+  .bookmarklet-link:hover {
+    background: var(--muted-foreground);
+  }
+
+  .instruction {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--muted-foreground);
+    font-style: italic;
+  }
+
+  .section-desc {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-widest);
+    color: var(--muted-foreground);
+    margin-bottom: var(--space-4);
+  }
+
+  .captures-list {
+    min-height: 100px;
+    border: var(--border-thin);
+    padding: var(--space-4);
+    margin-bottom: var(--space-4);
+  }
+
+  .empty-state {
+    color: var(--muted-foreground);
+    font-style: italic;
+    text-align: center;
+    padding: var(--space-4);
+  }
+
+  .capture-item {
+    padding: var(--space-3);
+    border-bottom: var(--border-hairline);
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: var(--space-4);
+    align-items: start;
+  }
+
+  .capture-item:last-child {
+    border-bottom: none;
+  }
+
+  .capture-title {
+    font-family: var(--font-display);
+    font-size: var(--text-base);
+    margin-bottom: var(--space-1);
+  }
+
+  .capture-title a {
+    color: var(--black);
+  }
+
+  .capture-title a:hover {
+    text-decoration: underline;
+  }
+
+  .capture-meta {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--muted-foreground);
+  }
+
+  .capture-selection {
+    font-style: italic;
+    font-size: var(--text-sm);
+    color: var(--muted-foreground);
+    margin-top: var(--space-2);
+    padding-left: var(--space-3);
+    border-left: var(--border-thin);
+  }
+
+  .capture-delete {
+    background: transparent;
+    border: var(--border-thin);
+    padding: var(--space-2);
+    cursor: pointer;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+  }
+
+  .capture-delete:hover {
+    background: var(--black);
+    color: var(--white);
+  }
+
+  .captures-actions {
+    display: flex;
+    gap: var(--space-3);
+  }
+
+  .action-btn {
+    padding: var(--space-2) var(--space-4);
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-widest);
+    background: var(--black);
+    color: var(--white);
+    border: none;
+    cursor: pointer;
+  }
+
+  .action-btn:hover {
+    background: var(--muted-foreground);
+  }
+
+  .action-btn--danger {
+    background: transparent;
+    color: var(--black);
+    border: var(--border-thin);
+  }
+
+  .action-btn--danger:hover {
+    background: var(--black);
+    color: var(--white);
+  }
+
+  .code-example {
+    background: var(--muted);
+    padding: var(--space-4);
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    overflow-x: auto;
+    white-space: pre-wrap;
+  }
+
+  ol {
+    padding-left: var(--space-6);
+  }
+
+  ol li {
+    margin-bottom: var(--space-2);
+  }
+
+  @media (max-width: 640px) {
+    .page-hero h1 {
+      font-size: var(--text-3xl);
+    }
+
+    .captures-actions {
+      flex-direction: column;
+    }
+  }
+</style>
+
+<script>
+  function loadCaptures() {
+    const capturesList = document.getElementById('captures-list');
+    if (!capturesList) return;
+
+    const captures = JSON.parse(localStorage.getItem('journal_captures') || '[]');
+
+    if (captures.length === 0) {
+      capturesList.innerHTML = '<p class="empty-state">No saved captures</p>';
+      return;
+    }
+
+    capturesList.innerHTML = captures.map((capture, index) => {
+      const date = new Date(capture.timestamp);
+      const dateStr = date.toISOString().split('T')[0];
+      const timeStr = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+
+      return `
+        <div class="capture-item" data-index="${index}">
+          <div class="capture-content">
+            <div class="capture-title">
+              <a href="${capture.url}" target="_blank">${capture.title}</a>
+            </div>
+            <div class="capture-meta">${dateStr} ${timeStr}</div>
+            ${capture.selection ? `<div class="capture-selection">${capture.selection.slice(0, 200)}${capture.selection.length > 200 ? '...' : ''}</div>` : ''}
+          </div>
+          <button class="capture-delete" data-index="${index}">Delete</button>
+        </div>
+      `;
+    }).join('');
+
+    // Add delete handlers
+    capturesList.querySelectorAll('.capture-delete').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const index = parseInt(e.target.getAttribute('data-index'));
+        const caps = JSON.parse(localStorage.getItem('journal_captures') || '[]');
+        caps.splice(index, 1);
+        localStorage.setItem('journal_captures', JSON.stringify(caps));
+        loadCaptures();
+      });
+    });
+  }
+
+  function exportCaptures() {
+    const captures = JSON.parse(localStorage.getItem('journal_captures') || '[]');
+    if (captures.length === 0) {
+      alert('No captures to export');
+      return;
+    }
+
+    let markdown = '# Web Captures\n\n';
+    markdown += `Exported: ${new Date().toISOString().split('T')[0]}\n\n---\n\n`;
+
+    captures.forEach(capture => {
+      const date = new Date(capture.timestamp);
+      const dateStr = date.toISOString().split('T')[0];
+      const timeStr = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+
+      markdown += `## Captured: ${dateStr} ${timeStr}\n\n`;
+      markdown += `**[${capture.title}](${capture.url})**\n\n`;
+
+      if (capture.selection) {
+        markdown += '> ' + capture.selection.split('\n').join('\n> ') + '\n\n';
+      }
+
+      markdown += '---\n\n';
+    });
+
+    // Copy to clipboard
+    navigator.clipboard.writeText(markdown).then(() => {
+      alert(`Exported ${captures.length} captures to clipboard!`);
+    }).catch(() => {
+      // Fallback: download as file
+      const blob = new Blob([markdown], { type: 'text/markdown' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `captures-${new Date().toISOString().split('T')[0]}.md`;
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+  }
+
+  function clearCaptures() {
+    if (confirm('Are you sure you want to delete all saved captures?')) {
+      localStorage.removeItem('journal_captures');
+      loadCaptures();
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    loadCaptures();
+
+    document.getElementById('export-captures')?.addEventListener('click', exportCaptures);
+    document.getElementById('clear-captures')?.addEventListener('click', clearCaptures);
+  });
+</script>
