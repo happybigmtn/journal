@@ -14,6 +14,10 @@ while [[ $# -gt 0 ]]; do
 done
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+
+# Change to project root so relative paths in prompt.md work
+cd "$PROJECT_ROOT"
 
 # Colors for output
 CYAN='\033[0;36m'
@@ -64,6 +68,7 @@ filter_output() {
 }
 
 echo -e "${BOLD}🚀 Starting Ralph${NC}"
+echo -e "${DIM}Working directory: $PROJECT_ROOT${NC}"
 echo ""
 
 RAWFILE=$(mktemp)
