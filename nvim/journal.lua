@@ -80,6 +80,138 @@ local function validate_date(date)
   return true, nil
 end
 
+-- Utility: Parse natural language date strings
+-- Supports: "today", "yesterday", "tomorrow", "last monday", "next friday",
+-- "2 days ago", "3 weeks ago", "last week", "next week", etc.
+local function parse_natural_date(input)
+  local lower = input:lower():gsub("^%s+", ""):gsub("%s+$", "")
+  local now = os.time()
+  local today = os.date("*t", now)
+
+  -- Simple keywords
+  if lower == "today" then
+    return today, "today"
+  elseif lower == "yesterday" then
+    return os.date("*t", now - 86400), "yesterday"
+  elseif lower == "tomorrow" then
+    return os.date("*t", now + 86400), "tomorrow"
+  end
+
+  -- Day names mapping
+  local day_names = {
+    sunday = 0, sun = 0,
+    monday = 1, mon = 1,
+    tuesday = 2, tue = 2, tues = 2,
+    wednesday = 3, wed = 3,
+    thursday = 4, thu = 4, thur = 4, thurs = 4,
+    friday = 5, fri = 5,
+    saturday = 6, sat = 6
+  }
+
+  -- "last <day>" - most recent past occurrence of that day
+  local last_day = lower:match("^last%s+(%a+)$")
+  if last_day and day_names[last_day] then
+    local target_wday = day_names[last_day]
+    local current_wday = today.wday - 1 -- Lua wday is 1-7 (Sun=1), convert to 0-6
+    local days_back = (current_wday - target_wday) % 7
+    if days_back == 0 then days_back = 7 end -- Same day means last week
+    local target_date = os.date("*t", now - (days_back * 86400))
+    return target_date, "last " .. last_day
+  end
+
+  -- "next <day>" - next occurrence of that day
+  local next_day = lower:match("^next%s+(%a+)$")
+  if next_day and day_names[next_day] then
+    local target_wday = day_names[next_day]
+    local current_wday = today.wday - 1
+    local days_forward = (target_wday - current_wday) % 7
+    if days_forward == 0 then days_forward = 7 end -- Same day means next week
+    local target_date = os.date("*t", now + (days_forward * 86400))
+    return target_date, "next " .. next_day
+  end
+
+  -- "last week" - same day last week
+  if lower == "last week" then
+    return os.date("*t", now - (7 * 86400)), "last week"
+  end
+
+  -- "next week" - same day next week
+  if lower == "next week" then
+    return os.date("*t", now + (7 * 86400)), "next week"
+  end
+
+  -- "<N> days ago"
+  local days_ago = lower:match("^(%d+)%s*days?%s+ago$")
+  if days_ago then
+    local n = tonumber(days_ago)
+    local target_date = os.date("*t", now - (n * 86400))
+    return target_date, n .. " day(s) ago"
+  end
+
+  -- "<N> weeks ago"
+  local weeks_ago = lower:match("^(%d+)%s*weeks?%s+ago$")
+  if weeks_ago then
+    local n = tonumber(weeks_ago)
+    local target_date = os.date("*t", now - (n * 7 * 86400))
+    return target_date, n .. " week(s) ago"
+  end
+
+  -- "<N> months ago"
+  local months_ago = lower:match("^(%d+)%s*months?%s+ago$")
+  if months_ago then
+    local n = tonumber(months_ago)
+    local target = { year = today.year, month = today.month - n, day = today.day }
+    -- Normalize month/year
+    while target.month <= 0 do
+      target.month = target.month + 12
+      target.year = target.year - 1
+    end
+    -- Handle day overflow (e.g., Jan 31 -> 1 month ago would be Dec 31, but Feb 31 doesn't exist)
+    local max_day = os.date("*t", os.time({ year = target.year, month = target.month + 1, day = 0 })).day
+    if target.day > max_day then
+      target.day = max_day
+    end
+    return target, n .. " month(s) ago"
+  end
+
+  -- "a week ago", "a day ago", "a month ago"
+  if lower == "a week ago" or lower == "one week ago" then
+    return os.date("*t", now - (7 * 86400)), "1 week ago"
+  elseif lower == "a day ago" or lower == "one day ago" then
+    return os.date("*t", now - 86400), "yesterday"
+  elseif lower == "a month ago" or lower == "one month ago" then
+    local target = { year = today.year, month = today.month - 1, day = today.day }
+    if target.month <= 0 then
+      target.month = 12
+      target.year = target.year - 1
+    end
+    local max_day = os.date("*t", os.time({ year = target.year, month = target.month + 1, day = 0 })).day
+    if target.day > max_day then
+      target.day = max_day
+    end
+    return target, "1 month ago"
+  end
+
+  -- "in <N> days"
+  local in_days = lower:match("^in%s+(%d+)%s*days?$")
+  if in_days then
+    local n = tonumber(in_days)
+    local target_date = os.date("*t", now + (n * 86400))
+    return target_date, "in " .. n .. " day(s)"
+  end
+
+  -- "in <N> weeks"
+  local in_weeks = lower:match("^in%s+(%d+)%s*weeks?$")
+  if in_weeks then
+    local n = tonumber(in_weeks)
+    local target_date = os.date("*t", now + (n * 7 * 86400))
+    return target_date, "in " .. n .. " week(s)"
+  end
+
+  -- Not recognized as natural language
+  return nil, nil
+end
+
 -- Utility: Read template file
 local function read_template(template_type)
   local template_path = M.config.template_dir .. "/" .. template_type .. ".md"
@@ -131,22 +263,43 @@ function M.journal_new(args)
   local date_str = args and args.date
 
   local date
+  local interpreted_as -- For confirmation message
   if date_str then
-    local y, m, d = date_str:match("(%d+)-(%d+)-(%d+)")
-    if y then
-      date = { year = tonumber(y), month = tonumber(m), day = tonumber(d) }
-      -- Validate date bounds
+    -- First try natural language parsing
+    local natural_date, description = parse_natural_date(date_str)
+    if natural_date then
+      date = natural_date
+      interpreted_as = description
+      -- Validate natural language date
       local valid, err = validate_date(date)
       if not valid then
         vim.notify(err, vim.log.levels.ERROR)
         return
       end
     else
-      vim.notify("Invalid date format. Use YYYY-MM-DD", vim.log.levels.ERROR)
-      return
+      -- Try standard YYYY-MM-DD format
+      local y, m, d = date_str:match("(%d+)-(%d+)-(%d+)")
+      if y then
+        date = { year = tonumber(y), month = tonumber(m), day = tonumber(d) }
+        -- Validate date bounds
+        local valid, err = validate_date(date)
+        if not valid then
+          vim.notify(err, vim.log.levels.ERROR)
+          return
+        end
+      else
+        vim.notify("Invalid date format. Use YYYY-MM-DD or natural language (yesterday, last monday, 2 weeks ago)", vim.log.levels.ERROR)
+        return
+      end
     end
   else
     date = os.date("*t")
+  end
+
+  -- Show confirmation for interpreted dates
+  local date_formatted = string.format("%04d-%02d-%02d", date.year, date.month, date.day)
+  if interpreted_as then
+    vim.notify(string.format("Creating entry for %s (%s)", date_formatted, interpreted_as), vim.log.levels.INFO)
   end
 
   local parts = get_date_parts(date)
@@ -1022,6 +1175,7 @@ function M.setup(opts)
   vim.api.nvim_create_user_command("JournalNew", function(args)
     local entry_type = "daily"
     local date = nil
+    local date_parts = {}
 
     for _, arg in ipairs(args.fargs) do
       if arg == "week" or arg == "weekly" then
@@ -1038,15 +1192,35 @@ function M.setup(opts)
         entry_type = "travel"
       elseif arg:match("%d+-%d+-%d+") then
         date = arg
+      else
+        -- Collect potential natural language date parts
+        table.insert(date_parts, arg)
       end
+    end
+
+    -- Join natural language date parts if any
+    if #date_parts > 0 and not date then
+      date = table.concat(date_parts, " ")
     end
 
     M.journal_new({ type = entry_type, date = date })
   end, {
     nargs = "*",
     desc = "Create new journal entry",
-    complete = function()
-      return { "daily", "weekly", "monthly", "yearly", "project", "book", "travel" }
+    complete = function(_, cmdline, _)
+      local types = { "daily", "weekly", "monthly", "yearly", "project", "book", "travel" }
+      local natural_dates = { "today", "yesterday", "tomorrow", "last", "next" }
+
+      -- If cmdline includes "last" or "next", suggest day names
+      if cmdline:match("%slast%s*$") or cmdline:match("%snext%s*$") then
+        return { "monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday", "week" }
+      end
+
+      -- Combine types and natural date suggestions
+      local suggestions = {}
+      for _, t in ipairs(types) do table.insert(suggestions, t) end
+      for _, d in ipairs(natural_dates) do table.insert(suggestions, d) end
+      return suggestions
     end,
   })
 
