@@ -672,8 +672,8 @@
 				"Add optional 'connections' field to daily template"
 			],
 			"priority": 50,
-			"passes": false,
-			"notes": "Journal your relationships - see who you spend time with"
+			"passes": true,
+			"notes": "RESOLVED: Created /people index page showing all @mentioned people with mention counts, first/last seen dates, and context snippets. Individual /people/[name] pages show timeline of entries, contexts, and monthly frequency chart. Added 'connections' array field to schema and daily template. Reconnect hint shows if >30 days since last mention."
 		},
 		{
 			"id": "US-052",

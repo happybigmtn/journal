@@ -645,3 +645,33 @@ Target: Journal Enhancements
   - Date math: `getDay()` returns 0-6 (Sunday-Saturday)
 
 ---
+
+## 2026-01-07 - US-051 People Mentions and Relationship Tracking
+
+- Created `/people` index page:
+  - Lists all @mentioned people from journal entries
+  - Shows mention count, first/last seen dates
+  - Displays context snippet (sentence containing mention)
+  - Expandable "Recent mentions" list per person
+  - Reconnect hint (👋) if >30 days since last mention
+- Created `/people/[name]` individual person pages:
+  - Timeline of all entries mentioning person
+  - Context snippets from each mention
+  - Monthly mention frequency bar chart
+  - Reconnect banner for inactive relationships
+- Added `connections` field to schema:
+  - Array of strings: `connections: ["John", "Sarah"]`
+  - Alternative to inline @mentions for structured tracking
+  - Updated daily template with commented example
+- @mention parsing:
+  - Regex: `/@(\w+)/g` extracts mentions
+  - Case-insensitive matching
+  - Deduplicates per entry
+- Files changed: `site/src/pages/people/index.astro`, `site/src/pages/people/[name].astro`, `site/src/content/config.ts`, `templates/daily.md`
+- **Learnings:**
+  - Astro requires function definitions inside `getStaticPaths()` for static path generation
+  - Duplicate function definition needed: once in `getStaticPaths`, once in main script context
+  - `<details><summary>` HTML5 collapsible sections work well for optional content
+  - Context extraction via sentence-boundary regex: `[^.!?]*@name[^.!?]*[.!?]`
+
+---
