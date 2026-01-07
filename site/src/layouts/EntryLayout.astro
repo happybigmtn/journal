@@ -201,7 +201,7 @@ const similarEntries = allEntries
       </div>
     </header>
 
-    <div class="entry-content">
+    <div class:list={["entry-content", { "invert-images-dark": entry.data.invert_images }]}>
       <Content />
     </div>
 

@@ -67,6 +67,52 @@
   --texture-opacity: 0.03;
 }
 
+/* ==========================================================================
+   Smart Dark Mode Image Handling (Gwern-inspired)
+   - .invert-dark: Fully invert diagrams/screenshots for dark backgrounds
+   - .color-photo: Reduce brightness/contrast for color photos
+   - .no-filter: Preserve original appearance in both modes
+   ========================================================================== */
+
+/* Dark mode (system preference) image handling */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) img.invert-dark {
+    filter: grayscale(100%) invert(1);
+  }
+
+  :root:not([data-theme="light"]) img.color-photo {
+    filter: grayscale(100%) brightness(0.85) contrast(0.9);
+  }
+
+  :root:not([data-theme="light"]) img.no-filter {
+    filter: brightness(0.9);
+  }
+}
+
+/* Dark mode (manual override) image handling */
+[data-theme="dark"] img.invert-dark {
+  filter: grayscale(100%) invert(1);
+}
+
+[data-theme="dark"] img.color-photo {
+  filter: grayscale(100%) brightness(0.85) contrast(0.9);
+}
+
+[data-theme="dark"] img.no-filter {
+  filter: brightness(0.9);
+}
+
+/* Entry-level image inversion control via frontmatter invert_images: true */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .invert-images-dark img {
+    filter: grayscale(100%) invert(1);
+  }
+}
+
+[data-theme="dark"] .invert-images-dark img {
+  filter: grayscale(100%) invert(1);
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -1035,11 +1081,38 @@ textarea:focus-visible {
    Images - Editorial styling
    ========================================================================== */
 
+/* ==========================================================================
+   Smart Dark Mode Image Handling (Gwern-inspired)
+
+   Default: All images get grayscale filter for editorial consistency
+
+   Classes for explicit control:
+   - .invert-dark: Invert in dark mode (for diagrams, screenshots, monochrome art)
+   - .no-filter: Remove all filters (preserve original colors in both modes)
+   - .color-photo: Grayscale in light, muted brightness in dark (for color photos)
+   ========================================================================== */
+
 /* Base image styling - monochrome filter for editorial consistency */
 img {
   filter: grayscale(100%);
   max-width: 100%;
   margin: 2rem 0;
+  transition: filter 100ms;
+}
+
+/* Images that should invert in dark mode (diagrams, screenshots, monochrome art) */
+img.invert-dark {
+  filter: grayscale(100%);
+}
+
+/* Images with no filtering (preserve original colors) */
+img.no-filter {
+  filter: none;
+}
+
+/* Color photos - grayscale by default, handled specially in dark mode */
+img.color-photo {
+  filter: grayscale(100%);
 }
 
 /* Entry content images - full-width with editorial framing */

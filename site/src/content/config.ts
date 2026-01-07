@@ -35,6 +35,7 @@ const journal = defineCollection({
     habits: z.array(habitSchema).default([]), // Optional habit tracking
     og_image: z.string().optional(), // Custom Open Graph image URL (overrides auto-generated)
     connections: z.array(z.string()).default([]), // People mentioned/met (alternative to @mentions)
+    invert_images: z.boolean().default(false), // Invert all images in this entry in dark mode (for diagrams/screenshots)
   }),
 });
 

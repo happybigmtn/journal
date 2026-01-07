@@ -1058,3 +1058,29 @@ Target: Journal Enhancements
 
 ---
 
+
+## 2026-01-07 - US-063 Smart Dark Mode Image Handling (Gwern-inspired)
+
+- Implemented three CSS classes for explicit image control:
+  - `.invert-dark`: Inverts images in dark mode (for diagrams, screenshots, monochrome art)
+  - `.color-photo`: Applies grayscale + reduced brightness in dark mode
+  - `.no-filter`: Preserves original colors, slight brightness reduction in dark mode
+- Added `invert_images` boolean to content schema:
+  - When `true`, adds `.invert-images-dark` class to entry-content container
+  - All images in that entry automatically invert in dark mode
+- CSS filter combinations:
+  - Light mode: All images get `grayscale(100%)` by default
+  - Dark mode + `.invert-dark`: `grayscale(100%) invert(1)`
+  - Dark mode + `.color-photo`: `grayscale(100%) brightness(0.85) contrast(0.9)`
+  - Dark mode + `.no-filter`: `brightness(0.9)` only
+- Supports both system preference (`prefers-color-scheme: dark`) and manual toggle (`data-theme="dark"`)
+- Added 100ms transition for smooth filter changes
+- Files changed: `site/src/styles/global.css`, `site/src/content/config.ts`, `site/src/layouts/EntryLayout.astro`
+- **Learnings:**
+  - CSS `filter` property chains multiple filters: `grayscale(100%) invert(1)`
+  - Inversion works well for line art/diagrams but distorts color photos
+  - Brightness reduction (0.9) prevents eye strain without color shift
+  - Container-level class (`invert-images-dark`) allows batch control via frontmatter
+
+---
+

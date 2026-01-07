@@ -849,8 +849,8 @@
 				"Manual .invert-dark class for explicit control"
 			],
 			"priority": 62,
-			"passes": false,
-			"notes": "Gwern-inspired: Intelligent dark mode that handles images appropriately. Your monochrome aesthetic makes this easier."
+			"passes": true,
+			"notes": "RESOLVED: Three CSS classes for explicit control: .invert-dark (invert in dark mode), .color-photo (muted brightness), .no-filter (preserve original). Added invert_images frontmatter boolean for entry-level control. Dark mode applies grayscale(100%) invert(1) to .invert-dark and .invert-images-dark containers. Supports both system preference and manual dark mode toggle."
 		}
 	],
 	"technicalDebt": [
