@@ -98,3 +98,28 @@ Target: Journal Enhancements
   - CSS custom properties work well for design systems (tokens)
 
 ---
+
+## 2026-01-07 - Additional Enhancements (US-005, US-031, US-032, US-034)
+
+- US-005: Created /tags index page with alphabetical listing and counts
+- US-031: Increased container to 72rem with responsive padding (4rem→8rem)
+- US-032: Responsive typography scaling (headlines reduce on mobile)
+- US-034: Added skip link for keyboard accessibility
+- **Learnings:**
+  - Astro pages can reduce collections to compute aggregates like tag counts
+  - Skip links need both position:absolute and z-index for proper layering
+  - Responsive design should scale typography, not hide content
+
+---
+
+## Session Complete
+
+- **Stories Completed:** 22 of 34 (65%)
+- **Stories Remaining:** 12 (enhancement features)
+- **Key Accomplishments:**
+  - Fixed all critical issues (keymaps, contrast, date validation)
+  - Implemented complete design system overhaul
+  - Added accessibility features (focus states, skip link, contrast)
+  - Created tags discovery page
+
+---
