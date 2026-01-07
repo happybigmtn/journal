@@ -1,409 +1,312 @@
-# Nullspace Design System Implementation Plan
+# Minimalist Monochrome Design System
 
-## Executive Summary
+## Design Philosophy
 
-This document outlines the comprehensive design system implementation for Nullspace, aligning web and mobile platforms with a unified, Jony Ive-inspired aesthetic. The design system is built on principles of **radical simplicity**, **progressive disclosure**, **clarity**, and **tactile response**.
+### Core Principle
+**Reduction to Essence.** Minimalist Monochrome strips design down to its most fundamental elements: black, white, and typography. There are no accent colors to hide behind, no gradients to soften edges, no shadows to create false depth. Every design decision must stand on its own merit. This is design as discipline—where restraint becomes the ultimate form of expression.
 
-## Current State Analysis
+### Visual Vibe
+**Emotional Keywords:** Austere, Authoritative, Timeless, Editorial, Intellectual, Dramatic, Refined, Stark, Confident, Uncompromising
 
-### Source of Truth: `@nullspace/design-tokens`
+This is the visual language of:
+- High-end fashion editorials (Vogue, Harper's Bazaar covers)
+- Architectural monographs and museum catalogs
+- Luxury brand identities (Chanel, Celine, Bottega Veneta)
+- Award-winning book design and fine typography
+- Gallery exhibition materials
 
-Location: `/packages/design-tokens/src/`
+The design commands respect through its confidence. It doesn't need color to be interesting—it uses scale, contrast, rhythm, and negative space to create visual drama.
 
-| Token File       | Status | Notes |
-|------------------|--------|-------|
-| `colors.ts`      | ✅ Complete | TITANIUM scale, ACTION colors, GAME palettes |
-| `typography.ts`  | ✅ Complete | FONTS, TYPE_SCALE, FONT_WEIGHTS |
-| `spacing.ts`     | ✅ Complete | 4px grid, semantic keys, RADIUS, CONTAINER |
-| `animations.ts`  | ✅ Complete | SPRING physics, DURATION, EASING, STAGGER |
-| `shadows.ts`     | ✅ Complete | SHADOW levels, ELEVATION, GLOW effects |
-
-### Platform Implementation Gaps
-
-#### Web (`/website`)
-| Issue | Current | Target |
-|-------|---------|--------|
-| Titanium colors | Hardcoded, different values | Import from tokens |
-| Typography | Partial alignment | Full TYPE_SCALE adoption |
-| Shadows | Custom shadows | Use SHADOW/ELEVATION tokens |
-| Animations | Basic keyframes | Spring physics via Framer Motion |
-| Spacing | Custom px-* values | Token-based scale |
-
-#### Mobile (`/mobile`)
-| Issue | Current | Target |
-|-------|---------|--------|
-| Shadows | Not implemented | Add SHADOW/GLOW from tokens |
-| Typography | Partial alignment | Full TYPE_SCALE adoption |
-| Game themes | Accent colors only | Full primary+accent usage |
-| Glass effects | Local definitions | Move to tokens if needed |
+### What This Design Is NOT
+- ❌ Colorful or playful
+- ❌ Soft, rounded, or friendly
+- ❌ Gradient-based or with accent colors
+- ❌ Shadow-heavy or "elevated"
+- ❌ Generic or template-like
+- ❌ Busy or cluttered
+- ❌ Similar to "Minimalist Modern" (no blue accents, no gradients, no rounded corners)
 
 ---
 
-## Design Principles
+## The DNA of Minimalist Monochrome
 
-### 1. Radical Simplicity
-- Every element earns its place
-- Remove visual noise: borders, backgrounds, decorations
-- Let content breathe with generous whitespace
-- Single-purpose components
+### Pure Black & White Palette
+No grays for primary elements—use true black (#000000) and true white (#FFFFFF). Gray is reserved only for secondary text and borders. The stark contrast creates immediate visual impact and forces deliberate hierarchy decisions.
 
-### 2. Progressive Disclosure
-- Show only what's needed at each moment
-- Complexity emerges through interaction
-- Layered information hierarchy
-- Contextual actions appear when relevant
+### Serif Typography as Hero
+Unlike modern sans-serif minimalism, this style embraces classical serif typefaces. The serif adds sophistication, editorial weight, and timeless elegance. Typography isn't just content—it's the primary visual element.
 
-### 3. Clarity
-- High contrast text (WCAG AA minimum)
-- Clear visual hierarchy
-- Consistent spacing rhythm
-- Readable typography at all sizes
+### Oversized Type Scale
+Headlines don't just inform—they dominate. Expect 8xl, 9xl, and custom larger sizes. Words become graphic elements. Single words or short phrases can fill entire viewport widths.
 
-### 4. Tactile Response
-- Spring physics for natural motion
-- Haptic feedback on mobile
-- Immediate visual feedback
-- Satisfying micro-interactions
+### Line-Based Visual System
+Instead of filled shapes, shadows, or backgrounds, this design uses lines: hairlines, thick rules, borders, underlines, strikethroughs. Lines create structure without mass.
+
+### Sharp Geometric Precision
+Zero border radius everywhere. Perfect 90-degree corners. Precise alignments. The geometry is architectural—think Bauhaus meets editorial print design.
+
+### Dramatic Negative Space
+Whitespace isn't empty—it's active. Generous margins and padding create breathing room that makes the black elements more impactful. The page breathes.
+
+### Inversion for Emphasis
+Instead of accent colors, use color inversion (black background, white text) to highlight important elements. This creates drama without breaking the monochrome rule.
 
 ---
 
-## Color System
+## Differentiation from Minimalist Modern
 
-### Titanium Palette (Neutrals)
-```
-50:  #FAFAFA  - Lightest background
-100: #F5F5F5  - Secondary background
-200: #E5E5E5  - Borders, dividers
-300: #D4D4D4  - Disabled text
-400: #A3A3A3  - Muted text
-500: #737373  - Secondary text
-600: #525252  - Body text
-700: #404040  - Emphasized text
-800: #262626  - Headings
-900: #171717  - Primary text
-950: #0A0A0A  - Deepest dark
-```
-
-### Action Colors
-```
-indigo:        #5E5CE6  - Primary brand, CTAs
-indigoHover:   #4B4ACE  - Hover state
-indigoMuted:   rgba(94, 92, 230, 0.15)  - Backgrounds
-success:       #34C759  - Wins, confirmations
-successMuted:  rgba(52, 199, 89, 0.15)
-error:         #FF3B30  - Losses, errors
-errorMuted:    rgba(255, 59, 48, 0.15)
-warning:       #FF9500  - Cautions
-gold:          #FFD700  - Jackpots, special wins
-```
-
-### Game Color Schemes
-Each game has a distinct visual identity:
-
-| Game | Primary (BG) | Accent (Highlights) |
-|------|--------------|---------------------|
-| Blackjack | #1E3A5F | #4A90D9 |
-| Roulette | #2D5016 | #8B0000 |
-| Craps | #4A2C0A | #D4AF37 |
-| Baccarat | #2C1810 | #C5A572 |
-| Video Poker | #1A1A2E | #E94560 |
-| Hi-Lo | #16213E | #0F3460 |
-| Sic Bo | #3D0C02 | #FF6B35 |
-| Three Card | #1B4332 | #52B788 |
-| Ultimate Holdem | #2D3436 | #00B894 |
-| Casino War | #2C3E50 | #E74C3C |
+| Aspect | Minimalist Modern | Minimalist Monochrome |
+|--------|-------------------|----------------------|
+| Colors | Blue accent + gradients | Pure black & white only |
+| Typography | Sans-serif (Inter) | Serif (Playfair Display) |
+| Corners | Rounded (lg, xl, 2xl) | Sharp (0px everywhere) |
+| Depth | Shadows, glows, elevation | Flat, 2D, no shadows |
+| Visual elements | Gradient fills, colored icons | Lines, borders, typography |
+| Vibe | Contemporary tech | Editorial luxury |
+| Personality | Confident & approachable | Austere & commanding |
 
 ---
 
-## Typography System
+## Design Token System
 
-### Font Families
-- **Display**: Outfit (headlines, large numbers)
-- **Body**: Plus Jakarta Sans (UI text, paragraphs)
-- **Mono**: JetBrains Mono (numbers, code, balances)
+### Colors (Strictly Monochrome)
 
-### Type Scale
-| Variant | Size | Line Height | Weight | Letter Spacing |
-|---------|------|-------------|--------|----------------|
-| micro | 10px | 12px | 500 | 0.5px |
-| label | 12px | 16px | 500 | 0.25px |
-| body | 14px | 20px | 400 | 0 |
-| bodyLarge | 16px | 24px | 400 | 0 |
-| heading | 20px | 28px | 600 | -0.25px |
-| headingLarge | 24px | 32px | 600 | -0.5px |
-| display | 32px | 40px | 700 | -0.5px |
-| hero | 48px | 56px | 800 | -1px |
+```css
+--background: #FFFFFF;        /* Pure white */
+--foreground: #000000;        /* Pure black */
+--muted: #F5F5F5;             /* Off-white for subtle backgrounds */
+--muted-foreground: #525252;  /* Dark gray for secondary text */
+--accent: #000000;            /* Black IS the accent */
+--accent-foreground: #FFFFFF; /* White on black */
+--border: #000000;            /* Black borders */
+--border-light: #E5E5E5;      /* Light gray for subtle dividers */
+--ring: #000000;              /* Black focus rings */
+```
 
----
+**Rule:** No other colors. Ever. The palette is absolute.
 
-## Spacing System
+### Typography
 
-### Base Unit: 4px
+**Font Stack:**
+- **Display/Headlines:** "Playfair Display", Georgia, serif
+- **Body:** "Source Serif 4", Georgia, serif
+- **Mono/Labels:** "JetBrains Mono", monospace
 
-| Token | Value | Usage |
-|-------|-------|-------|
-| 0 | 0px | None |
-| xs | 4px | Tight spacing, inline elements |
-| sm | 8px | Button padding, small gaps |
-| md | 16px | Card padding, form gaps |
-| lg | 24px | Section gaps |
-| xl | 32px | Major sections |
-| 2xl | 48px | Page sections |
-| 3xl | 64px | Hero spacing |
+**Type Scale (Dramatic range):**
+
+| Token | Size | Pixels | Usage |
+|-------|------|--------|-------|
+| xs | 0.75rem | 12px | Fine print, metadata |
+| sm | 0.875rem | 14px | Captions, labels |
+| base | 1rem | 16px | Body text minimum |
+| lg | 1.125rem | 18px | Body text preferred |
+| xl | 1.25rem | 20px | Lead paragraphs |
+| 2xl | 1.5rem | 24px | Section intros |
+| 3xl | 2rem | 32px | Subheadings |
+| 4xl | 2.5rem | 40px | Section titles |
+| 5xl | 3.5rem | 56px | Page titles |
+| 6xl | 4.5rem | 72px | Hero subheadings |
+| 7xl | 6rem | 96px | Hero headlines |
+| 8xl | 8rem | 128px | Display headlines |
+| 9xl | 10rem | 160px | Oversized statements |
+
+**Tracking & Leading:**
+- Headlines: tracking-tight (-0.025em) or tracking-tighter (-0.05em)
+- Body: tracking-normal (0)
+- Small caps/Labels: tracking-widest (0.1em)
+- Line heights: leading-none (1) for display, leading-relaxed (1.625) for body
 
 ### Border Radius
-| Token | Value | Usage |
-|-------|-------|-------|
-| none | 0 | Sharp corners |
-| sm | 4px | Subtle rounding |
-| md | 8px | Buttons, inputs |
-| lg | 12px | Cards |
-| xl | 16px | Modals |
-| 2xl | 24px | Large containers |
-| full | 9999px | Pills, avatars |
 
----
+**ALL VALUES: 0px**
 
-## Shadow & Elevation
+No exceptions. Every element has sharp, 90-degree corners. This is non-negotiable and defines the style's architectural character.
 
-### Shadow Levels
-| Level | Offset Y | Blur | Opacity | Usage |
-|-------|----------|------|---------|-------|
-| none | 0 | 0 | 0 | Flat surfaces |
-| sm | 1px | 2px | 5% | Raised buttons |
-| md | 4px | 6px | 10% | Cards |
-| lg | 10px | 15px | 10% | Dropdowns |
-| xl | 20px | 25px | 10% | Modals |
-| 2xl | 25px | 50px | 25% | Overlays |
+### Borders & Lines
 
-### Glow Effects
-| Type | Color | Blur | Opacity | Usage |
-|------|-------|------|---------|-------|
-| indigo | #5E5CE6 | 20px | 40% | Focus rings |
-| success | #34C759 | 20px | 40% | Win states |
-| error | #FF3B30 | 20px | 40% | Error states |
-| gold | #FFD700 | 30px | 50% | Jackpots |
-
----
-
-## Animation System
-
-### Spring Physics
-For natural, physics-based motion:
-
-| Preset | Mass | Stiffness | Damping | Use Case |
-|--------|------|-----------|---------|----------|
-| button | 0.5 | 400 | 30 | Button press |
-| modal | 0.8 | 300 | 28 | Modal open/close |
-| dropdown | 0.6 | 350 | 26 | Dropdown reveal |
-| tooltip | 0.4 | 500 | 35 | Tooltip show |
-| cardFlip | 1.0 | 200 | 20 | Card flip |
-| cardDeal | 0.7 | 280 | 22 | Card deal |
-| chipStack | 0.8 | 300 | 25 | Chip stacking |
-| chipToss | 0.6 | 250 | 18 | Bet placement |
-| wheelSpin | 2.0 | 50 | 10 | Roulette wheel |
-| diceTumble | 1.2 | 150 | 15 | Dice roll |
-| success | 0.5 | 350 | 25 | Win feedback |
-| error | 0.3 | 600 | 40 | Error shake |
-| shake | 0.2 | 800 | 15 | Attention shake |
-
-### Duration Values
-| Name | Value | Usage |
-|------|-------|-------|
-| instant | 100ms | Immediate feedback |
-| fast | 200ms | Quick transitions |
-| normal | 300ms | Standard animations |
-| slow | 500ms | Emphasis |
-| dramatic | 1000ms | Important reveals |
-| cinematic | 2000ms | Hero animations |
-
----
-
-## Implementation Plan
-
-### Phase 1: Token Alignment (Priority: High)
-
-#### 1.1 Web - Tailwind Configuration
-**File**: `/website/tailwind.config.js`
-
-Changes:
-- Import tokens directly instead of hardcoding
-- Align titanium scale with exact token values
-- Add all TYPE_SCALE variants
-- Add SHADOW/ELEVATION presets
-- Add spring animation utilities
-
-#### 1.2 Web - CSS Variables
-**File**: `/website/src/index.css`
-
-Changes:
-- Generate CSS custom properties from tokens
-- Support dark mode via CSS variables
-- Add glow effect utilities
-
-#### 1.3 Mobile - Theme Constants
-**File**: `/mobile/src/constants/theme.ts`
-
-Changes:
-- Add SHADOW exports for React Native
-- Align TYPOGRAPHY with TYPE_SCALE
-- Add GLOW effects
-
-### Phase 2: Component Updates (Priority: High)
-
-#### 2.1 Web Components
-| Component | Changes |
-|-----------|---------|
-| Button variants | Use action colors, spring animations |
-| Card components | Use ELEVATION shadows |
-| Modal/Dialog | Use modal spring, xl shadow |
-| Form inputs | Focus rings with indigo glow |
-| Typography | Map to TYPE_SCALE variants |
-
-#### 2.2 Mobile Components
-| Component | Changes |
-|-----------|---------|
-| PrimaryButton | Add shadow, spring press |
-| Cards/Surfaces | Add elevation shadows |
-| Game screens | Full game color implementation |
-| Text components | TYPE_SCALE alignment |
-
-### Phase 3: Game Theming (Priority: Medium)
-
-#### 3.1 Game Screen Backgrounds
-Each game screen should use:
-- `GAME[gameId].primary` as gradient base
-- `GAME[gameId].accent` for highlights and active states
-- Consistent overlay patterns
-
-#### 3.2 Game-Specific Animations
-| Game | Key Animations |
-|------|---------------|
-| Blackjack | cardDeal, cardFlip |
-| Roulette | wheelSpin, chipToss |
-| Craps | diceTumble, chipStack |
-| Video Poker | cardDeal, cardFlip |
-| Hi-Lo | cardFlip, success/error |
-| Sic Bo | diceTumble |
-
-### Phase 4: Polish & Accessibility (Priority: Medium)
-
-#### 4.1 Accessibility Checks
-- Verify all text meets WCAG AA contrast
-- Test focus indicators
-- Ensure animations respect prefers-reduced-motion
-- Screen reader compatibility
-
-#### 4.2 Dark Mode Support
-- Implement inverted titanium scale
-- Adjust shadows for dark backgrounds
-- Test all game themes in dark mode
-
----
-
-## File Changes Summary
-
-### New Files
-None - all changes are updates to existing files
-
-### Modified Files
-
-#### `/website/tailwind.config.js`
-- Import from `@nullspace/design-tokens`
-- Update colors to use TITANIUM
-- Add TYPE_SCALE font sizes
-- Add SHADOW box-shadows
-- Add spring animation keyframes
-
-#### `/website/src/index.css`
-- Add CSS custom properties for tokens
-- Add glow utility classes
-- Add spring animation classes
-
-#### `/mobile/src/constants/theme.ts`
-- Add SHADOW exports
-- Add GLOW exports
-- Align TYPOGRAPHY with TYPE_SCALE
-
-#### Component Files (Both Platforms)
-- Update hardcoded colors → token references
-- Update hardcoded spacing → semantic keys
-- Update animations → spring configs
-
----
-
-## Success Criteria
-
-1. **Visual Consistency**: Web and mobile apps look identical for shared elements
-2. **Token Coverage**: 100% of colors, spacing, typography from tokens
-3. **Animation Quality**: All interactions use spring physics
-4. **Accessibility**: WCAG AA compliance for all text
-5. **Performance**: No animation jank on mobile
-6. **Dark Mode**: Full support on both platforms
-
----
-
-## Testing Strategy
-
-### Visual Regression
-- Screenshot comparison for key screens
-- Cross-browser testing (Chrome, Safari, Firefox)
-- Device testing (iOS, Android, Web responsive)
-
-### Accessibility
-- Automated contrast checks
-- Screen reader testing
-- Keyboard navigation
-
-### Performance
-- Animation frame rate monitoring
-- Bundle size impact
-- Memory usage during animations
-
----
-
-## Appendix: Token Import Patterns
-
-### Web (Tailwind)
-```javascript
-// tailwind.config.js
-const { TITANIUM, ACTION, GAME } = require('@nullspace/design-tokens');
-
-module.exports = {
-  theme: {
-    extend: {
-      colors: {
-        titanium: TITANIUM,
-        action: ACTION,
-        // ...
-      }
-    }
-  }
-}
-```
-
-### Mobile (React Native)
-```typescript
-// theme.ts
-import { SHADOW, GLOW, TYPE_SCALE } from '@nullspace/design-tokens';
-
-export const SHADOWS = {
-  card: {
-    shadowOffset: { width: SHADOW.md.offsetX, height: SHADOW.md.offsetY },
-    shadowRadius: SHADOW.md.blur,
-    shadowOpacity: SHADOW.md.opacity,
-    shadowColor: '#000',
-  },
-};
-```
-
-### CSS Custom Properties
 ```css
-:root {
-  --color-titanium-50: #FAFAFA;
-  --color-titanium-100: #F5F5F5;
-  /* ... */
-  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
-  /* ... */
-}
+--border-hairline: 1px solid #E5E5E5;  /* Subtle dividers */
+--border-thin: 1px solid #000000;       /* Standard borders */
+--border-medium: 2px solid #000000;     /* Emphasis borders */
+--border-thick: 4px solid #000000;      /* Heavy rules, section dividers */
+--border-ultra: 8px solid #000000;      /* Maximum impact */
 ```
+
+**Usage:**
+- Horizontal rules between sections (thick or ultra)
+- Vertical dividers between columns (thin)
+- Card borders (thin or medium)
+- Underlines for links (thin, on hover)
+
+### Shadows
+
+**NONE**
+
+This design has zero drop shadows. Depth is created through:
+- Color inversion (black/white swap)
+- Border weight variation
+- Scale contrast
+- Negative space
+
+---
+
+## Textures & Patterns
+
+**CRITICAL:** These textures are REQUIRED to prevent flat design. Apply strategically across sections.
+
+### Primary Pattern: Horizontal Lines (Global)
+```css
+background-image: repeating-linear-gradient(
+  0deg,
+  transparent,
+  transparent 1px,
+  #000 1px,
+  #000 2px
+);
+background-size: 100% 4px;
+opacity: 0.015;
+```
+
+### Noise Texture (global, for paper-like quality)
+```css
+background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+opacity: 0.02;
+```
+
+### Inverted Section Textures
+For dark backgrounds, use white-based textures:
+```css
+/* Vertical lines for inverted sections */
+background-image: repeating-linear-gradient(
+  90deg,
+  transparent,
+  transparent 1px,
+  #fff 1px,
+  #fff 2px
+);
+background-size: 4px 100%;
+opacity: 0.03;
+```
+
+---
+
+## Component Styling
+
+### Buttons
+
+**Primary Button:**
+- Background: #000000 (black)
+- Text: #FFFFFF (white)
+- Border: none
+- Padding: px-8 py-4 (generous)
+- Font: uppercase, tracking-widest, font-medium, text-sm
+- Hover: Invert to white bg, black text, black border
+- Transition: Instant (no easing, 0ms or 100ms max)
+
+**Secondary/Outline Button:**
+- Background: transparent
+- Text: #000000
+- Border: 2px solid #000000
+- Hover: Fill black, text white
+
+**Ghost Button:**
+- Background: transparent
+- Text: #000000
+- Border: none
+- Text decoration: underline on hover
+
+Button Shape: Always rectangular, never rounded.
+
+### Cards/Containers
+
+**Standard Card:**
+- Background: #FFFFFF
+- Border: 1px solid #000000
+- Padding: p-6 or p-8
+- No shadow, no radius
+
+**Inverted Card (for emphasis):**
+- Background: #000000
+- Text: #FFFFFF
+- Border: none
+- Use sparingly for highlighted content
+
+### Inputs
+
+**Text Input:**
+- Background: #FFFFFF
+- Border: 2px solid #000000 (bottom only, or full)
+- No radius
+- Placeholder: #525252 italic
+- Focus: Border thickens to 3px or 4px
+- No colored focus ring—just border change
+
+---
+
+## Effects & Animation
+
+### Motion Philosophy: Minimal and Instant
+
+This design favors stillness and instant state changes. When animation exists, it's:
+- **Instant:** 0-100ms transitions maximum
+- **Binary:** Sharp on/off states, not gradual
+- **Purposeful:** Only for state changes (hover, focus)
+
+### Hover Effects
+
+- Cards/Features: Full color inversion with 100ms transition
+- Buttons: Color inversion with transition-none for instant feedback
+- Links: Underline appearance (instant)
+
+### Focus States (Accessibility Required)
+
+- Buttons: 3px solid outline with 3px offset
+- Inputs: Border thickens from 2px to 4px
+- Links: Border appears/thickens
+- All outlines use focus-visible to avoid mouse click outlines
+
+---
+
+## Accessibility
+
+**Contrast:** Pure black on white exceeds WCAG AAA requirements (21:1 ratio).
+
+**Focus States (REQUIRED for all interactive elements):**
+- Buttons: outline: 3px solid #000, outline-offset: 3px
+- Inputs: border thickens from 2px to 4px on focus
+- Links: border appears/thickens on focus-visible
+
+**Skip Links:** Visible, black button at top of page.
+
+**Touch Targets:** Minimum 44px×44px for all interactive elements on mobile.
+
+---
+
+## Bold Choices (Non-Negotiable)
+
+1. **Oversized Hero Typography:** At least one word in 8xl or larger
+2. **Inverted Sections:** Black background, white text for emphasis
+3. **No Accent Colors:** Black IS the accent
+4. **Heavy Horizontal Rules:** 4px black lines between ALL major sections
+5. **Editorial Pull Quotes:** Large italic serif with oversized quotation marks
+6. **Sharp Everything:** Zero border-radius across all elements
+7. **Instant Interactions:** 100ms transitions maximum
+8. **Typography as Graphics:** Headlines that function as visual elements
+9. **Layered Textures:** Subtle patterns for depth (NOT flat design)
+10. **Boxed Drop Cap:** First paragraph has bordered box drop cap
+
+---
+
+## What Success Looks Like
+
+A successfully implemented Minimalist Monochrome design should feel like:
+- Opening a high-end fashion magazine
+- Walking through a modern art gallery
+- Reading an award-winning architectural monograph
+- Browsing a luxury brand's website
+
+It should NOT feel like:
+- A generic website template
+- A tech startup landing page
+- Something that "needs a pop of color"
+- Minimalist Modern with the colors removed

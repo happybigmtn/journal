@@ -10,6 +10,7 @@ M.config = {
   template_dir = vim.fn.expand("~/Coding/journal/templates"),
   site_dir = vim.fn.expand("~/Coding/journal/site"),
   auto_publish = true,
+  keymaps = true, -- Set to false when using with LazyVim (it handles keymaps)
 }
 
 -- Utility: Get formatted date parts
@@ -272,14 +273,16 @@ function M.setup(opts)
     })
   end
 
-  -- Keymaps
-  vim.keymap.set("n", "<leader>jj", ":JournalNew<CR>", { desc = "New journal entry (today)" })
-  vim.keymap.set("n", "<leader>jw", ":JournalNew week<CR>", { desc = "Weekly review" })
-  vim.keymap.set("n", "<leader>jm", ":JournalNew month<CR>", { desc = "Monthly review" })
-  vim.keymap.set("n", "<leader>j[", M.journal_prev, { desc = "Previous entry" })
-  vim.keymap.set("n", "<leader>j]", M.journal_next, { desc = "Next entry" })
-  vim.keymap.set("n", "<leader>jp", M.publish, { desc = "Publish journal" })
-  vim.keymap.set("n", "<leader>jl", M.journal_list, { desc = "List entries" })
+  -- Keymaps (disabled when using LazyVim, which handles its own keymaps)
+  if M.config.keymaps then
+    vim.keymap.set("n", "<leader>jj", ":JournalNew<CR>", { desc = "New journal entry (today)" })
+    vim.keymap.set("n", "<leader>jw", ":JournalNew week<CR>", { desc = "Weekly review" })
+    vim.keymap.set("n", "<leader>jm", ":JournalNew month<CR>", { desc = "Monthly review" })
+    vim.keymap.set("n", "<leader>j[", M.journal_prev, { desc = "Previous entry" })
+    vim.keymap.set("n", "<leader>j]", M.journal_next, { desc = "Next entry" })
+    vim.keymap.set("n", "<leader>jp", M.publish, { desc = "Publish journal" })
+    vim.keymap.set("n", "<leader>jl", M.journal_list, { desc = "List entries" })
+  end
 
   vim.notify("Journal loaded. Use :JournalNew to start.", vim.log.levels.INFO)
 end

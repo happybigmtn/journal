@@ -18,14 +18,14 @@
 			"id": "US-002",
 			"title": "Fix accessibility contrast for gray-light color",
 			"acceptanceCriteria": [
-				"Update --gray-light from #999999 to at least #767676",
+				"Update --gray-light from #999999 to #525252 (mutedForeground)",
 				"Achieve WCAG AA contrast ratio (4.5:1) against white",
 				"Verify all text using gray-light remains readable",
-				"Test in both light and dark environments"
+				"Align with design system mutedForeground token"
 			],
 			"priority": 2,
 			"passes": false,
-			"notes": "IMPORTANT: Current #999999 has 2.85:1 contrast ratio, fails WCAG AA (needs 4.5:1)"
+			"notes": "IMPORTANT: Current #999999 has 2.85:1 contrast ratio, design system specifies #525252"
 		},
 		{
 			"id": "US-003",
@@ -41,17 +41,203 @@
 			"notes": "IMPORTANT: No bounds checking on date parameter in journal.lua:64-74"
 		},
 		{
-			"id": "US-004",
-			"title": "Add Google Fonts EB Garamond import",
+			"id": "US-016",
+			"title": "Replace color palette with pure black and white",
 			"acceptanceCriteria": [
-				"Import EB Garamond from Google Fonts in BaseLayout.astro",
-				"Apply EB Garamond to body text via CSS custom property",
-				"Maintain system font fallback stack",
-				"Verify font loads correctly on site"
+				"Change --black to #000000 (pure black)",
+				"Change --white to #FFFFFF (pure white)",
+				"Remove --charcoal, use --black for foreground",
+				"Change --off-white to --muted: #F5F5F5",
+				"Add --muted-foreground: #525252 for secondary text",
+				"Remove all intermediate grays except for secondary elements"
 			],
 			"priority": 4,
 			"passes": false,
-			"notes": "ENHANCEMENT: Design system specifies EB Garamond but font not imported"
+			"notes": "DESIGN-SYSTEM: Current palette uses charcoal (#1a1a1a), design system requires pure black/white only"
+		},
+		{
+			"id": "US-017",
+			"title": "Import editorial typography fonts",
+			"acceptanceCriteria": [
+				"Import Playfair Display from Google Fonts for headlines",
+				"Import Source Serif 4 from Google Fonts for body text",
+				"Import JetBrains Mono for dates and metadata",
+				"Update CSS custom properties: --font-display, --font-body, --font-mono",
+				"Apply correct font to each element type"
+			],
+			"priority": 5,
+			"passes": false,
+			"notes": "DESIGN-SYSTEM: Replaces US-004 (EB Garamond), design system specifies Playfair Display + Source Serif 4"
+		},
+		{
+			"id": "US-018",
+			"title": "Implement dramatic typography scale",
+			"acceptanceCriteria": [
+				"Add CSS custom properties for full type scale (xs through 9xl)",
+				"Implement 9xl (10rem/160px) for oversized statements",
+				"Add 7xl (6rem/96px) and 8xl (8rem/128px) for hero headlines",
+				"Use tracking-tight (-0.025em) for headlines",
+				"Use tracking-widest (0.1em) for labels and small caps"
+			],
+			"priority": 6,
+			"passes": false,
+			"notes": "DESIGN-SYSTEM: Current max is 2rem, design system requires dramatic scale up to 10rem"
+		},
+		{
+			"id": "US-019",
+			"title": "Remove all border-radius (sharp corners)",
+			"acceptanceCriteria": [
+				"Set border-radius: 0 on all elements globally",
+				"Remove border-radius: 2px from code blocks",
+				"Ensure all cards, buttons, inputs have 90-degree corners",
+				"Add comment explaining this is non-negotiable design decision"
+			],
+			"priority": 7,
+			"passes": false,
+			"notes": "DESIGN-SYSTEM: Current code blocks have 2px radius, design system requires 0px everywhere"
+		},
+		{
+			"id": "US-020",
+			"title": "Implement line-based border system",
+			"acceptanceCriteria": [
+				"Add CSS custom properties for border weights: hairline (1px #E5E5E5), thin (1px #000), medium (2px #000), thick (4px #000), ultra (8px #000)",
+				"Replace current 1px borders with appropriate weights",
+				"Use thick (4px) rules between major sections",
+				"Use hairline for subtle dividers within content"
+			],
+			"priority": 8,
+			"passes": false,
+			"notes": "DESIGN-SYSTEM: Current uses generic 1px borders, design system has specific weight hierarchy"
+		},
+		{
+			"id": "US-021",
+			"title": "Add paper-like texture overlays",
+			"acceptanceCriteria": [
+				"Add horizontal line texture pattern (opacity 0.015)",
+				"Add noise texture for paper-like quality (opacity 0.02)",
+				"Apply textures to body/main container",
+				"Ensure textures don't affect readability"
+			],
+			"priority": 9,
+			"passes": false,
+			"notes": "DESIGN-SYSTEM: Design system requires subtle textures to prevent flat design"
+		},
+		{
+			"id": "US-022",
+			"title": "Implement instant hover transitions",
+			"acceptanceCriteria": [
+				"Change all transitions to 100ms maximum",
+				"Implement color inversion on card/link hover",
+				"Remove gradual easing functions",
+				"Add instant underline appearance on link hover"
+			],
+			"priority": 10,
+			"passes": false,
+			"notes": "DESIGN-SYSTEM: Current uses 0.15s ease, design system requires instant (0-100ms) transitions"
+		},
+		{
+			"id": "US-023",
+			"title": "Add required focus states for accessibility",
+			"acceptanceCriteria": [
+				"Add 3px solid black outline with 3px offset on buttons",
+				"Add border thickening (2px to 4px) on input focus",
+				"Use focus-visible to prevent mouse click outlines",
+				"Ensure all interactive elements have visible focus states"
+			],
+			"priority": 11,
+			"passes": false,
+			"notes": "DESIGN-SYSTEM: No focus states currently defined, required for accessibility"
+		},
+		{
+			"id": "US-024",
+			"title": "Add editorial drop cap for entry first paragraphs",
+			"acceptanceCriteria": [
+				"Style first letter of entry content with drop cap",
+				"Use bordered box drop cap style (black border around letter)",
+				"Size drop cap to span 3-4 lines",
+				"Apply only to .entry-content first paragraph"
+			],
+			"priority": 12,
+			"passes": false,
+			"notes": "DESIGN-SYSTEM: Design system specifies boxed drop cap for editorial feel"
+		},
+		{
+			"id": "US-025",
+			"title": "Implement oversized date display on entries",
+			"acceptanceCriteria": [
+				"Display entry date in 5xl or larger on entry pages",
+				"Use JetBrains Mono font for dates",
+				"Add tracking-widest letter spacing",
+				"Position date as prominent visual element"
+			],
+			"priority": 13,
+			"passes": false,
+			"notes": "DESIGN-SYSTEM: Typography should be graphic element, dates currently small"
+		},
+		{
+			"id": "US-026",
+			"title": "Add inverted hero section for index page",
+			"acceptanceCriteria": [
+				"Create black background hero section at top of archive",
+				"Display site title in white, oversized typography (7xl+)",
+				"Add subtle vertical line texture on dark background",
+				"Include dramatic negative space"
+			],
+			"priority": 14,
+			"passes": false,
+			"notes": "DESIGN-SYSTEM: Use color inversion for emphasis, currently no hero section"
+		},
+		{
+			"id": "US-027",
+			"title": "Style blockquotes as editorial pull quotes",
+			"acceptanceCriteria": [
+				"Add oversized quotation marks (decorative, not inline)",
+				"Use large italic serif styling for quote text",
+				"Remove left border, use negative space instead",
+				"Add thick rule above and below quotes"
+			],
+			"priority": 15,
+			"passes": false,
+			"notes": "DESIGN-SYSTEM: Current blockquotes have simple left border, should be editorial"
+		},
+		{
+			"id": "US-028",
+			"title": "Implement thick section dividers",
+			"acceptanceCriteria": [
+				"Replace 1px hr with 4px black rule",
+				"Add 8px ultra rule option for major sections",
+				"Use consistent thick rules between Morning/Evening/Daily Log",
+				"Add small bordered square decorative element option"
+			],
+			"priority": 16,
+			"passes": false,
+			"notes": "DESIGN-SYSTEM: Current uses 1px borders, design system requires heavy rules (4-8px)"
+		},
+		{
+			"id": "US-029",
+			"title": "Add hover inversion to archive list items",
+			"acceptanceCriteria": [
+				"Full color inversion on archive entry hover (black bg, white text)",
+				"Transition duration 100ms",
+				"Apply to entire list item, not just text",
+				"Maintain readable contrast during hover"
+			],
+			"priority": 17,
+			"passes": false,
+			"notes": "DESIGN-SYSTEM: Current hover adds underline, should invert colors"
+		},
+		{
+			"id": "US-030",
+			"title": "Style tags as uppercase monospace labels",
+			"acceptanceCriteria": [
+				"Use JetBrains Mono for tag text",
+				"Apply text-transform: uppercase",
+				"Add tracking-widest letter spacing",
+				"Use small size (0.75rem/12px) with black border"
+			],
+			"priority": 18,
+			"passes": false,
+			"notes": "DESIGN-SYSTEM: Tags should look like editorial labels, not casual links"
 		},
 		{
 			"id": "US-005",
@@ -62,7 +248,7 @@
 				"Sort tags alphabetically",
 				"Link each tag to its filtered view"
 			],
-			"priority": 5,
+			"priority": 19,
 			"passes": false,
 			"notes": "ENHANCEMENT: Currently tags only work via direct URL, no discovery page"
 		},
@@ -75,7 +261,7 @@
 				"Highlight matching terms in results",
 				"Show recent searches or suggestions"
 			],
-			"priority": 6,
+			"priority": 20,
 			"passes": false,
 			"notes": "ENHANCEMENT: No search capability exists, only tag filtering"
 		},
@@ -88,7 +274,7 @@
 				"Support :JournalNew year command",
 				"Store in journal/YYYY/yearly/YYYY.md"
 			],
-			"priority": 7,
+			"priority": 21,
 			"passes": false,
 			"notes": "ENHANCEMENT: PRD mentions yearly reviews but not implemented"
 		},
@@ -101,7 +287,7 @@
 				"Display sleep data in entry layout",
 				"Validate sleep_hours is 0-24 if provided"
 			],
-			"priority": 8,
+			"priority": 22,
 			"passes": false,
 			"notes": "ENHANCEMENT: PRD mentions sleep tracking as part of life replay"
 		},
@@ -114,7 +300,7 @@
 				"Display energy as visual indicator (dots or bar)",
 				"Include in evening reflection section"
 			],
-			"priority": 9,
+			"priority": 23,
 			"passes": false,
 			"notes": "ENHANCEMENT: PRD mentions energy tracking for life replay"
 		},
@@ -123,13 +309,13 @@
 			"title": "Add dark mode support to site",
 			"acceptanceCriteria": [
 				"Add prefers-color-scheme media query support",
-				"Create dark mode CSS custom properties",
-				"Invert monochrome palette appropriately",
+				"Invert monochrome palette (white bg becomes black, black text becomes white)",
+				"Adjust textures for dark backgrounds",
 				"Add manual toggle in site header"
 			],
-			"priority": 10,
+			"priority": 24,
 			"passes": false,
-			"notes": "ENHANCEMENT: Monochrome design should work well inverted for dark mode"
+			"notes": "ENHANCEMENT: Monochrome design inverts perfectly for dark mode"
 		},
 		{
 			"id": "US-011",
@@ -140,7 +326,7 @@
 				"Support filtering by year/month",
 				"Display mood indicators along timeline"
 			],
-			"priority": 11,
+			"priority": 25,
 			"passes": false,
 			"notes": "ENHANCEMENT: PRD core feature - 'life replay' timeline view"
 		},
@@ -149,13 +335,13 @@
 			"title": "Add calendar heat map view",
 			"acceptanceCriteria": [
 				"Create /calendar route with year-at-a-glance view",
-				"Color code days by mood or entry presence",
+				"Use black fill intensity for entry presence (no colors)",
 				"Click day to navigate to entry",
 				"Show entry counts per month"
 			],
-			"priority": 12,
+			"priority": 26,
 			"passes": false,
-			"notes": "ENHANCEMENT: Visual way to see journaling consistency"
+			"notes": "ENHANCEMENT: Visual consistency with monochrome design"
 		},
 		{
 			"id": "US-013",
@@ -166,7 +352,7 @@
 				"Support exporting to JSON format",
 				"Include date range selection"
 			],
-			"priority": 13,
+			"priority": 27,
 			"passes": false,
 			"notes": "ENHANCEMENT: Data portability for journal entries"
 		},
@@ -179,7 +365,7 @@
 				"Show notification with entry date",
 				"Skip entries from current week"
 			],
-			"priority": 14,
+			"priority": 28,
 			"passes": false,
 			"notes": "ENHANCEMENT: 'On this day' style rediscovery feature"
 		},
@@ -192,9 +378,74 @@
 				"Show longest streak ever",
 				"Add streak indicator to Neovim notifications"
 			],
-			"priority": 15,
+			"priority": 29,
 			"passes": false,
 			"notes": "ENHANCEMENT: Motivation through gamification"
+		},
+		{
+			"id": "US-031",
+			"title": "Increase container max-width and spacing",
+			"acceptanceCriteria": [
+				"Increase --max-width from 38rem to 72rem (1152px)",
+				"Add generous section padding (py-24 to py-40)",
+				"Increase container horizontal padding (px-6 md:px-8 lg:px-12)",
+				"Ensure dramatic negative space around content"
+			],
+			"priority": 30,
+			"passes": false,
+			"notes": "DESIGN-SYSTEM: Current layout is cramped, design system requires dramatic whitespace"
+		},
+		{
+			"id": "US-032",
+			"title": "Add responsive typography adjustments",
+			"acceptanceCriteria": [
+				"Reduce oversized headlines on mobile (9xl → 5xl)",
+				"Maintain sharp corners and monochrome on all breakpoints",
+				"Stack columns vertically on mobile",
+				"Convert borders to full-width horizontal rules on mobile"
+			],
+			"priority": 31,
+			"passes": false,
+			"notes": "DESIGN-SYSTEM: Monochrome drama must survive on mobile"
+		},
+		{
+			"id": "US-033",
+			"title": "Style navigation with editorial hierarchy",
+			"acceptanceCriteria": [
+				"Use uppercase, tracking-widest for nav links",
+				"Add thick bottom border on current/active page",
+				"Implement instant color inversion on hover",
+				"Position navigation with generous spacing"
+			],
+			"priority": 32,
+			"passes": false,
+			"notes": "DESIGN-SYSTEM: Navigation should feel like magazine masthead"
+		},
+		{
+			"id": "US-034",
+			"title": "Add skip link for accessibility",
+			"acceptanceCriteria": [
+				"Add visible skip link at top of page",
+				"Style as black button with white text",
+				"Position off-screen until focused",
+				"Link to main content area"
+			],
+			"priority": 33,
+			"passes": false,
+			"notes": "DESIGN-SYSTEM: Required accessibility feature per design system"
+		},
+		{
+			"id": "US-035",
+			"title": "Ensure 44px minimum touch targets on mobile",
+			"acceptanceCriteria": [
+				"Audit all interactive elements for touch target size",
+				"Add padding to links/buttons to meet 44px minimum",
+				"Test on actual mobile device",
+				"Document touch target requirements"
+			],
+			"priority": 34,
+			"passes": false,
+			"notes": "DESIGN-SYSTEM: Required accessibility feature per design system"
 		}
 	]
 }
