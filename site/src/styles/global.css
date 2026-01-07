@@ -31,6 +31,13 @@
   --tracking-wide: 0.025em;
   --tracking-widest: 0.1em;
 
+  /* Line-based border system */
+  --border-hairline: 1px solid #E5E5E5;
+  --border-thin: 1px solid var(--black);
+  --border-medium: 2px solid var(--black);
+  --border-thick: 4px solid var(--black);
+  --border-ultra: 8px solid var(--black);
+
   --max-width: 38rem;
   --line-height: 1.7;
 }
@@ -78,7 +85,7 @@ li { margin-bottom: 0.5rem; }
 
 hr {
   border: none;
-  border-top: 1px solid var(--muted-foreground);
+  border-top: var(--border-thick);
   margin: 2rem 0;
 }
 
@@ -169,7 +176,7 @@ a:hover {
   font-weight: 400;
   margin: 2.5rem 0 1rem;
   padding-bottom: 0.5rem;
-  border-bottom: 1px solid var(--muted-foreground);
+  border-bottom: var(--border-medium);
 }
 
 .archive-month {
