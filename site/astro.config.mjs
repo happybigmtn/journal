@@ -2,8 +2,7 @@
 import { defineConfig } from 'astro/config';
 
 export default defineConfig({
-  site: 'https://happybigmtn.github.io',
-  base: '/journal',
+  site: 'https://rizz.dad',
   output: 'static',
   markdown: {
     shikiConfig: {
