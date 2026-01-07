@@ -1,0 +1,63 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const allEntries = await getCollection('journal', ({ data }) => !data.draft);
+
+// Group by year and month
+const grouped = allEntries.reduce((acc, entry) => {
+  const date = new Date(entry.data.date);
+  const year = date.getFullYear();
+  const month = date.toLocaleDateString('en-US', { month: 'long' });
+
+  if (!acc[year]) acc[year] = {};
+  if (!acc[year][month]) acc[year][month] = [];
+  acc[year][month].push(entry);
+
+  return acc;
+}, {} as Record<number, Record<string, typeof allEntries>>);
+
+// Sort years descending
+const years = Object.keys(grouped).map(Number).sort((a, b) => b - a);
+
+const formatDay = (date: Date) => {
+  return date.toLocaleDateString('en-US', { day: 'numeric', weekday: 'short' });
+};
+---
+
+<BaseLayout title="Journal">
+  <h1>Journal</h1>
+  <p class="archive-intro">
+    A record of days. Thoughts, gratitude, lessons.
+  </p>
+
+  {years.length === 0 ? (
+    <p style="color: var(--gray-mid); margin-top: 2rem;">
+      No entries yet. Start journaling with <code>:JournalNew</code> in Neovim.
+    </p>
+  ) : (
+    years.map(year => (
+      <section>
+        <h2 class="archive-year">{year}</h2>
+        {Object.keys(grouped[year]).map(month => (
+          <div>
+            <h3 class="archive-month">{month}</h3>
+            <ul class="archive-list">
+              {grouped[year][month]
+                .sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime())
+                .map(entry => (
+                  <li>
+                    <a href={`/${entry.slug}`}>
+                      <span>{formatDay(new Date(entry.data.date))}</span>
+                      {entry.data.mood && <span class="mood">{entry.data.mood}</span>}
+                    </a>
+                  </li>
+                ))
+              }
+            </ul>
+          </div>
+        ))}
+      </section>
+    ))
+  )}
+</BaseLayout>

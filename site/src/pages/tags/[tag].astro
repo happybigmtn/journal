@@ -1,0 +1,43 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('journal', ({ data }) => !data.draft);
+  const tags = [...new Set(entries.flatMap(e => e.data.tags))];
+
+  return tags.map(tag => ({
+    params: { tag },
+    props: {
+      tag,
+      entries: entries.filter(e => e.data.tags.includes(tag))
+        .sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime())
+    }
+  }));
+}
+
+const { tag, entries } = Astro.props;
+---
+
+<BaseLayout title={`#${tag}`}>
+  <header class="site-header">
+    <a href="/">← Archive</a>
+  </header>
+
+  <h1>#{tag}</h1>
+  <p class="tag-count">{entries.length} {entries.length === 1 ? 'entry' : 'entries'}</p>
+
+  <ul class="archive-list">
+    {entries.map(entry => (
+      <li>
+        <a href={`/${entry.slug}`}>
+          {new Date(entry.data.date).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+          })}
+        </a>
+      </li>
+    ))}
+  </ul>
+</BaseLayout>

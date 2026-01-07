@@ -1,0 +1,66 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const { entry } = Astro.props;
+const { Content } = await entry.render();
+
+// Get all entries for prev/next navigation
+const allEntries = await getCollection('journal', ({ data }) => !data.draft);
+const sortedEntries = allEntries.sort((a, b) =>
+  new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
+);
+const currentIndex = sortedEntries.findIndex(e => e.slug === entry.slug);
+const prevEntry = sortedEntries[currentIndex + 1];
+const nextEntry = sortedEntries[currentIndex - 1];
+
+const formatDate = (date: Date) => {
+  return date.toLocaleDateString('en-US', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+};
+
+const formatShortDate = (date: Date) => {
+  return date.toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric'
+  });
+};
+---
+
+<BaseLayout title={entry.data.title}>
+  <header class="site-header">
+    <a href="/">← Archive</a>
+  </header>
+
+  <article>
+    <header class="entry-header">
+      <p class="entry-date">{formatDate(entry.data.date)}</p>
+      {entry.data.mood && <p class="entry-mood">Mood: {entry.data.mood}</p>}
+    </header>
+
+    <div class="entry-content">
+      <Content />
+    </div>
+
+    {entry.data.tags.length > 0 && (
+      <div class="tags">
+        {entry.data.tags.map(tag => (
+          <a href={`/tags/${tag}`}>#{tag}</a>
+        ))}
+      </div>
+    )}
+  </article>
+
+  <nav class="nav">
+    {prevEntry ? (
+      <a href={`/${prevEntry.slug}`}>← {formatShortDate(prevEntry.data.date)}</a>
+    ) : <span></span>}
+    {nextEntry ? (
+      <a href={`/${nextEntry.slug}`}>{formatShortDate(nextEntry.data.date)} →</a>
+    ) : <span></span>}
+  </nav>
+</BaseLayout>
