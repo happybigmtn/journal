@@ -33,35 +33,71 @@ filter_output() {
     # Skip empty lines
     [[ -z "$line" ]] && continue
 
-    # Parse JSON and extract relevant info
+    # Try to parse as JSON
+    if ! echo "$line" | jq -e . >/dev/null 2>&1; then
+      continue
+    fi
+
+    # Extract type and subtype
     type=$(echo "$line" | jq -r '.type // empty' 2>/dev/null)
+    subtype=$(echo "$line" | jq -r '.subtype // empty' 2>/dev/null)
 
     case "$type" in
-      "assistant")
-        # Show assistant text messages (trimmed)
-        msg=$(echo "$line" | jq -r '.message.content[]? | select(.type=="text") | .text // empty' 2>/dev/null | head -c 200)
-        [[ -n "$msg" ]] && echo -e "${CYAN}▸${NC} ${msg}"
+      "system")
+        case "$subtype" in
+          "init")
+            echo -e "${DIM}🔧 Session initialized${NC}"
+            ;;
+        esac
         ;;
-      "user")
-        # Show todo updates
-        todos=$(echo "$line" | jq -r '.message.content[]? | select(.type=="tool_result") | .content // empty' 2>/dev/null)
-        if [[ "$todos" == *"in_progress"* ]]; then
-          task=$(echo "$todos" | jq -r '.[] | select(.status=="in_progress") | .content' 2>/dev/null | head -1)
-          [[ -n "$task" ]] && echo -e "${YELLOW}⚡${NC} ${task}"
+      "assistant")
+        # Show tool uses
+        tool_name=$(echo "$line" | jq -r '.message.content[]? | select(.type=="tool_use") | .name // empty' 2>/dev/null | head -1)
+        if [[ -n "$tool_name" ]]; then
+          case "$tool_name" in
+            "Read")
+              file=$(echo "$line" | jq -r '.message.content[]? | select(.type=="tool_use") | .input.file_path // empty' 2>/dev/null | xargs basename 2>/dev/null | head -1)
+              echo -e "${DIM}📖 Reading${NC} $file"
+              ;;
+            "Write")
+              file=$(echo "$line" | jq -r '.message.content[]? | select(.type=="tool_use") | .input.file_path // empty' 2>/dev/null | xargs basename 2>/dev/null | head -1)
+              echo -e "${GREEN}📝 Writing${NC} $file"
+              ;;
+            "Edit")
+              file=$(echo "$line" | jq -r '.message.content[]? | select(.type=="tool_use") | .input.file_path // empty' 2>/dev/null | xargs basename 2>/dev/null | head -1)
+              echo -e "${GREEN}✏️  Editing${NC} $file"
+              ;;
+            "Bash")
+              desc=$(echo "$line" | jq -r '.message.content[]? | select(.type=="tool_use") | .input.description // empty' 2>/dev/null | head -c 50)
+              [[ -z "$desc" ]] && desc=$(echo "$line" | jq -r '.message.content[]? | select(.type=="tool_use") | .input.command // empty' 2>/dev/null | head -c 50)
+              echo -e "${YELLOW}⚡ Running${NC} ${DIM}${desc}${NC}"
+              ;;
+            "Grep"|"Glob")
+              pattern=$(echo "$line" | jq -r '.message.content[]? | select(.type=="tool_use") | .input.pattern // empty' 2>/dev/null | head -c 30)
+              echo -e "${DIM}🔍 Searching${NC} $pattern"
+              ;;
+            "TodoWrite")
+              echo -e "${CYAN}📋 Updating todos${NC}"
+              ;;
+            *)
+              echo -e "${DIM}🔧 ${tool_name}${NC}"
+              ;;
+          esac
+        else
+          # Show assistant text (first 120 chars)
+          text=$(echo "$line" | jq -r '.message.content[]? | select(.type=="text") | .text // empty' 2>/dev/null | tr '\n' ' ' | head -c 120)
+          if [[ -n "$text" ]]; then
+            echo -e "${CYAN}▸${NC} ${text}..."
+          fi
         fi
         ;;
       "result")
-        # Show tool completions briefly
-        tool=$(echo "$line" | jq -r '.subtype // empty' 2>/dev/null)
-        case "$tool" in
-          "Write"|"Edit")
-            file=$(echo "$line" | jq -r '.result // empty' 2>/dev/null | grep -o '[^/]*$' | head -1)
-            [[ -n "$file" ]] && echo -e "${GREEN}✓${NC} ${DIM}wrote${NC} $file"
-            ;;
-          "Bash")
-            echo -e "${DIM}…${NC} ${DIM}ran command${NC}"
-            ;;
-        esac
+        if [[ "$subtype" == "success" ]]; then
+          cost=$(echo "$line" | jq -r '.total_cost_usd // empty' 2>/dev/null)
+          if [[ -n "$cost" ]]; then
+            echo -e "${GREEN}✓ Completed${NC} ${DIM}(\$${cost})${NC}"
+          fi
+        fi
         ;;
     esac
   done
@@ -77,6 +113,7 @@ trap "rm -f $RAWFILE" EXIT
 for i in $(seq 1 $MAX_ITERATIONS); do
   echo -e "${BOLD}═══ Iteration $i/$MAX_ITERATIONS ═══${NC}"
 
+  # Note: --verbose is required for stream-json with -p
   if $VERBOSE; then
     # Verbose: show raw stream-json output
     claude --dangerously-skip-permissions --verbose \
@@ -85,7 +122,7 @@ for i in $(seq 1 $MAX_ITERATIONS); do
       | tee "$RAWFILE" || true
   else
     # Concise: filter to readable summaries
-    claude --dangerously-skip-permissions \
+    claude --dangerously-skip-permissions --verbose \
       --output-format stream-json \
       -p "$(cat "$SCRIPT_DIR/prompt.md")" 2>&1 \
       | tee "$RAWFILE" \
