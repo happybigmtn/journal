@@ -109,6 +109,37 @@ hr {
   margin: 2rem 0;
 }
 
+/* Ultra-thick divider for major sections */
+hr.ultra {
+  border-top: var(--border-ultra);
+}
+
+/* Decorative section divider with centered square */
+.section-divider {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 3rem 0;
+}
+
+.section-divider::before,
+.section-divider::after {
+  content: '';
+  flex: 1;
+  border-top: var(--border-thick);
+}
+
+.section-divider::after {
+  /* Small bordered square in center */
+}
+
+.section-divider span {
+  width: 12px;
+  height: 12px;
+  border: var(--border-medium);
+  background: transparent;
+}
+
 /* Editorial pull quote styling */
 blockquote {
   position: relative;
