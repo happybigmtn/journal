@@ -2,6 +2,7 @@
 title: "{{DATE}}"
 date: {{DATE}}
 mood: ""
+sleep_hours:
 tags: []
 type: daily
 ---
@@ -35,6 +36,15 @@ I am
 ---
 
 ## Evening
+
+### Sleep (last night)
+
+Hours: <!-- Update sleep_hours in frontmatter -->
+
+Quality: <!-- deep/restless/interrupted -->
+
+Notes:
+
 
 ### 3 amazing things that happened today
 1.

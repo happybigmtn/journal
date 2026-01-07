@@ -6,6 +6,7 @@ const journal = defineCollection({
     title: z.string(),
     date: z.coerce.date(),
     mood: z.string().optional(),
+    sleep_hours: z.number().min(0).max(24).optional(),
     tags: z.array(z.string()).default([]),
     type: z.enum(['daily', 'weekly', 'monthly', 'yearly']).default('daily'),
     draft: z.boolean().default(false),

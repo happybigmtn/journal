@@ -39,7 +39,12 @@ const formatShortDate = (date: Date) => {
   <article>
     <header class="entry-header">
       <p class="entry-date">{formatDate(entry.data.date)}</p>
-      {entry.data.mood && <p class="entry-mood">Mood: {entry.data.mood}</p>}
+      <div class="entry-meta">
+        {entry.data.mood && <span class="entry-mood">Mood: {entry.data.mood}</span>}
+        {entry.data.sleep_hours !== undefined && (
+          <span class="entry-sleep">Sleep: {entry.data.sleep_hours}h</span>
+        )}
+      </div>
     </header>
 
     <div class="entry-content">
