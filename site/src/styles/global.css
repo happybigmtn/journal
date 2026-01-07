@@ -421,6 +421,72 @@ textarea:focus-visible {
   letter-spacing: 0.1em;
 }
 
+/* Habits display */
+.habits-display {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: var(--border-hairline);
+}
+
+.habits-display h3 {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-widest);
+  color: var(--muted-foreground);
+  margin-bottom: 1rem;
+}
+
+.habit-list {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.habit-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+}
+
+.habit-check {
+  width: 1.25rem;
+  height: 1.25rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: var(--border-thin);
+  color: var(--muted-foreground);
+}
+
+.habit-check.done {
+  background: var(--black);
+  color: var(--white);
+}
+
+.habit-value {
+  font-weight: 500;
+}
+
+.habit-name {
+  color: var(--muted-foreground);
+}
+
+.habit-progress {
+  width: 50px;
+  height: 4px;
+  background: var(--muted);
+}
+
+.habit-progress-bar {
+  height: 100%;
+  background: var(--black);
+  display: block;
+}
+
 .entry-content h2 {
   font-size: 1.125rem;
   margin: 2.5rem 0 1rem;

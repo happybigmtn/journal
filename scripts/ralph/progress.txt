@@ -435,3 +435,23 @@ Target: Journal Enhancements
   - Empty state important when no mood data exists
 
 ---
+
+## 2026-01-07 - US-043 Habit Tracker Integration
+
+- Added `habitSchema` to content config supporting both boolean and numeric habits
+- Boolean habits: `{ name, done }` for yes/no tracking (exercise, meditate)
+- Numeric habits: `{ name, value, goal }` for quantifiable habits (water glasses, pages read)
+- Updated daily template with commented habit examples showing both formats
+- Added habit display to EntryLayout.astro:
+  - Boolean habits show ✓/✗ checkmark indicators
+  - Numeric habits show progress bars with value/goal text
+- CSS components: `.habits-display`, `.habit-list`, `.habit-item`, `.habit-progress-bar`
+- Progress bar fills proportionally (capped at 100%) with hover effect
+- Files changed: `site/src/content/config.ts`, `templates/daily.md`, `site/src/layouts/EntryLayout.astro`, `site/src/styles/global.css`
+- **Learnings:**
+  - Zod discriminated unions aren't needed; optional fields handle polymorphic habit types
+  - CSS progress bars: width percentage in inner div, clamp to 100% for overflow
+  - Commented template examples teach users without cluttering default entries
+  - Monochrome progress bars (black on light gray) match editorial aesthetic
+
+---

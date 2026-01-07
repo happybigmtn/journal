@@ -104,6 +104,43 @@ const readingTime = Math.max(1, Math.ceil(wordCount / WORDS_PER_MINUTE));
         ))}
       </div>
     )}
+
+    {entry.data.habits && entry.data.habits.length > 0 && (
+      <div class="habits-display">
+        <h3>Habits</h3>
+        <ul class="habit-list">
+          {entry.data.habits.map(habit => (
+            <li class="habit-item">
+              {habit.done !== undefined ? (
+                <>
+                  <span class={`habit-check ${habit.done ? 'done' : ''}`}>
+                    {habit.done ? '✓' : '○'}
+                  </span>
+                  <span class="habit-name">{habit.name}</span>
+                </>
+              ) : habit.value !== undefined ? (
+                <>
+                  <span class="habit-value">
+                    {habit.value}{habit.goal ? `/${habit.goal}` : ''}
+                  </span>
+                  <span class="habit-name">{habit.name}</span>
+                  {habit.goal && (
+                    <span class="habit-progress">
+                      <span
+                        class="habit-progress-bar"
+                        style={`width: ${Math.min(100, (habit.value / habit.goal) * 100)}%`}
+                      />
+                    </span>
+                  )}
+                </>
+              ) : (
+                <span class="habit-name">{habit.name}</span>
+              )}
+            </li>
+          ))}
+        </ul>
+      </div>
+    )}
   </article>
 
   {onThisDayEntries.length > 0 && (

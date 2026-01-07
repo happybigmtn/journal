@@ -6,6 +6,18 @@ sleep_hours:
 energy:
 tags: []
 type: daily
+habits:
+  # Boolean habits (did/didn't)
+  # - name: "Exercise"
+  #   done: false
+  # - name: "Meditate"
+  #   done: false
+  # - name: "Read"
+  #   done: false
+  # Numeric habits (with optional goals)
+  # - name: "Water"
+  #   value: 0
+  #   goal: 8
 ---
 
 ## Today's Reflection
@@ -67,6 +79,13 @@ Notes:
 
 What affected my energy today?
 
+
+---
+
+## Habits
+
+<!-- Track your daily habits in the frontmatter above. Uncomment and customize the habits array. -->
+<!-- Check off completed habits by setting done: true or updating value for numeric habits -->
 
 ---
 
