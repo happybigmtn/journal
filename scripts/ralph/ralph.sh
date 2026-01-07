@@ -23,6 +23,7 @@ cd "$PROJECT_ROOT"
 CYAN='\033[0;36m'
 GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
+RED='\033[0;31m'
 DIM='\033[0;90m'
 BOLD='\033[1m'
 NC='\033[0m'
@@ -98,6 +99,10 @@ filter_output() {
             echo -e "${GREEN}✓ Completed${NC} ${DIM}(\$${cost})${NC}"
           fi
         fi
+        ;;
+      "error")
+        msg=$(echo "$line" | jq -r '.error.message // .message // empty' 2>/dev/null | head -c 200)
+        [[ -n "$msg" ]] && echo -e "${RED}✗ Error: ${msg}${NC}"
         ;;
     esac
   done

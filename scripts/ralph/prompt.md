@@ -9,10 +9,14 @@
 4. Pick highest priority story
    where `passes: false`
 5. Implement that ONE story
-6. Run build to verify: `cd site && npm run build`
+6. **Keep CI green:** Run typecheck and build
+   - `cd site && npm run build`
+   - Fix any errors before committing
 7. Commit: `feat: [ID] - [Title]`
 8. Update prd.json: `passes: true`
 9. Append learnings to progress.txt
+
+**CRITICAL:** Each commit MUST pass build. Do not commit broken code.
 
 ## Progress Format
 
