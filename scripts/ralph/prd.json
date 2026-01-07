@@ -804,8 +804,8 @@
 				"Add remark plugin for :::collapse syntax sugar"
 			],
 			"priority": 59,
-			"passes": false,
-			"notes": "Gwern-inspired: Manage entry length by hiding supplementary content. Native HTML, progressive enhancement."
+			"passes": true,
+			"notes": "RESOLVED: Native <details>/<summary> support with editorial CSS styling. ▶ indicator rotates 90deg when open. Summary has muted background with color inversion on hover. Smooth 200ms reveal animation. Created remark-collapse.mjs plugin for :::collapse syntax sugar with optional [open] modifier."
 		},
 		{
 			"id": "US-061",

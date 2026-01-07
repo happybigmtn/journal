@@ -269,6 +269,83 @@ a:hover::after {
   color: var(--white);
 }
 
+/* Collapsible sections - editorial styling for <details>/<summary> */
+details {
+  margin: var(--space-4) 0;
+  border: var(--border-thin);
+  background: var(--white);
+}
+
+details[open] {
+  border-width: 2px;
+}
+
+summary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  font-family: var(--font-display);
+  font-weight: 600;
+  cursor: pointer;
+  list-style: none; /* Remove default marker */
+  user-select: none;
+  background: var(--muted);
+  transition: all 100ms ease;
+}
+
+summary::-webkit-details-marker {
+  display: none;
+}
+
+summary::before {
+  content: "▶";
+  font-size: 0.7em;
+  transition: transform 200ms ease;
+}
+
+details[open] summary::before {
+  transform: rotate(90deg);
+}
+
+summary:hover {
+  background: var(--black);
+  color: var(--white);
+}
+
+summary:focus-visible {
+  outline: 3px solid var(--black);
+  outline-offset: 2px;
+}
+
+details > :not(summary) {
+  padding: var(--space-4);
+}
+
+details > :not(summary):first-of-type {
+  margin-top: 0;
+}
+
+details > :not(summary):last-child {
+  margin-bottom: 0;
+}
+
+/* Smooth content reveal animation */
+@keyframes details-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+details[open] > :not(summary) {
+  animation: details-reveal 200ms ease;
+}
+
 /* Skip link for keyboard accessibility */
 .skip-link {
   position: absolute;

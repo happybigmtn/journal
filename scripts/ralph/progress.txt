@@ -970,3 +970,33 @@ Target: Journal Enhancements
 
 ---
 
+
+## 2026-01-07 - US-060 Collapsible/Expandable Sections
+
+- Added editorial CSS styling for native `<details>/<summary>` elements:
+  - Thin border (2px when open for emphasis)
+  - Muted background on summary with color inversion on hover
+  - ▶ indicator via ::before pseudo-element
+  - 90deg rotation transform when open
+  - Hidden default marker via `list-style: none` and `::-webkit-details-marker`
+- Smooth reveal animation:
+  - @keyframes details-reveal with opacity and translateY
+  - 200ms ease animation on content when opened
+- Focus states: 3px black outline for keyboard accessibility
+- Created `remark-collapse.mjs` plugin for syntax sugar:
+  - Transforms `:::collapse Title` / `:::` blocks to `<details><summary>`
+  - Supports `[open]` modifier: `:::collapse[open] Title`
+  - Uses unist-util-visit to traverse AST
+  - Collects content between opening and closing markers
+  - Escapes HTML in title text
+- Updated astro.config.mjs to include remarkCollapse plugin
+- Files changed: `site/src/styles/global.css`, `site/src/plugins/remark-collapse.mjs`, `site/astro.config.mjs`
+- **Learnings:**
+  - `<details>` is native HTML with built-in interactivity (no JS needed)
+  - `list-style: none` removes marker but need webkit prefix for Safari
+  - Transform-based animation is smooth (GPU accelerated)
+  - Remark plugins operate on MDAST; find paragraph→collect→replace pattern
+  - Processing nodes in reverse order preserves array indices during mutation
+
+---
+
