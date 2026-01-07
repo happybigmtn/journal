@@ -3,6 +3,7 @@ title: "{{DATE}}"
 date: {{DATE}}
 mood: ""
 sleep_hours:
+energy:
 tags: []
 type: daily
 ---
@@ -58,6 +59,13 @@ Notes:
 
 
 ### What is within my control, and what is not?
+
+
+### Energy Level (1-10)
+
+<!-- Update energy in frontmatter: 1=exhausted, 5=average, 10=peak -->
+
+What affected my energy today?
 
 
 ---

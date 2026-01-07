@@ -44,6 +44,11 @@ const formatShortDate = (date: Date) => {
         {entry.data.sleep_hours !== undefined && (
           <span class="entry-sleep">Sleep: {entry.data.sleep_hours}h</span>
         )}
+        {entry.data.energy !== undefined && (
+          <span class="entry-energy">
+            Energy: <span class="energy-dots">{'●'.repeat(entry.data.energy)}{'○'.repeat(10 - entry.data.energy)}</span>
+          </span>
+        )}
       </div>
     </header>
 

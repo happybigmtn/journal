@@ -306,9 +306,14 @@ textarea:focus-visible {
 }
 
 .entry-mood,
-.entry-sleep {
+.entry-sleep,
+.entry-energy {
   font-size: inherit;
   color: inherit;
+}
+
+.energy-dots {
+  letter-spacing: 0.1em;
 }
 
 .entry-content h2 {
