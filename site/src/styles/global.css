@@ -186,6 +186,24 @@ a:hover {
   padding: 0 2px;
 }
 
+/* Skip link for keyboard accessibility */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 0;
+  background: var(--black);
+  color: var(--white);
+  padding: 1rem;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  text-decoration: none;
+  z-index: 10000;
+}
+
+.skip-link:focus {
+  top: 0;
+}
+
 /* Focus states for accessibility - use focus-visible to prevent mouse click outlines */
 a:focus-visible {
   outline: 3px solid var(--black);
@@ -425,11 +443,21 @@ textarea:focus-visible {
   margin-bottom: 2rem;
 }
 
-/* Responsive */
-@media (max-width: 600px) {
+/* Responsive - monochrome drama survives on mobile */
+@media (max-width: 768px) {
   html { font-size: 16px; }
   .container { padding: 2rem 1rem; }
-  h1 { font-size: 1.5rem; }
+
+  /* Scale down oversized typography */
+  h1 { font-size: var(--text-3xl); }
+  .hero h1 { font-size: var(--text-5xl); }
+  .entry-date { font-size: var(--text-3xl); }
+
+  /* Full-width horizontal rules on mobile */
+  hr {
+    margin-left: -1rem;
+    margin-right: -1rem;
+  }
 }
 
 /* Images grayscale */
