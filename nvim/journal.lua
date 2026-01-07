@@ -1163,6 +1163,90 @@ function M.journal_list()
   vim.cmd("copen")
 end
 
+-- Generate weekly digest and open in browser
+function M.generate_digest(weeks_ago)
+  weeks_ago = weeks_ago or 1
+  local script_dir = debug.getinfo(1, "S").source:sub(2):match("(.*/)")
+  local digest_script = script_dir .. "../scripts/weekly_digest.lua"
+
+  -- Check if script exists
+  local file = io.open(digest_script, "r")
+  if not file then
+    vim.notify("Digest script not found: " .. digest_script, vim.log.levels.ERROR)
+    return
+  end
+  file:close()
+
+  -- Run the digest script
+  local cmd = string.format('lua "%s" --weeks %d 2>&1', digest_script, weeks_ago)
+  local handle = io.popen(cmd)
+  if not handle then
+    vim.notify("Failed to run digest script", vim.log.levels.ERROR)
+    return
+  end
+
+  local output = handle:read("*all")
+  local success = handle:close()
+
+  -- Parse output to get the path
+  local path = output:match("Digest saved to: ([^\n]+)")
+  if path then
+    vim.notify("Digest generated: " .. path, vim.log.levels.INFO)
+
+    -- Open in browser
+    local open_cmd = vim.fn.has("mac") == 1 and "open" or "xdg-open"
+    vim.fn.jobstart({ open_cmd, path }, { detach = true })
+  else
+    vim.notify("Digest generation failed:\n" .. output, vim.log.levels.ERROR)
+  end
+end
+
+-- Preview digest in floating window
+function M.preview_digest(weeks_ago)
+  weeks_ago = weeks_ago or 1
+  local script_dir = debug.getinfo(1, "S").source:sub(2):match("(.*/)")
+  local digest_script = script_dir .. "../scripts/weekly_digest.lua"
+
+  -- Run script with output to temp file
+  local cmd = string.format('lua "%s" --weeks %d 2>&1', digest_script, weeks_ago)
+  local handle = io.popen(cmd)
+  if not handle then
+    vim.notify("Failed to run digest script", vim.log.levels.ERROR)
+    return
+  end
+
+  local output = handle:read("*all")
+  handle:close()
+
+  -- Create floating window with output
+  local width = math.min(60, vim.o.columns - 4)
+  local height = math.min(15, vim.o.lines - 4)
+  local buf = vim.api.nvim_create_buf(false, true)
+
+  local lines = {}
+  for line in output:gmatch("[^\n]+") do
+    table.insert(lines, line)
+  end
+
+  vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
+
+  local win = vim.api.nvim_open_win(buf, true, {
+    relative = "editor",
+    width = width,
+    height = height,
+    row = (vim.o.lines - height) / 2,
+    col = (vim.o.columns - width) / 2,
+    style = "minimal",
+    border = "single",
+    title = " Weekly Digest ",
+    title_pos = "center",
+  })
+
+  -- Close on q or Escape
+  vim.api.nvim_buf_set_keymap(buf, "n", "q", "<cmd>close<CR>", { noremap = true, silent = true })
+  vim.api.nvim_buf_set_keymap(buf, "n", "<Esc>", "<cmd>close<CR>", { noremap = true, silent = true })
+end
+
 -- Setup commands and autocmds
 function M.setup(opts)
   M.config = vim.tbl_deep_extend("force", M.config, opts or {})
@@ -1385,6 +1469,24 @@ function M.setup(opts)
     end,
   })
 
+  -- Weekly digest command
+  vim.api.nvim_create_user_command("JournalDigest", function(args)
+    local weeks_ago = tonumber(args.fargs[1]) or 1
+    local preview = args.fargs[2] == "--preview" or args.fargs[1] == "--preview"
+
+    if preview then
+      M.preview_digest(weeks_ago)
+    else
+      M.generate_digest(weeks_ago)
+    end
+  end, {
+    nargs = "*",
+    desc = "Generate weekly digest (args: [weeks_ago] [--preview])",
+    complete = function()
+      return { "1", "2", "3", "4", "--preview" }
+    end,
+  })
+
   -- Keymaps (disabled when using LazyVim, which handles its own keymaps)
   if M.config.keymaps then
     vim.keymap.set("n", "<leader>jj", ":JournalNew<CR>", { desc = "New journal entry (today)" })
@@ -1406,6 +1508,7 @@ function M.setup(opts)
     vim.keymap.set("n", "<leader>jS", M.share_entry, { desc = "Copy share link" })
     vim.keymap.set("n", "<leader>jq", M.quick_entry, { desc = "Quick note" })
     vim.keymap.set("n", "<leader>jB", function() M.backup() end, { desc = "Backup journal" })
+    vim.keymap.set("n", "<leader>jD", function() M.generate_digest() end, { desc = "Weekly digest" })
   end
 
   -- Show streak in startup notification
