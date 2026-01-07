@@ -819,6 +819,98 @@ function M.import_entries(format, input_path)
   })
 end
 
+-- Backup journal to local or cloud storage
+-- target: "local", "s3", "b2" etc.
+-- encrypt: boolean to enable GPG encryption
+function M.backup(target, encrypt)
+  target = target or "local_backup"
+  local encrypt_flag = encrypt and "--encrypt" or ""
+
+  vim.notify("Starting journal backup...", vim.log.levels.INFO)
+
+  -- Get script path
+  local script_dir = M.config.journal_dir:gsub("/site/src/content/journal$", "")
+  local backup_script = script_dir .. "/scripts/backup_journal.lua"
+
+  -- Check if script exists
+  if vim.fn.filereadable(backup_script) == 0 then
+    vim.notify("Backup script not found: " .. backup_script, vim.log.levels.ERROR)
+    return
+  end
+
+  -- Run backup script
+  local cmd = string.format('lua "%s" backup --target %s %s 2>&1', backup_script, target, encrypt_flag)
+
+  vim.fn.jobstart(cmd, {
+    stdout_buffered = true,
+    on_stdout = function(_, data)
+      if data then
+        for _, line in ipairs(data) do
+          if line ~= "" then
+            vim.schedule(function()
+              -- Show important status lines
+              if line:match("^===") or line:match("^%[%d") or line:match("Complete") then
+                vim.notify(line, vim.log.levels.INFO)
+              elseif line:match("^ERROR") then
+                vim.notify(line, vim.log.levels.ERROR)
+              end
+            end)
+          end
+        end
+      end
+    end,
+    on_exit = function(_, code)
+      vim.schedule(function()
+        if code == 0 then
+          vim.notify("Backup completed successfully", vim.log.levels.INFO)
+        else
+          vim.notify("Backup failed with code: " .. code, vim.log.levels.ERROR)
+        end
+      end)
+    end,
+  })
+end
+
+-- List existing backups
+function M.list_backups()
+  local script_dir = M.config.journal_dir:gsub("/site/src/content/journal$", "")
+  local backup_script = script_dir .. "/scripts/backup_journal.lua"
+
+  if vim.fn.filereadable(backup_script) == 0 then
+    vim.notify("Backup script not found", vim.log.levels.ERROR)
+    return
+  end
+
+  local cmd = string.format('lua "%s" list 2>&1', backup_script)
+
+  -- Run synchronously and show in quickfix
+  local output = vim.fn.system(cmd)
+  local lines = vim.split(output, "\n")
+
+  -- Display in floating window
+  local buf = vim.api.nvim_create_buf(false, true)
+  vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
+
+  local width = math.min(100, vim.o.columns - 4)
+  local height = math.min(#lines + 2, vim.o.lines - 4)
+
+  vim.api.nvim_open_win(buf, true, {
+    relative = "editor",
+    width = width,
+    height = height,
+    col = (vim.o.columns - width) / 2,
+    row = (vim.o.lines - height) / 2,
+    style = "minimal",
+    border = "single",
+    title = " Journal Backups ",
+    title_pos = "center",
+  })
+
+  -- Set up keymaps to close
+  vim.keymap.set("n", "q", "<cmd>close<cr>", { buffer = buf, silent = true })
+  vim.keymap.set("n", "<Esc>", "<cmd>close<cr>", { buffer = buf, silent = true })
+end
+
 -- Quick entry mode for micro-journaling
 -- Appends to today's entry or creates minimal one if it doesn't exist
 function M.quick_entry()
@@ -1060,6 +1152,33 @@ function M.setup(opts)
     end,
   })
 
+  -- Backup command
+  vim.api.nvim_create_user_command("JournalBackup", function(args)
+    local target = "local_backup"
+    local encrypt = false
+
+    for _, arg in ipairs(args.fargs) do
+      if arg == "--encrypt" or arg == "-e" then
+        encrypt = true
+      elseif arg:match("^[%w_]+$") then
+        target = arg
+      end
+    end
+
+    M.backup(target, encrypt)
+  end, {
+    nargs = "*",
+    desc = "Backup journal entries (args: [target] [--encrypt])",
+    complete = function()
+      return { "local_backup", "s3", "b2", "--encrypt" }
+    end,
+  })
+
+  -- List backups command
+  vim.api.nvim_create_user_command("JournalBackupList", function()
+    M.list_backups()
+  end, { desc = "List existing journal backups" })
+
   -- Keymaps (disabled when using LazyVim, which handles its own keymaps)
   if M.config.keymaps then
     vim.keymap.set("n", "<leader>jj", ":JournalNew<CR>", { desc = "New journal entry (today)" })
@@ -1080,6 +1199,7 @@ function M.setup(opts)
     vim.keymap.set("n", "<leader>jP", M.toggle_published, { desc = "Toggle published status" })
     vim.keymap.set("n", "<leader>jS", M.share_entry, { desc = "Copy share link" })
     vim.keymap.set("n", "<leader>jq", M.quick_entry, { desc = "Quick note" })
+    vim.keymap.set("n", "<leader>jB", function() M.backup() end, { desc = "Backup journal" })
   end
 
   -- Show streak in startup notification

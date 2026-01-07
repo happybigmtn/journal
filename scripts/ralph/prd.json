@@ -644,8 +644,8 @@
 				"Verify backup integrity with checksums"
 			],
 			"priority": 48,
-			"passes": false,
-			"notes": "Peace of mind - your journal is safe even if your computer isn't"
+			"passes": true,
+			"notes": "RESOLVED: Created scripts/backup_journal.lua with local/rclone support. Features: tar.gz archives, SHA256 checksums, GPG encryption (symmetric or asymmetric), retention policy (30 backups), rclone integration for S3/B2/etc. Added setup_backup_schedule.sh for cron setup. Commands: :JournalBackup [target] [--encrypt], :JournalBackupList, <leader>jB keymap."
 		},
 		{
 			"id": "US-050",

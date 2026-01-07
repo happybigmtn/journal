@@ -581,3 +581,36 @@ Target: Journal Enhancements
   - vim.ui.input callback recursively calls journal_new with populated args
 
 ---
+
+## 2026-01-07 - US-049 Automatic Backup to Cloud Storage
+
+- Created `scripts/backup_journal.lua` - comprehensive backup system:
+  - Creates timestamped tar.gz archives of journal directory
+  - SHA256 checksum calculation and verification
+  - GPG encryption (symmetric with passphrase or asymmetric with recipient key)
+  - Retention policy: keeps last 30 backups by default
+  - Manifest file tracks all backups with timestamps and sizes
+- Cloud storage support via rclone:
+  - Configure remotes with `rclone config`
+  - Supports S3, Backblaze B2, Google Drive, Dropbox, etc.
+  - Example targets: `local_backup`, `s3`, `b2`
+- Commands and CLI:
+  - Direct: `lua backup_journal.lua backup [--target <t>] [--encrypt]`
+  - Neovim: `:JournalBackup [target] [--encrypt]`
+  - List backups: `:JournalBackupList` (shows in floating window)
+  - Keymap: `<leader>jB`
+- Created `scripts/setup_backup_schedule.sh` for cron setup:
+  - Interactive setup at 2 AM daily
+  - Logs to `~/.journal-backups/logs/backup.log`
+- Integration with Neovim:
+  - `M.backup(target, encrypt)` runs async via jobstart
+  - `M.list_backups()` shows results in centered floating window
+- Files changed: `scripts/backup_journal.lua`, `scripts/setup_backup_schedule.sh`, `nvim/journal.lua`
+- **Learnings:**
+  - `debug.getinfo(1, "S").source:sub(2)` gets script path but needs absolute conversion
+  - `io.popen("pwd")` in Lua gets current working directory
+  - GPG symmetric encryption: `gpg --batch -c` vs asymmetric `gpg -e -r <recipient>`
+  - Cron scheduling: `0 2 * * *` = daily at 2 AM
+  - Neovim floating windows: `nvim_open_win` with relative="editor"
+
+---
