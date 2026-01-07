@@ -276,3 +276,20 @@ Target: Journal Enhancements
   - Duplicate implementation (Lua + TS) needed because Neovim and Astro run separately
 
 ---
+
+## 2026-01-07 - US-033 Editorial Navigation
+
+- Added site-wide navigation in BaseLayout.astro
+- Five links: Archive, Timeline, Calendar, Tags, Search
+- Editorial masthead styling: uppercase, tracking-widest, monospace font
+- Active page indicated by 4px bottom border (matches design system thick border)
+- Full color inversion on hover (100ms transition)
+- Active state detection via `Astro.url.pathname` comparison
+- Responsive padding matching container breakpoints
+- Files changed: `site/src/layouts/BaseLayout.astro`, `site/src/styles/global.css`
+- **Learnings:**
+  - `class:list` in Astro allows conditional class application
+  - `aria-current="page"` improves screen reader navigation context
+  - Border-bottom for active state preserves clickable area (vs underline)
+
+---

@@ -494,7 +494,63 @@ textarea:focus-visible {
   font-size: 0.875rem;
 }
 
-/* Navigation */
+/* Site Navigation - editorial masthead style */
+.site-nav {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+  border-bottom: var(--border-thick);
+}
+
+@media (min-width: 768px) {
+  .site-nav {
+    padding: 2rem 2rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .site-nav {
+    padding: 2rem 3rem;
+  }
+}
+
+.nav-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem 2rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.nav-link {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-widest);
+  text-decoration: none;
+  color: var(--black);
+  padding: 0.5rem 0.75rem;
+  border-bottom: 4px solid transparent;
+  transition: all 100ms;
+}
+
+.nav-link:hover {
+  background: var(--black);
+  color: var(--white);
+  border-bottom-color: transparent;
+}
+
+.nav-link.active {
+  border-bottom-color: var(--black);
+}
+
+.nav-link.active:hover {
+  border-bottom-color: transparent;
+}
+
+/* Entry footer navigation */
 .nav {
   display: flex;
   justify-content: space-between;

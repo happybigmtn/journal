@@ -418,8 +418,8 @@
 				"Position navigation with generous spacing"
 			],
 			"priority": 32,
-			"passes": false,
-			"notes": "DESIGN-SYSTEM: Navigation should feel like magazine masthead"
+			"passes": true,
+			"notes": "RESOLVED: Masthead nav with 4px active border, 100ms color inversion"
 		},
 		{
 			"id": "US-034",
