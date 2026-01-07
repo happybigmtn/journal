@@ -242,3 +242,19 @@ Target: Journal Enhancements
   - Export is read-only, doesn't modify source files
 
 ---
+
+## 2026-01-07 - US-014 Random Past Entry
+
+- Added `:JournalRandom` command to open a random past entry
+- Skips entries from current week (calculates week start using `wday`)
+- Shows notification with: date, weekday name, and relative time ("3 months ago")
+- Relative time adapts: days for <30, months for <365, years otherwise
+- Uses `math.randomseed(os.time())` for varied selection
+- Added `<leader>jr` keymap
+- Files changed: `nvim/journal.lua`
+- **Learnings:**
+  - Lua's `os.date("*t").wday` returns 1=Sunday, so `wday-1` gives days since Sunday
+  - Week boundary calculation needs time normalization to midnight
+  - Random rediscovery encourages reflection without explicit search
+
+---

@@ -417,6 +417,68 @@ function M.journal_export(args)
   end
 end
 
+-- Open a random past entry (skips current week)
+function M.journal_random()
+  -- Get all dated entries
+  local entries = {}
+  local pattern = M.config.journal_dir .. "/**/*.md"
+  local files = vim.fn.glob(pattern, false, true)
+
+  -- Calculate start of current week (Sunday)
+  local now = os.time()
+  local today = os.date("*t", now)
+  local days_since_sunday = today.wday - 1 -- wday is 1=Sunday
+  local week_start = now - (days_since_sunday * 24 * 60 * 60)
+  -- Normalize to midnight
+  local week_start_date = os.date("*t", week_start)
+  week_start = os.time({ year = week_start_date.year, month = week_start_date.month, day = week_start_date.day, hour = 0, min = 0, sec = 0 })
+
+  for _, filepath in ipairs(files) do
+    local name = vim.fn.fnamemodify(filepath, ":t:r")
+    local y, m, d = name:match("^(%d%d%d%d)-(%d%d)-(%d%d)$")
+    if y then
+      local entry_time = os.time({ year = tonumber(y), month = tonumber(m), day = tonumber(d) })
+      -- Skip entries from current week
+      if entry_time < week_start then
+        table.insert(entries, { name = name, path = filepath, time = entry_time })
+      end
+    end
+  end
+
+  if #entries == 0 then
+    vim.notify("No past entries found (only current week exists)", vim.log.levels.WARN)
+    return
+  end
+
+  -- Pick a random entry
+  math.randomseed(os.time())
+  local random_entry = entries[math.random(#entries)]
+
+  -- Open the entry
+  vim.cmd("edit " .. random_entry.path)
+
+  -- Show notification with date info
+  local entry_date = os.date("*t", random_entry.time)
+  local days_ago = math.floor((now - random_entry.time) / (24 * 60 * 60))
+  local weekday = os.date("%A", random_entry.time)
+
+  local time_desc
+  if days_ago < 30 then
+    time_desc = days_ago .. " days ago"
+  elseif days_ago < 365 then
+    local months = math.floor(days_ago / 30)
+    time_desc = months .. (months == 1 and " month" or " months") .. " ago"
+  else
+    local years = math.floor(days_ago / 365)
+    time_desc = years .. (years == 1 and " year" or " years") .. " ago"
+  end
+
+  vim.notify(
+    string.format("Random entry: %s (%s, %s)", random_entry.name, weekday, time_desc),
+    vim.log.levels.INFO
+  )
+end
+
 -- List recent entries
 function M.journal_list()
   local entries = {}
@@ -498,6 +560,10 @@ function M.setup(opts)
     desc = "List journal entries",
   })
 
+  vim.api.nvim_create_user_command("JournalRandom", M.journal_random, {
+    desc = "Open random past journal entry",
+  })
+
   vim.api.nvim_create_user_command("JournalExport", function(args)
     local export_args = {}
 
@@ -545,6 +611,7 @@ function M.setup(opts)
     vim.keymap.set("n", "<leader>jp", M.publish, { desc = "Publish journal" })
     vim.keymap.set("n", "<leader>jl", M.journal_list, { desc = "List entries" })
     vim.keymap.set("n", "<leader>je", ":JournalExport<CR>", { desc = "Export entries" })
+    vim.keymap.set("n", "<leader>jr", M.journal_random, { desc = "Random past entry" })
   end
 
   vim.notify("Journal loaded. Use :JournalNew to start.", vim.log.levels.INFO)

@@ -366,8 +366,8 @@
 				"Skip entries from current week"
 			],
 			"priority": 28,
-			"passes": false,
-			"notes": "ENHANCEMENT: 'On this day' style rediscovery feature"
+			"passes": true,
+			"notes": "RESOLVED: :JournalRandom skips current week, shows weekday + time ago"
 		},
 		{
 			"id": "US-015",
