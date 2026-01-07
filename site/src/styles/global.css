@@ -117,12 +117,12 @@ blockquote {
   font-style: italic;
 }
 
-/* Links */
+/* Links - instant transitions per design system */
 a {
   color: var(--black);
   text-decoration: underline;
   text-underline-offset: 2px;
-  transition: all 0.15s ease;
+  transition: all 100ms;
 }
 
 a:hover {
