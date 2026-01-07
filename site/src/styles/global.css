@@ -210,6 +210,65 @@ a:hover {
   padding: 0 2px;
 }
 
+/* Link type icons - subtle indicators for destination type */
+/* External links: ↗ arrow indicating leaving site */
+a[href^="http"]:not([href*="rizz.dad"])::after,
+a[href^="https"]:not([href*="rizz.dad"])::after {
+  content: " ↗";
+  font-size: 0.7em;
+  opacity: 0.5;
+  vertical-align: super;
+}
+
+/* Internal entry links: ◈ diamond for journal entries */
+a[href^="/"][href*="/20"]::after {
+  content: " ◈";
+  font-size: 0.7em;
+  opacity: 0.5;
+}
+
+/* Tag links: # hash for tag pages */
+a[href^="/tags/"]::after {
+  content: " #";
+  font-size: 0.8em;
+  opacity: 0.5;
+}
+
+/* Section/anchor links: § pilcrow for in-page anchors */
+a[href^="#"]::after {
+  content: " §";
+  font-size: 0.8em;
+  opacity: 0.5;
+}
+
+/* PDF/document links: indicate file type */
+a[href$=".pdf"]::after {
+  content: " [pdf]";
+  font-family: var(--font-mono);
+  font-size: 0.6em;
+  opacity: 0.5;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-widest);
+}
+
+/* Remove icons from navigation, buttons, and images */
+nav a::after,
+.nav a::after,
+header a::after,
+button a::after,
+.bookmarklet-link::after,
+a.archive-item::after,
+a.memory-item::after,
+a.backlink-link::after,
+a:has(img)::after {
+  content: none !important;
+}
+
+/* Icons inherit hover state colors */
+a:hover::after {
+  color: var(--white);
+}
+
 /* Skip link for keyboard accessibility */
 .skip-link {
   position: absolute;

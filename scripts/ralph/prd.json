@@ -789,8 +789,8 @@
 				"Icons should be subtle, not distracting"
 			],
 			"priority": 58,
-			"passes": false,
-			"notes": "Gwern-inspired: Instant visual hint about link destination without clicking. Low effort, high information density."
+			"passes": true,
+			"notes": "RESOLVED: Pure CSS implementation using ::after pseudo-elements. External links (↗), internal entries (◈), tags (#), anchors (§), PDFs ([pdf]). Icons at 0.5 opacity for subtlety. Excluded from nav, buttons, and image links via !important override. Icons inherit hover colors."
 		},
 		{
 			"id": "US-060",

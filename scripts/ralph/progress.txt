@@ -939,3 +939,34 @@ Target: Journal Enhancements
 
 ---
 
+
+## 2026-01-07 - US-059 Link Type Icons (Gwern-inspired)
+
+- Implemented pure CSS link type indicators using ::after pseudo-elements
+- Icon types implemented:
+  - External links (↗): `a[href^="http"]:not([href*="rizz.dad"])::after`
+  - Internal entries (◈): `a[href^="/"][href*="/20"]::after`
+  - Tag links (#): `a[href^="/tags/"]::after`
+  - Anchor links (§): `a[href^="#"]::after`
+  - PDF documents ([pdf]): `a[href$=".pdf"]::after`
+- Styling for subtlety:
+  - Small font size (0.7em-0.8em)
+  - 0.5 opacity for non-intrusive display
+  - Vertical-align: super for external arrows
+- Exclusions via `content: none !important`:
+  - Navigation links
+  - Header links
+  - Bookmarklet links
+  - Archive items, memory items, backlink links
+  - Links containing images (`a:has(img)`)
+- Icons inherit color on hover (white text on black background)
+- Files changed: `site/src/styles/global.css`
+- **Learnings:**
+  - CSS attribute selectors enable powerful URL pattern matching
+  - `::after` content works with Unicode symbols directly
+  - `:has()` selector enables parent-to-child selection (excluding image links)
+  - Combining selectors with `:not()` excludes specific domains
+  - `!important` on exclusions ensures icons don't appear in unwanted places
+
+---
+
