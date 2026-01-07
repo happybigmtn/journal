@@ -1,0 +1,414 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const entries = await getCollection('journal', ({ data }) => !data.draft);
+
+// Build search index with title, content preview, and metadata
+const searchIndex = entries.map(entry => ({
+  slug: entry.slug,
+  title: entry.data.title,
+  date: entry.data.date.toISOString(),
+  type: entry.data.type,
+  mood: entry.data.mood || null,
+  tags: entry.data.tags || [],
+  // Get raw content without frontmatter for searching
+  content: entry.body.substring(0, 1000), // First 1000 chars for preview
+}));
+---
+
+<BaseLayout title="Search">
+  <header class="site-header">
+    <a href="/">← Archive</a>
+  </header>
+
+  <h1>Search</h1>
+
+  <div class="search-container">
+    <input
+      type="search"
+      id="search-input"
+      placeholder="Search entries..."
+      autocomplete="off"
+      autofocus
+    />
+    <div id="search-status" class="search-status"></div>
+  </div>
+
+  <div id="recent-searches" class="recent-searches">
+    <h2>Recent Searches</h2>
+    <ul id="recent-list"></ul>
+  </div>
+
+  <div id="search-results" class="search-results"></div>
+</BaseLayout>
+
+<script define:vars={{ searchIndex }}>
+  const input = document.getElementById('search-input');
+  const results = document.getElementById('search-results');
+  const status = document.getElementById('search-status');
+  const recentSearches = document.getElementById('recent-searches');
+  const recentList = document.getElementById('recent-list');
+
+  const STORAGE_KEY = 'journal-recent-searches';
+  const MAX_RECENT = 5;
+
+  // Load recent searches from localStorage
+  function getRecentSearches() {
+    try {
+      return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    } catch {
+      return [];
+    }
+  }
+
+  // Save search to recent
+  function saveRecentSearch(query) {
+    if (!query.trim()) return;
+    const recent = getRecentSearches().filter(s => s !== query);
+    recent.unshift(query);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(recent.slice(0, MAX_RECENT)));
+    renderRecentSearches();
+  }
+
+  // Render recent searches
+  function renderRecentSearches() {
+    const recent = getRecentSearches();
+    if (recent.length === 0) {
+      recentSearches.style.display = 'none';
+      return;
+    }
+
+    recentSearches.style.display = 'block';
+    recentList.innerHTML = recent.map(s =>
+      `<li><button type="button" class="recent-search-btn">${escapeHtml(s)}</button></li>`
+    ).join('');
+
+    // Add click handlers
+    recentList.querySelectorAll('.recent-search-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        input.value = btn.textContent;
+        performSearch(btn.textContent);
+      });
+    });
+  }
+
+  // Escape HTML for safe display
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  // Highlight matching terms
+  function highlightMatches(text, query) {
+    if (!query.trim()) return escapeHtml(text);
+
+    const terms = query.toLowerCase().split(/\s+/).filter(t => t.length > 0);
+    let result = escapeHtml(text);
+
+    terms.forEach(term => {
+      const regex = new RegExp(`(${term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+      result = result.replace(regex, '<mark>$1</mark>');
+    });
+
+    return result;
+  }
+
+  // Get content snippet around match
+  function getSnippet(content, query, maxLength = 200) {
+    const terms = query.toLowerCase().split(/\s+/).filter(t => t.length > 0);
+    const lowerContent = content.toLowerCase();
+
+    // Find first match position
+    let matchPos = -1;
+    for (const term of terms) {
+      const pos = lowerContent.indexOf(term);
+      if (pos !== -1 && (matchPos === -1 || pos < matchPos)) {
+        matchPos = pos;
+      }
+    }
+
+    if (matchPos === -1) {
+      // No match in content, return beginning
+      return content.substring(0, maxLength) + (content.length > maxLength ? '...' : '');
+    }
+
+    // Get snippet around match
+    const start = Math.max(0, matchPos - 50);
+    const end = Math.min(content.length, matchPos + maxLength - 50);
+    let snippet = content.substring(start, end);
+
+    if (start > 0) snippet = '...' + snippet;
+    if (end < content.length) snippet = snippet + '...';
+
+    return snippet;
+  }
+
+  // Format date for display
+  function formatDate(dateStr) {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      weekday: 'short'
+    });
+  }
+
+  // Perform search
+  function performSearch(query) {
+    if (!query.trim()) {
+      results.innerHTML = '';
+      status.textContent = '';
+      recentSearches.style.display = getRecentSearches().length > 0 ? 'block' : 'none';
+      return;
+    }
+
+    recentSearches.style.display = 'none';
+
+    const terms = query.toLowerCase().split(/\s+/).filter(t => t.length > 0);
+
+    // Score and filter entries
+    const scored = searchIndex.map(entry => {
+      let score = 0;
+      const titleLower = entry.title.toLowerCase();
+      const contentLower = entry.content.toLowerCase();
+      const tagsLower = entry.tags.map(t => t.toLowerCase());
+
+      terms.forEach(term => {
+        // Title matches (highest weight)
+        if (titleLower.includes(term)) score += 10;
+        // Tag matches (high weight)
+        if (tagsLower.some(t => t.includes(term))) score += 8;
+        // Content matches
+        if (contentLower.includes(term)) score += 3;
+        // Mood matches
+        if (entry.mood && entry.mood.toLowerCase().includes(term)) score += 5;
+      });
+
+      return { ...entry, score };
+    }).filter(e => e.score > 0)
+      .sort((a, b) => b.score - a.score || new Date(b.date) - new Date(a.date));
+
+    // Update status
+    status.textContent = `${scored.length} ${scored.length === 1 ? 'result' : 'results'} for "${query}"`;
+
+    if (scored.length === 0) {
+      results.innerHTML = '<p class="no-results">No entries found. Try different keywords.</p>';
+      return;
+    }
+
+    // Render results
+    results.innerHTML = scored.map(entry => {
+      const snippet = getSnippet(entry.content, query);
+      const tagsHtml = entry.tags.length > 0
+        ? `<div class="result-tags">${entry.tags.map(t =>
+            `<span class="result-tag">${escapeHtml(t)}</span>`
+          ).join('')}</div>`
+        : '';
+
+      return `
+        <article class="search-result">
+          <a href="/${entry.slug}">
+            <time class="result-date">${formatDate(entry.date)}</time>
+            <h3 class="result-title">${highlightMatches(entry.title, query)}</h3>
+            <p class="result-snippet">${highlightMatches(snippet, query)}</p>
+            ${tagsHtml}
+          </a>
+        </article>
+      `;
+    }).join('');
+  }
+
+  // Debounce search
+  let debounceTimer;
+  input.addEventListener('input', (e) => {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => {
+      performSearch(e.target.value);
+    }, 200);
+  });
+
+  // Save to recent on enter or blur with results
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && input.value.trim()) {
+      saveRecentSearch(input.value.trim());
+    }
+  });
+
+  input.addEventListener('blur', () => {
+    if (input.value.trim() && results.innerHTML) {
+      saveRecentSearch(input.value.trim());
+    }
+  });
+
+  // Initial render of recent searches
+  renderRecentSearches();
+</script>
+
+<style>
+  .search-container {
+    margin: 2rem 0;
+  }
+
+  #search-input {
+    width: 100%;
+    padding: 1rem;
+    font-family: var(--font-mono);
+    font-size: var(--text-base);
+    border: var(--border-medium);
+    background: var(--white);
+    color: var(--black);
+    transition: border-color 100ms;
+  }
+
+  #search-input:focus {
+    outline: none;
+    border-width: 4px;
+    padding: calc(1rem - 2px);
+  }
+
+  #search-input::placeholder {
+    color: var(--muted-foreground);
+  }
+
+  .search-status {
+    margin-top: 1rem;
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    color: var(--muted-foreground);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-widest);
+  }
+
+  .recent-searches {
+    margin: 2rem 0;
+    padding-top: 1.5rem;
+    border-top: var(--border-hairline);
+  }
+
+  .recent-searches h2 {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-widest);
+    color: var(--muted-foreground);
+    margin-bottom: 1rem;
+  }
+
+  .recent-searches ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .recent-search-btn {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-widest);
+    border: var(--border-thin);
+    background: var(--white);
+    color: var(--black);
+    padding: 0.5rem 0.75rem;
+    cursor: pointer;
+    transition: all 100ms;
+  }
+
+  .recent-search-btn:hover {
+    background: var(--black);
+    color: var(--white);
+  }
+
+  .search-results {
+    margin-top: 2rem;
+  }
+
+  .search-result {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: var(--border-hairline);
+  }
+
+  .search-result:last-child {
+    border-bottom: none;
+  }
+
+  .search-result a {
+    display: block;
+    text-decoration: none;
+    padding: 1rem;
+    margin: -1rem;
+    transition: all 100ms;
+  }
+
+  .search-result a:hover {
+    background: var(--muted);
+  }
+
+  .result-date {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-widest);
+    color: var(--muted-foreground);
+    margin-bottom: 0.5rem;
+  }
+
+  .result-title {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    font-weight: 500;
+    color: var(--black);
+    margin-bottom: 0.5rem;
+  }
+
+  .result-snippet {
+    font-size: var(--text-sm);
+    color: var(--muted-foreground);
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  .result-tags {
+    margin-top: 0.75rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+  }
+
+  .result-tag {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-wide);
+    color: var(--muted-foreground);
+  }
+
+  .result-tag::before {
+    content: '#';
+  }
+
+  .no-results {
+    color: var(--muted-foreground);
+    font-style: italic;
+  }
+
+  /* Highlight matches */
+  :global(mark) {
+    background: var(--black);
+    color: var(--white);
+    padding: 0 2px;
+  }
+
+  .search-result a:hover :global(mark) {
+    background: var(--white);
+    color: var(--black);
+    border: 1px solid var(--black);
+  }
+</style>
