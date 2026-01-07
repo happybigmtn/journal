@@ -834,3 +834,40 @@ Target: Journal Enhancements
 
 ---
 
+
+## 2026-01-07 - US-056 Sidenotes/Marginalia System (Gwern-inspired)
+
+- Created `src/plugins/remark-sidenotes.mjs` remark plugin
+- Plugin transforms markdown footnotes `[^1]` into sidenote HTML:
+  - Collects footnote definitions first
+  - Transforms footnote references into inline sidenote structure
+  - Removes footnote definitions from tree (now inline)
+- HTML structure for sidenotes:
+  - `<label>` for toggle (superscript number)
+  - `<input type="checkbox">` for mobile toggle state
+  - `<span class="sidenote">` for content
+- Updated `astro.config.mjs` to use the remark plugin
+- CSS implementation in global.css:
+  - Wide screens (>1200px):
+    - Absolute positioning relative to entry-content
+    - Sidenotes in margins with alternating left/right placement
+    - 16rem width with thin border separator
+    - Even numbered sidenotes go left, odd go right
+  - Narrow screens (<1200px):
+    - Hidden by default
+    - Toggle via checkbox+label (pure CSS, no JS)
+    - Show inline when toggled with muted background
+- Styling:
+  - Superscript numbers in brackets `[1]`
+  - Muted foreground color
+  - Smaller font size (text-sm)
+  - Border separator from main content
+- Files changed: `src/plugins/remark-sidenotes.mjs`, `astro.config.mjs`, `global.css`
+- **Learnings:**
+  - Remark plugins operate on MDAST (markdown AST) with `visit()` from unist-util-visit
+  - CSS-only toggles use adjacent sibling selector (`+`) with checkbox:checked
+  - Absolute positioning within relative container keeps sidenotes aligned with reference
+  - `nth-of-type(even)` allows alternating margin placement
+
+---
+

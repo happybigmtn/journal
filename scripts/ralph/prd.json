@@ -743,8 +743,8 @@
 				"Style sidenotes with muted text, smaller font size"
 			],
 			"priority": 55,
-			"passes": false,
-			"notes": "Gwern-inspired: Maintain reading context by keeping notes near referenced text. Biggest UX win for annotations."
+			"passes": true,
+			"notes": "RESOLVED: Created remark-sidenotes.mjs plugin transforming markdown footnotes into sidenote HTML. Wide screens (>1200px) position sidenotes in margins with alternating left/right placement. Narrow screens use checkbox+label toggle pattern for expandable inline notes. CSS uses absolute positioning relative to entry-content. Styled with muted text, thin borders."
 		},
 		{
 			"id": "US-057",
