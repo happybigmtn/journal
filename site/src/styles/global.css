@@ -623,6 +623,74 @@ textarea:focus-visible {
   }
 }
 
+/* ==========================================================================
+   Touch Target Sizing (44px minimum per WCAG 2.1 AAA)
+   Applied on touch devices for better accessibility
+   ========================================================================== */
+@media (pointer: coarse) {
+  /* Navigation links - ensure 44px height */
+  .nav-link {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+  }
+
+  /* Archive list items - ensure 44px height */
+  .archive-list a {
+    min-height: 44px;
+    padding: 0.75rem;
+    margin: 0 -0.75rem;
+  }
+
+  .archive-list a:hover {
+    padding: 0.75rem;
+  }
+
+  /* Tag links - ensure 44px height */
+  .tags a {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+  }
+
+  /* Timeline content links */
+  .timeline-content {
+    min-height: 44px;
+    padding: 1rem;
+  }
+
+  /* Calendar day cells */
+  .day {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  /* Theme toggle already 44px - confirmed in existing CSS */
+
+  /* Search input field */
+  input[type="search"],
+  input[type="text"] {
+    min-height: 44px;
+    padding: 0.75rem 1rem;
+  }
+
+  /* Select dropdowns */
+  select {
+    min-height: 44px;
+    padding: 0.75rem 1rem;
+  }
+
+  /* Footer navigation links */
+  .nav a {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem;
+  }
+}
+
 /* Images grayscale */
 img {
   filter: grayscale(100%);

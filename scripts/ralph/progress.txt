@@ -293,3 +293,20 @@ Target: Journal Enhancements
   - Border-bottom for active state preserves clickable area (vs underline)
 
 ---
+
+## 2026-01-07 - US-035 Touch Target Sizing
+
+- Added `@media (pointer: coarse)` block for touch device styling
+- All interactive elements get 44px minimum height/width
+- Audited elements: nav links, archive items, tags, timeline cards, calendar days, inputs, selects
+- Used `min-height: 44px` + `display: inline-flex` + `align-items: center` pattern
+- Theme toggle already 44x44 from US-010 implementation
+- Documented touch target requirements with CSS comment header
+- Files changed: `site/src/styles/global.css`
+- **Learnings:**
+  - `pointer: coarse` media query targets touch devices more accurately than screen width
+  - `min-height` is safer than `height` to avoid squishing content
+  - WCAG 2.1 AAA requires 44x44px; AA allows 24x24px (we chose AAA)
+  - `inline-flex` + `align-items: center` vertically centers text in larger targets
+
+---
