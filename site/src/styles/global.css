@@ -373,26 +373,31 @@ textarea:focus-visible {
   padding: 0;
 }
 
-/* Tags */
+/* Tags - uppercase monospace labels */
 .tags {
   margin-top: 2.5rem;
   padding-top: 1.5rem;
   border-top: 1px solid var(--muted);
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  color: var(--muted-foreground);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 }
 
 .tags a {
-  margin-right: 0.75rem;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-widest);
+  color: var(--black);
   text-decoration: none;
+  border: var(--border-thin);
+  padding: 0.25rem 0.5rem;
+  transition: all 100ms;
 }
 
 .tags a:hover {
-  text-decoration: underline;
-  background: none;
-  color: var(--black);
-  padding: 0;
+  background: var(--black);
+  color: var(--white);
 }
 
 /* Tag page */
