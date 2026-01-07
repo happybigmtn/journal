@@ -417,6 +417,100 @@ function M.journal_export(args)
   end
 end
 
+-- Calculate journaling streak
+-- Returns current streak and longest streak
+function M.calculate_streak()
+  -- Get all dated entries
+  local dates = {}
+  local pattern = M.config.journal_dir .. "/**/*.md"
+  local files = vim.fn.glob(pattern, false, true)
+
+  for _, filepath in ipairs(files) do
+    local name = vim.fn.fnamemodify(filepath, ":t:r")
+    local y, m, d = name:match("^(%d%d%d%d)-(%d%d)-(%d%d)$")
+    if y then
+      local entry_time = os.time({ year = tonumber(y), month = tonumber(m), day = tonumber(d), hour = 12 })
+      table.insert(dates, entry_time)
+    end
+  end
+
+  if #dates == 0 then
+    return 0, 0
+  end
+
+  -- Sort dates ascending
+  table.sort(dates)
+
+  -- Calculate longest streak
+  local longest_streak = 1
+  local current_run = 1
+  local one_day = 24 * 60 * 60
+
+  for i = 2, #dates do
+    local diff = dates[i] - dates[i - 1]
+    -- Allow for some tolerance around one day (DST, etc)
+    if diff >= (one_day - 3600) and diff <= (one_day + 3600) then
+      current_run = current_run + 1
+      if current_run > longest_streak then
+        longest_streak = current_run
+      end
+    else
+      current_run = 1
+    end
+  end
+
+  -- Calculate current streak (counting back from today/yesterday)
+  local now = os.time()
+  local today = os.date("*t", now)
+  local today_noon = os.time({ year = today.year, month = today.month, day = today.day, hour = 12 })
+  local yesterday_noon = today_noon - one_day
+
+  -- Check if today or yesterday has an entry
+  local current_streak = 0
+  local check_time = today_noon
+
+  -- First check today
+  local found_today = false
+  for _, date_time in ipairs(dates) do
+    local diff = math.abs(date_time - today_noon)
+    if diff < (12 * 60 * 60) then
+      found_today = true
+      break
+    end
+  end
+
+  -- If no entry today, start counting from yesterday
+  if not found_today then
+    check_time = yesterday_noon
+  end
+
+  -- Count consecutive days going backwards
+  while true do
+    local found = false
+    for _, date_time in ipairs(dates) do
+      local diff = math.abs(date_time - check_time)
+      if diff < (12 * 60 * 60) then
+        found = true
+        current_streak = current_streak + 1
+        break
+      end
+    end
+    if not found then
+      break
+    end
+    check_time = check_time - one_day
+  end
+
+  return current_streak, longest_streak
+end
+
+-- Display streak information
+function M.show_streak()
+  local current, longest = M.calculate_streak()
+  local msg = string.format("Streak: %d day%s (longest: %d)", current, current == 1 and "" or "s", longest)
+  vim.notify(msg, vim.log.levels.INFO)
+end
+
 -- Open a random past entry (skips current week)
 function M.journal_random()
   -- Get all dated entries
@@ -564,6 +658,10 @@ function M.setup(opts)
     desc = "Open random past journal entry",
   })
 
+  vim.api.nvim_create_user_command("JournalStreak", M.show_streak, {
+    desc = "Show journaling streak",
+  })
+
   vim.api.nvim_create_user_command("JournalExport", function(args)
     local export_args = {}
 
@@ -612,9 +710,16 @@ function M.setup(opts)
     vim.keymap.set("n", "<leader>jl", M.journal_list, { desc = "List entries" })
     vim.keymap.set("n", "<leader>je", ":JournalExport<CR>", { desc = "Export entries" })
     vim.keymap.set("n", "<leader>jr", M.journal_random, { desc = "Random past entry" })
+    vim.keymap.set("n", "<leader>js", M.show_streak, { desc = "Show streak" })
   end
 
-  vim.notify("Journal loaded. Use :JournalNew to start.", vim.log.levels.INFO)
+  -- Show streak in startup notification
+  local current_streak, longest_streak = M.calculate_streak()
+  local streak_info = ""
+  if current_streak > 0 then
+    streak_info = string.format(" | Streak: %d day%s", current_streak, current_streak == 1 and "" or "s")
+  end
+  vim.notify("Journal loaded. Use :JournalNew to start." .. streak_info, vim.log.levels.INFO)
 end
 
 return M

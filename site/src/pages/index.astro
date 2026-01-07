@@ -23,12 +23,78 @@ const years = Object.keys(grouped).map(Number).sort((a, b) => b - a);
 const formatDay = (date: Date) => {
   return date.toLocaleDateString('en-US', { day: 'numeric', weekday: 'short' });
 };
+
+// Calculate streak
+function calculateStreak(entries: typeof allEntries) {
+  if (entries.length === 0) return { current: 0, longest: 0 };
+
+  // Get all dates as timestamps (normalized to noon)
+  const dates = entries
+    .filter(e => e.data.type === 'daily')
+    .map(e => {
+      const d = new Date(e.data.date);
+      return new Date(d.getFullYear(), d.getMonth(), d.getDate(), 12).getTime();
+    })
+    .sort((a, b) => a - b);
+
+  if (dates.length === 0) return { current: 0, longest: 0 };
+
+  const oneDay = 24 * 60 * 60 * 1000;
+
+  // Calculate longest streak
+  let longest = 1;
+  let currentRun = 1;
+  for (let i = 1; i < dates.length; i++) {
+    const diff = dates[i] - dates[i - 1];
+    if (diff >= oneDay - 3600000 && diff <= oneDay + 3600000) {
+      currentRun++;
+      if (currentRun > longest) longest = currentRun;
+    } else {
+      currentRun = 1;
+    }
+  }
+
+  // Calculate current streak
+  const now = new Date();
+  const todayNoon = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 12).getTime();
+  const yesterdayNoon = todayNoon - oneDay;
+
+  let current = 0;
+  let checkTime = todayNoon;
+
+  // Check if today has an entry
+  const hasToday = dates.some(d => Math.abs(d - todayNoon) < 12 * 60 * 60 * 1000);
+  if (!hasToday) {
+    checkTime = yesterdayNoon;
+  }
+
+  // Count consecutive days going backwards
+  while (true) {
+    const found = dates.some(d => Math.abs(d - checkTime) < 12 * 60 * 60 * 1000);
+    if (!found) break;
+    current++;
+    checkTime -= oneDay;
+  }
+
+  return { current, longest };
+}
+
+const streak = calculateStreak(allEntries);
 ---
 
 <BaseLayout title="Journal">
   <header class="hero">
     <h1>Journal</h1>
     <p>A record of days</p>
+    {streak.current > 0 && (
+      <div class="streak-display">
+        <span class="streak-current">{streak.current} day{streak.current === 1 ? '' : 's'}</span>
+        <span class="streak-label">current streak</span>
+        {streak.longest > streak.current && (
+          <span class="streak-longest">longest: {streak.longest}</span>
+        )}
+      </div>
+    )}
   </header>
 
   {years.length === 0 ? (

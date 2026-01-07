@@ -379,8 +379,8 @@
 				"Add streak indicator to Neovim notifications"
 			],
 			"priority": 29,
-			"passes": false,
-			"notes": "ENHANCEMENT: Motivation through gamification"
+			"passes": true,
+			"notes": "RESOLVED: Both Lua and Astro calculate streaks, hero shows current + longest"
 		},
 		{
 			"id": "US-031",

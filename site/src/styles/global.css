@@ -340,6 +340,40 @@ textarea:focus-visible {
   margin: 0;
 }
 
+.streak-display {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--muted-foreground);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.streak-current {
+  font-family: var(--font-mono);
+  font-size: var(--text-3xl);
+  font-weight: 500;
+  color: var(--white);
+  letter-spacing: var(--tracking-wide);
+}
+
+.streak-label {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+}
+
+.streak-longest {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-wide);
+  color: var(--muted-foreground);
+  margin-top: 0.5rem;
+}
+
 /* Entry styles */
 .entry-header {
   margin-bottom: 2rem;

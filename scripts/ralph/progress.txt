@@ -258,3 +258,21 @@ Target: Journal Enhancements
   - Random rediscovery encourages reflection without explicit search
 
 ---
+
+## 2026-01-07 - US-015 Streak Tracking
+
+- Implemented streak calculation in both Lua (Neovim) and TypeScript (Astro)
+- Current streak: counts consecutive days from today/yesterday going backwards
+- Longest streak: iterates all dates, tracks max consecutive run
+- DST tolerance: allows ±1 hour variance in "one day" calculation
+- Neovim shows streak in startup notification + `:JournalStreak` command
+- Site displays streak in hero section with monospace typography
+- Only shows longest when greater than current (to avoid redundancy)
+- Added `<leader>js` keymap
+- Files changed: `nvim/journal.lua`, `site/src/pages/index.astro`, `site/src/styles/global.css`
+- **Learnings:**
+  - Streak logic must handle "no entry today but yesterday continues streak"
+  - Normalizing times to noon prevents timezone/DST edge cases
+  - Duplicate implementation (Lua + TS) needed because Neovim and Astro run separately
+
+---
