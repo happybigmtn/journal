@@ -141,3 +141,17 @@ Target: Journal Enhancements
   - Template placeholders like {{YEAR}}+1 don't auto-increment; handled manually in template
 
 ---
+
+## 2026-01-07 - US-008 Sleep Tracking
+
+- Added `sleep_hours` optional field to content schema with 0-24 validation
+- Added Sleep section to daily template with quality prompts
+- Updated entry layout to display sleep alongside mood in meta row
+- Added CSS for entry-meta flex layout
+- Files changed: `site/src/content/config.ts`, `templates/daily.md`, `site/src/layouts/EntryLayout.astro`, `site/src/styles/global.css`
+- **Learnings:**
+  - Zod `.min(0).max(24)` provides clean numeric range validation
+  - Flex layout with gap works well for optional metadata display
+  - Keep frontmatter fields optional when user may not always track them
+
+---

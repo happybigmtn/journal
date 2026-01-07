@@ -288,8 +288,8 @@
 				"Validate sleep_hours is 0-24 if provided"
 			],
 			"priority": 22,
-			"passes": false,
-			"notes": "ENHANCEMENT: PRD mentions sleep tracking as part of life replay"
+			"passes": true,
+			"notes": "RESOLVED: Zod .min(0).max(24) validation, Sleep section in template, displayed in entry meta"
 		},
 		{
 			"id": "US-009",
