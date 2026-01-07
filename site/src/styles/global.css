@@ -3,7 +3,7 @@
   --charcoal: #1a1a1a;
   --gray-dark: #333333;
   --gray-mid: #666666;
-  --gray-light: #999999;
+  --gray-light: #525252; /* WCAG AA compliant (7.14:1 contrast vs white) */
   --off-white: #fafafa;
   --white: #ffffff;
 
