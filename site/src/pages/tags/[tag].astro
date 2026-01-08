@@ -5,7 +5,7 @@ import { getCollection } from 'astro:content';
 export async function getStaticPaths() {
   // In production, only show published entries; in dev, show all non-draft entries
   const entries = await getCollection('journal', ({ data }) =>
-    !data.draft && (import.meta.env.DEV || data.published)
+    !data.draft
   );
   const tags = [...new Set(entries.flatMap(e => e.data.tags))];
 

@@ -20,7 +20,7 @@ function extractInternalLinks(body: string): string[] {
 
 export const GET: APIRoute = async () => {
   const entries = await getCollection('journal', ({ data }) =>
-    !data.draft && (import.meta.env.DEV || data.published)
+    !data.draft
   );
 
   // First pass: collect all outgoing links

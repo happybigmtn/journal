@@ -4,7 +4,7 @@ import { getCollection } from 'astro:content';
 
 // In production, only show published entries; in dev, show all non-draft entries
 const allEntries = await getCollection('journal', ({ data }) =>
-  !data.draft && (import.meta.env.DEV || data.published)
+  !data.draft
 );
 
 // Create a map of date strings to entries for quick lookup

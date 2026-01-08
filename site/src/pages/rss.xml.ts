@@ -3,9 +3,9 @@ import { getCollection } from 'astro:content';
 import type { APIContext } from 'astro';
 
 export async function GET(context: APIContext) {
-  // Only include published entries in the RSS feed
+  // Include all non-draft entries in the RSS feed
   const entries = await getCollection('journal', ({ data }) =>
-    !data.draft && data.published
+    !data.draft
   );
 
   // Sort by date descending (newest first)

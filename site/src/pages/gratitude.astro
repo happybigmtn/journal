@@ -92,7 +92,7 @@ function buildWordCloud(gratitudes: Array<{ text: string; date: Date }>): Array<
 
 // Get all entries
 const allEntries = await getCollection('journal', ({ data }) =>
-  !data.draft && (import.meta.env.DEV || data.published)
+  !data.draft
 );
 
 // Extract all gratitudes

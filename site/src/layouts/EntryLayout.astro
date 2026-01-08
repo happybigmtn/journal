@@ -8,7 +8,7 @@ const { Content } = await entry.render();
 // Get all entries for prev/next navigation
 // In production, only show published entries; in dev, show all non-draft entries
 const allEntries = await getCollection('journal', ({ data }) =>
-  !data.draft && (import.meta.env.DEV || data.published)
+  !data.draft
 );
 const sortedEntries = allEntries.sort((a, b) =>
   new Date(b.data.date).getTime() - new Date(a.data.date).getTime()

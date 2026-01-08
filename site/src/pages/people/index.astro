@@ -2,7 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
 
-const allEntries = await getCollection('journal', (e) => !e.data.draft && (import.meta.env.DEV || e.data.published));
+const allEntries = await getCollection('journal', (e) => !e.data.draft);
 
 // Parse @mentions from entry content
 function extractMentions(content: string): string[] {
