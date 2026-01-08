@@ -71,9 +71,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   .section-label {
     font-family: var(--font-mono);
     font-size: var(--text-xs);
-    text-transform: uppercase;
-    letter-spacing: var(--tracking-widest);
-    color: var(--muted-foreground);
+    text-transform: lowercase;
+    letter-spacing: var(--tracking-wide);
+    color: var(--fg-muted);
     margin-bottom: 1.5rem;
   }
 
@@ -82,15 +82,15 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   }
 
   .about-content p {
-    margin-bottom: 1.25rem;
-    line-height: 1.7;
+    margin-bottom: 1.5rem;
+    line-height: 1.8;
+    color: var(--fg-muted);
   }
 
   .section-rule {
     border: none;
-    border-top: 1px solid var(--muted-foreground);
+    border-top: 1px solid var(--border-color);
     margin: 3rem 0;
-    opacity: 0.3;
   }
 
   .blog-link-section {
@@ -99,14 +99,14 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
   .blog-link {
     font-family: var(--font-mono);
-    font-size: var(--text-sm);
-    color: var(--black);
+    font-size: var(--text-xs);
+    color: var(--fg-muted);
     text-decoration: none;
-    border-bottom: 1px solid var(--black);
-    padding-bottom: 0.125rem;
+    border: none;
+    transition: color 100ms;
   }
 
   .blog-link:hover {
-    opacity: 0.6;
+    color: var(--accent);
   }
 </style>

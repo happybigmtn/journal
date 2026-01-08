@@ -1,70 +1,44 @@
 :root {
-  /* Pure monochrome palette - no intermediate shades */
-  --black: #000000;
-  --white: #FFFFFF;
-  --muted: #F5F5F5;
-  --muted-foreground: #525252;
-  --border-hairline-color: #E5E5E5;
-  --texture-opacity: 0.015;
+  /* Wabi-sabi dark palette - warm, earthy, imperfect */
+  --bg: #0a0a0a;
+  --bg-elevated: #111111;
+  --fg: #e8e4e0;
+  --fg-muted: #8a8580;
+  --accent: #c4a882;
+  --border-color: #2a2725;
 
-  /* Editorial typography */
+  /* Typography */
   --font-display: 'Playfair Display', Georgia, serif;
   --font-body: 'Source Serif 4', Georgia, serif;
   --font-mono: 'JetBrains Mono', 'SF Mono', monospace;
 
-  /* Dramatic typography scale (xs through 9xl) */
-  --text-xs: 0.75rem;    /* 12px */
-  --text-sm: 0.875rem;   /* 14px */
-  --text-base: 1rem;     /* 16px */
-  --text-lg: 1.125rem;   /* 18px */
-  --text-xl: 1.25rem;    /* 20px */
-  --text-2xl: 1.5rem;    /* 24px */
-  --text-3xl: 1.875rem;  /* 30px */
-  --text-4xl: 2.25rem;   /* 36px */
-  --text-5xl: 3rem;      /* 48px */
-  --text-6xl: 3.75rem;   /* 60px */
-  --text-7xl: 4.5rem;    /* 72px - hero headlines */
-  --text-8xl: 6rem;      /* 96px - oversized statements */
-  --text-9xl: 8rem;      /* 128px - maximum drama */
+  /* Scale */
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
 
-  /* Letter spacing for headlines vs labels */
+  /* Spacing */
   --tracking-tight: -0.025em;
   --tracking-normal: 0;
   --tracking-wide: 0.025em;
   --tracking-widest: 0.1em;
 
-  /* Line-based border system */
-  --border-hairline: 1px solid var(--border-hairline-color);
-  --border-thin: 1px solid var(--black);
-  --border-medium: 2px solid var(--black);
-  --border-thick: 4px solid var(--black);
-  --border-ultra: 8px solid var(--black);
+  /* Legacy mappings for compatibility */
+  --black: var(--fg);
+  --white: var(--bg);
+  --muted: var(--bg-elevated);
+  --muted-foreground: var(--fg-muted);
+  --border-hairline-color: var(--border-color);
+  --border-hairline: 1px solid var(--border-color);
+  --border-thin: 1px solid var(--border-color);
 
-  --max-width: 72rem; /* 1152px for dramatic whitespace */
-  --content-width: 42rem; /* 672px for readable body text */
-  --line-height: 1.7;
-}
-
-/* Dark mode - system preference */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --black: #FFFFFF;
-    --white: #000000;
-    --muted: #1A1A1A;
-    --muted-foreground: #A3A3A3;
-    --border-hairline-color: #333333;
-    --texture-opacity: 0.03;
-  }
-}
-
-/* Dark mode - manual override */
-[data-theme="dark"] {
-  --black: #FFFFFF;
-  --white: #000000;
-  --muted: #1A1A1A;
-  --muted-foreground: #A3A3A3;
-  --border-hairline-color: #333333;
-  --texture-opacity: 0.03;
+  --max-width: 48rem;
+  --content-width: 38rem;
+  --line-height: 1.8;
 }
 
 /* ==========================================================================
@@ -117,23 +91,22 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  /* Sharp corners only - design system non-negotiable */
-  border-radius: 0;
 }
 
 html {
-  font-size: 18px;
+  font-size: 17px;
 }
 
 body {
   font-family: var(--font-body);
   line-height: var(--line-height);
-  color: var(--black);
-  background: var(--white);
+  color: var(--fg);
+  background: var(--bg);
   -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
 }
 
-/* Paper-like texture overlay for editorial feel */
+/* Subtle checkerboard texture */
 body::before {
   content: '';
   position: fixed;
@@ -142,28 +115,28 @@ body::before {
   width: 100%;
   height: 100%;
   pointer-events: none;
-  /* Horizontal line texture - adjusts with dark mode via filter */
-  background: repeating-linear-gradient(
-    to bottom,
-    transparent,
-    transparent 3px,
-    rgba(128, 128, 128, 0.03) 3px,
-    rgba(128, 128, 128, 0.03) 4px
-  );
-  z-index: 9999;
+  background-image:
+    linear-gradient(45deg, #0f0f0f 25%, transparent 25%),
+    linear-gradient(-45deg, #0f0f0f 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #0f0f0f 75%),
+    linear-gradient(-45deg, transparent 75%, #0f0f0f 75%);
+  background-size: 20px 20px;
+  background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+  opacity: 0.3;
+  z-index: -1;
 }
 
-/* Typography */
+/* Typography - wabi-sabi: imperfect, natural */
 h1, h2, h3 {
   font-family: var(--font-display);
-  font-weight: 500;
+  font-weight: 400;
   letter-spacing: var(--tracking-tight);
-  color: var(--black);
+  color: var(--fg);
 }
 
-h1 { font-size: var(--text-4xl); margin-bottom: 1.5rem; }
-h2 { font-size: var(--text-xl); margin: 2rem 0 1rem; }
-h3 { font-size: var(--text-lg); margin: 1.5rem 0 0.75rem; }
+h1 { font-size: var(--text-2xl); margin-bottom: 1rem; }
+h2 { font-size: var(--text-lg); margin: 2rem 0 0.75rem; color: var(--fg-muted); }
+h3 { font-size: var(--text-base); margin: 1.5rem 0 0.5rem; color: var(--fg-muted); font-style: italic; }
 
 p { margin-bottom: 1.25rem; }
 
@@ -211,49 +184,29 @@ hr.ultra {
   background: transparent;
 }
 
-/* Editorial pull quote styling */
+/* Wabi-sabi pull quote styling - simple, asymmetric */
 blockquote {
   position: relative;
   border: none;
-  border-top: var(--border-thick);
-  border-bottom: var(--border-thick);
-  padding: 2rem 0;
-  margin: 2.5rem 0;
+  border-left: 2px solid var(--accent);
+  padding: 0 0 0 1.5rem;
+  margin: 2rem 0;
   font-family: var(--font-body);
-  font-size: var(--text-xl);
+  font-size: var(--text-base);
   font-style: italic;
-  color: var(--black);
-  text-align: center;
+  color: var(--fg-muted);
 }
 
-blockquote::before {
-  content: '"';
-  font-family: var(--font-display);
-  font-size: var(--text-6xl);
-  font-style: normal;
-  line-height: 1;
-  position: absolute;
-  top: -0.25em;
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--white);
-  padding: 0 0.25em;
-  color: var(--black);
-}
-
-/* Links - instant transitions per design system */
+/* Links - wabi-sabi warm accent */
 a {
-  color: var(--black);
-  text-decoration: underline;
-  text-underline-offset: 2px;
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
   transition: all 100ms;
 }
 
 a:hover {
-  background: var(--black);
-  color: var(--white);
-  text-decoration: none;
-  padding: 0 2px;
+  border-bottom-color: var(--accent);
 }
 
 /* Link type icons - subtle indicators for destination type */
@@ -577,7 +530,7 @@ textarea:focus-visible {
 
 /* Header */
 /* ==========================================================================
-   HERO SECTION
+   HERO SECTION - wabi-sabi
    ========================================================================== */
 .hero {
   margin-bottom: 3rem;
@@ -585,47 +538,44 @@ textarea:focus-visible {
 
 .hero h1 {
   font-family: var(--font-display);
-  font-size: var(--text-3xl);
+  font-size: var(--text-2xl);
   font-weight: 400;
   font-style: italic;
   letter-spacing: var(--tracking-tight);
-  color: var(--black);
+  color: var(--fg);
   margin-bottom: 0.5rem;
-  line-height: 1.1;
+  line-height: 1.2;
 }
 
 .hero p {
   font-family: var(--font-mono);
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-wide);
-  color: var(--muted-foreground);
+  color: var(--fg-muted);
   margin: 0;
 }
 
-/* Entry styles */
+/* Entry styles - wabi-sabi aesthetic */
 .entry-header {
   margin-bottom: 3rem;
-  display: flex;
-  align-items: baseline;
-  gap: 1rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .entry-date {
   font-family: var(--font-mono);
-  font-size: var(--text-sm);
+  font-size: var(--text-xs);
   font-weight: 400;
-  color: var(--muted-foreground);
-  letter-spacing: var(--tracking-wide);
+  color: var(--accent);
+  letter-spacing: var(--tracking-widest);
   text-transform: uppercase;
-  margin-bottom: 1rem;
-  line-height: 1.1;
+  display: block;
+  margin-bottom: 0.5rem;
 }
 
 .entry-mood {
   font-size: var(--text-sm);
-  color: var(--muted-foreground);
-  padding: 0.25rem 0.5rem;
-  border: var(--border-thin);
+  color: var(--fg-muted);
 }
 
 .energy-dots {
@@ -699,43 +649,88 @@ textarea:focus-visible {
 }
 
 .entry-content h2 {
-  font-family: var(--font-body);
+  font-family: var(--font-display);
   font-size: var(--text-lg);
-  font-weight: 600;
-  margin: 2.5rem 0 1rem;
-  color: var(--black);
+  font-weight: 400;
+  margin: 3rem 0 1rem;
+  color: var(--fg);
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.entry-content h2:first-child {
+  border-top: none;
+  padding-top: 0;
+  margin-top: 0;
 }
 
 .entry-content h3 {
   font-family: var(--font-body);
   font-size: var(--text-base);
-  font-weight: 500;
-  color: var(--muted-foreground);
+  font-weight: 400;
+  font-style: italic;
+  color: var(--fg-muted);
   margin: 1.5rem 0 0.5rem;
 }
 
 /* Entry content paragraphs */
 .entry-content > p {
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.5rem;
+  color: var(--fg);
+}
+
+.entry-content blockquote {
+  border-left: 2px solid var(--accent);
+  padding-left: 1.5rem;
+  margin: 2rem 0;
+  color: var(--fg-muted);
+  font-style: italic;
+}
+
+.entry-content em {
+  color: var(--accent);
+  font-style: italic;
+}
+
+.entry-content strong {
+  color: var(--fg);
+  font-weight: 500;
+}
+
+.entry-content ul, .entry-content ol {
+  margin-bottom: 1.5rem;
+  padding-left: 1.5rem;
+}
+
+.entry-content li {
+  margin-bottom: 0.5rem;
+  color: var(--fg);
+}
+
+.entry-content hr {
+  border: none;
+  border-top: 1px solid var(--border-color);
+  margin: 3rem 0;
 }
 
 /* ==========================================================================
-   ARCHIVE - Editorial index styling
+   ARCHIVE - wabi-sabi styling
    ========================================================================== */
 .archive-intro {
-  color: var(--muted-foreground);
+  color: var(--fg-muted);
   margin-bottom: 2rem;
 }
 
 .archive-year {
   font-family: var(--font-display);
-  font-size: var(--text-6xl);
+  font-size: var(--text-2xl);
   font-weight: 400;
   font-style: italic;
-  margin: 4rem 0 1.5rem;
+  margin: 3rem 0 1rem;
   padding-bottom: 1rem;
-  border-bottom: var(--border-thick);
+  border-bottom: 1px solid var(--border-color);
   letter-spacing: var(--tracking-tight);
+  color: var(--fg);
 }
 
 .archive-year:first-of-type {
@@ -745,12 +740,12 @@ textarea:focus-visible {
 .archive-month {
   font-family: var(--font-mono);
   font-size: var(--text-xs);
-  color: var(--muted-foreground);
-  text-transform: uppercase;
-  letter-spacing: var(--tracking-widest);
-  margin: 2.5rem 0 1rem;
+  color: var(--fg-muted);
+  text-transform: lowercase;
+  letter-spacing: var(--tracking-wide);
+  margin: 2rem 0 0.75rem;
   padding-bottom: 0.5rem;
-  border-bottom: var(--border-hairline);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .archive-list {
@@ -760,7 +755,7 @@ textarea:focus-visible {
 
 .archive-list li {
   margin: 0;
-  border-bottom: var(--border-hairline);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .archive-list li:last-child {
@@ -772,28 +767,21 @@ textarea:focus-visible {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 0.75rem;
-  margin: 0 -0.75rem;
-  transition: all 100ms;
+  padding: 0.75rem 0;
+  transition: opacity 100ms;
   font-family: var(--font-mono);
   font-size: var(--text-sm);
+  color: var(--fg-muted);
+  border: none;
 }
 
-/* Full color inversion on hover */
 .archive-list a:hover {
-  background: var(--black);
-  color: var(--white);
-  padding: 1rem 0.75rem;
-}
-
-.archive-list a:hover .mood {
-  color: var(--white);
+  opacity: 0.7;
 }
 
 .archive-list .mood {
-  color: var(--muted-foreground);
+  color: var(--fg-muted);
   font-size: var(--text-base);
-  transition: color 100ms;
 }
 
 /* Site Navigation */
@@ -836,11 +824,11 @@ textarea:focus-visible {
 }
 
 .nav-link:hover {
-  color: var(--black);
+  color: var(--fg);
 }
 
 .nav-link.active {
-  color: var(--black);
+  color: var(--accent);
 }
 
 .nav-link .shortcut-key {
@@ -853,48 +841,46 @@ textarea:focus-visible {
   display: flex;
   justify-content: space-between;
   font-family: var(--font-mono);
-  font-size: 0.875rem;
-  margin-top: 3rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid var(--muted-foreground);
+  font-size: var(--text-xs);
+  margin-top: 4rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--border-color);
 }
 
 .nav a {
   text-decoration: none;
-  color: var(--muted-foreground);
+  color: var(--fg-muted);
+  border: none;
 }
 
 .nav a:hover {
-  color: var(--black);
-  background: none;
-  padding: 0;
+  color: var(--accent);
 }
 
-/* Tags - uppercase monospace labels */
+/* Tags - wabi-sabi minimal labels */
 .tags {
   margin-top: 2.5rem;
   padding-top: 1.5rem;
-  border-top: 1px solid var(--muted);
+  border-top: 1px solid var(--border-color);
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: 0.75rem;
 }
 
 .tags a {
   font-family: var(--font-mono);
   font-size: var(--text-xs);
-  text-transform: uppercase;
-  letter-spacing: var(--tracking-widest);
-  color: var(--black);
+  text-transform: lowercase;
+  letter-spacing: var(--tracking-wide);
+  color: var(--fg-muted);
   text-decoration: none;
-  border: var(--border-thin);
-  padding: 0.25rem 0.5rem;
-  transition: all 100ms;
+  border: none;
+  padding: 0;
+  transition: color 100ms;
 }
 
 .tags a:hover {
-  background: var(--black);
-  color: var(--white);
+  color: var(--accent);
 }
 
 /* Tag page */
@@ -1107,19 +1093,21 @@ pre code {
 }
 
 /* ==========================================================================
-   On This Day - Memory Surfacing
+   On This Day - Memory Surfacing (wabi-sabi)
    ========================================================================== */
 
 .on-this-day {
   margin-top: 4rem;
   padding-top: 2rem;
-  border-top: var(--border-thick);
+  border-top: 1px solid var(--border-color);
 }
 
 .on-this-day h2 {
   font-family: var(--font-display);
-  font-size: var(--text-2xl);
+  font-size: var(--text-lg);
+  font-style: italic;
   letter-spacing: var(--tracking-tight);
+  color: var(--fg-muted);
   margin-bottom: 1.5rem;
 }
 
@@ -1128,7 +1116,11 @@ pre code {
 }
 
 .memory-item {
-  border-bottom: var(--border-hairline);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.memory-item:last-child {
+  border-bottom: none;
 }
 
 .memory-item a {
@@ -1139,21 +1131,20 @@ pre code {
   align-items: baseline;
   padding: 1rem 0;
   text-decoration: none;
-  color: var(--black);
-  transition: background-color 100ms, color 100ms;
+  color: var(--fg);
+  border: none;
+  transition: opacity 100ms;
 }
 
 .memory-item a:hover {
-  background: var(--black);
-  color: var(--white);
-  margin: 0 -1rem;
-  padding: 1rem;
+  opacity: 0.7;
 }
 
 .memory-year {
   font-family: var(--font-mono);
-  font-size: var(--text-xl);
-  font-weight: 700;
+  font-size: var(--text-base);
+  font-weight: 400;
+  color: var(--accent);
   grid-row: 1;
   grid-column: 1;
 }
@@ -1161,27 +1152,23 @@ pre code {
 .memory-ago {
   font-family: var(--font-mono);
   font-size: var(--text-xs);
-  text-transform: uppercase;
-  letter-spacing: var(--tracking-widest);
-  color: var(--muted-foreground);
+  text-transform: lowercase;
+  letter-spacing: var(--tracking-wide);
+  color: var(--fg-muted);
   grid-row: 2;
   grid-column: 1;
 }
 
-.memory-item a:hover .memory-ago {
-  color: var(--white);
-  opacity: 0.7;
-}
-
 .memory-mood {
-  font-size: var(--text-lg);
+  font-size: var(--text-base);
   grid-row: 1 / 3;
   grid-column: 2;
   align-self: center;
 }
 
 .memory-title {
-  font-size: var(--text-base);
+  font-size: var(--text-sm);
+  color: var(--fg-muted);
   grid-row: 1 / 3;
   grid-column: 3;
   align-self: center;
@@ -1191,19 +1178,18 @@ pre code {
   display: inline-block;
   margin-top: 1.5rem;
   font-family: var(--font-mono);
-  font-size: var(--text-sm);
-  text-transform: uppercase;
-  letter-spacing: var(--tracking-widest);
+  font-size: var(--text-xs);
+  text-transform: lowercase;
+  letter-spacing: var(--tracking-wide);
   text-decoration: none;
-  color: var(--black);
-  padding: 0.75rem 1rem;
-  border: var(--border-thin);
-  transition: background-color 100ms, color 100ms;
+  color: var(--fg-muted);
+  padding: 0;
+  border: none;
+  transition: color 100ms;
 }
 
 .view-all-memories:hover {
-  background: var(--black);
-  color: var(--white);
+  color: var(--accent);
 }
 
 /* =================================================================

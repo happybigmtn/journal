@@ -44,13 +44,15 @@ const formatDate = (date: Date) => {
 <style>
   .page-title {
     font-family: var(--font-display);
-    font-size: var(--text-2xl);
+    font-size: var(--text-lg);
     font-weight: 400;
+    font-style: italic;
+    color: var(--fg-muted);
     margin-bottom: 2rem;
   }
 
   .empty-state {
-    color: var(--muted-foreground);
+    color: var(--fg-muted);
   }
 
   .entry-list {
@@ -60,7 +62,7 @@ const formatDate = (date: Date) => {
   }
 
   .entry-list li {
-    border-bottom: 1px solid var(--border-hairline-color);
+    border-bottom: 1px solid var(--border-color);
   }
 
   .entry-list li:last-child {
@@ -73,26 +75,29 @@ const formatDate = (date: Date) => {
     gap: 1rem;
     padding: 0.75rem 0;
     text-decoration: none;
-    color: var(--black);
+    color: var(--fg);
+    border: none;
+    transition: opacity 100ms;
   }
 
   .entry-link:hover {
-    opacity: 0.6;
+    opacity: 0.7;
   }
 
   .entry-date {
     font-family: var(--font-mono);
     font-size: var(--text-xs);
-    color: var(--muted-foreground);
+    color: var(--accent);
     min-width: 6rem;
   }
 
   .entry-title {
     flex: 1;
+    color: var(--fg-muted);
   }
 
   .entry-mood {
     font-size: var(--text-sm);
-    color: var(--muted-foreground);
+    color: var(--fg-muted);
   }
 </style>
