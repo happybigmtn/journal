@@ -504,22 +504,22 @@ textarea:focus-visible {
   border-color: var(--black);
 }
 
-/* Layout - generous spacing for dramatic whitespace */
+/* Layout */
 .container {
   max-width: var(--max-width);
   margin: 0 auto;
-  padding: 4rem 1.5rem;
+  padding: 1.5rem 1.5rem 4rem;
 }
 
 @media (min-width: 768px) {
   .container {
-    padding: 6rem 2rem;
+    padding: 2rem 2rem 6rem;
   }
 }
 
 @media (min-width: 1024px) {
   .container {
-    padding: 8rem 3rem;
+    padding: 2rem 3rem 8rem;
   }
 }
 
