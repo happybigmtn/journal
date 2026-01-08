@@ -28,7 +28,6 @@ const navItems = [
   { href: '/', label: 'Entries', shortcut: 'e' },
   { href: '/timeline', label: 'Timeline', shortcut: 't' },
   { href: '/insights', label: 'Insights', shortcut: 'i' },
-  { href: '/on-this-day', label: 'On This Day', shortcut: 'o' },
 ];
 ---
 
@@ -57,10 +56,10 @@ const navItems = [
   <meta name="twitter:title" content={title}>
   <meta name="twitter:description" content={description}>
   {ogImageURL && <meta name="twitter:image" content={ogImageURL} />}
-  <!-- Editorial typography: Playfair Display (headlines), Source Serif 4 (body), JetBrains Mono (dates/code) -->
+  <!-- Wabi-sabi typography: Cormorant Garamond (organic headlines), Crimson Pro (warm body), IBM Plex Mono (industrial mono) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Playfair+Display:wght@400;500;600&family=Source+Serif+4:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Crimson+Pro:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
   <!-- RSS autodiscovery -->
   <link rel="alternate" type="application/rss+xml" title="Journal RSS Feed" href="/rss.xml" />
   <!-- PWA manifest and icons -->
@@ -217,7 +216,6 @@ const navItems = [
         'h': '/',           // home
         't': '/timeline',   // timeline
         'i': '/insights',   // insights
-        'o': '/on-this-day',// on this day
         's': '/search',     // search
       };
 
@@ -246,7 +244,6 @@ const navItems = [
               <dt><kbd>e</kbd></dt><dd>Entries</dd>
               <dt><kbd>t</kbd></dt><dd>Timeline</dd>
               <dt><kbd>i</kbd></dt><dd>Insights</dd>
-              <dt><kbd>o</kbd></dt><dd>On This Day</dd>
               <dt><kbd>s</kbd></dt><dd>Search</dd>
               <dt><kbd>?</kbd></dt><dd>Help</dd>
             </dl>

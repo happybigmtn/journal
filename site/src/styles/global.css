@@ -7,10 +7,10 @@
   --accent: #c4a882;
   --border-color: #2a2725;
 
-  /* Typography */
-  --font-display: 'Playfair Display', Georgia, serif;
-  --font-body: 'Source Serif 4', Georgia, serif;
-  --font-mono: 'JetBrains Mono', 'SF Mono', monospace;
+  /* Typography - wabi-sabi: organic, imperfect, warm */
+  --font-display: 'Cormorant Garamond', Georgia, serif;
+  --font-body: 'Crimson Pro', Georgia, serif;
+  --font-mono: 'IBM Plex Mono', 'SF Mono', monospace;
 
   /* Scale */
   --text-xs: 0.75rem;
