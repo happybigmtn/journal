@@ -270,13 +270,13 @@ const similarEntries = allEntries
               <span class="vital-value">{entry.data.vitals.nutrition}</span>
             </div>
           )}
-          {entry.data.vitals.hydration !== undefined && (
+          {entry.data.vitals.kindness !== undefined && (
             <div class="vital-item">
-              <span class="vital-label">hydration</span>
+              <span class="vital-label">kindness</span>
               <span class="vital-bar">
-                <span class="vital-fill" style={`width: ${entry.data.vitals.hydration * 10}%`} />
+                <span class="vital-fill" style={`width: ${entry.data.vitals.kindness * 10}%`} />
               </span>
-              <span class="vital-value">{entry.data.vitals.hydration}</span>
+              <span class="vital-value">{entry.data.vitals.kindness}</span>
             </div>
           )}
           {entry.data.vitals.exercise !== undefined && (

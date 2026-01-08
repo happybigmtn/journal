@@ -14,7 +14,7 @@ vitals:
   focus:
   physical:
   nutrition:
-  hydration:
+  kindness:
   exercise:
 ---
 
@@ -87,7 +87,7 @@ Rate each metric 1-10 in the frontmatter above:
 | focus      | Mental clarity and concentration           |
 | physical   | Body wellness, aches, pain, comfort        |
 | nutrition  | Quality of food choices today              |
-| hydration  | Water intake adequacy                      |
+| kindness   | Acts of kindness/compassion today          |
 | exercise   | Physical activity intensity                |
 
 ---

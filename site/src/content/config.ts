@@ -10,7 +10,7 @@ const vitalsSchema = z.object({
   focus: z.number().min(1).max(10).optional(),      // Mental clarity/concentration
   physical: z.number().min(1).max(10).optional(),   // Body wellness (aches, pain, comfort)
   nutrition: z.number().min(1).max(10).optional(),  // Food quality/choices
-  hydration: z.number().min(1).max(10).optional(),  // Water intake
+  kindness: z.number().min(1).max(10).optional(),   // Acts of kindness/compassion
   exercise: z.number().min(1).max(10).optional(),   // Physical activity intensity
 }).optional();
 
