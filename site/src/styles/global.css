@@ -621,37 +621,69 @@ textarea:focus-visible {
   color: var(--muted-foreground);
 }
 
-/* Inverted hero section */
+/* ==========================================================================
+   HERO SECTION - Always inverted from page background
+   Uses fixed colors to avoid dark mode variable swap issues
+   ========================================================================== */
 .hero {
-  background: var(--black);
-  color: var(--white);
-  margin: -3rem -1.5rem 3rem;
-  padding: 4rem 1.5rem;
+  /* Fixed colors - always black bg, white text regardless of theme */
+  background: #000000;
+  color: #FFFFFF;
+  /* Full-bleed: extend beyond container */
+  margin: -4rem calc(-50vw + 50%) 4rem;
+  padding: 6rem 2rem;
   text-align: center;
+  /* Subtle texture for depth */
+  position: relative;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent,
+    transparent 1px,
+    rgba(255, 255, 255, 0.03) 1px,
+    rgba(255, 255, 255, 0.03) 2px
+  );
+  background-size: 4px 100%;
+  pointer-events: none;
 }
 
 .hero h1 {
   font-family: var(--font-display);
-  font-size: var(--text-7xl);
-  font-weight: 500;
+  font-size: var(--text-8xl);
+  font-weight: 400;
+  font-style: italic;
   letter-spacing: var(--tracking-tight);
-  color: var(--white);
-  margin-bottom: 0.5rem;
+  color: #FFFFFF;
+  margin-bottom: 1rem;
+  line-height: 0.9;
 }
 
 .hero p {
   font-family: var(--font-mono);
-  font-size: var(--text-sm);
+  font-size: var(--text-xs);
   letter-spacing: var(--tracking-widest);
   text-transform: uppercase;
-  color: var(--muted-foreground);
+  color: rgba(255, 255, 255, 0.5);
   margin: 0;
 }
 
+/* Decorative rule under tagline */
+.hero p::after {
+  content: '';
+  display: block;
+  width: 60px;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.3);
+  margin: 2rem auto 0;
+}
+
 .streak-display {
-  margin-top: 2rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid var(--muted-foreground);
+  margin-top: 3rem;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -660,10 +692,11 @@ textarea:focus-visible {
 
 .streak-current {
   font-family: var(--font-mono);
-  font-size: var(--text-3xl);
-  font-weight: 500;
-  color: var(--white);
+  font-size: var(--text-5xl);
+  font-weight: 300;
+  color: #FFFFFF;
   letter-spacing: var(--tracking-wide);
+  line-height: 1;
 }
 
 .streak-label {
@@ -671,15 +704,96 @@ textarea:focus-visible {
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-widest);
   text-transform: uppercase;
-  color: var(--muted-foreground);
+  color: rgba(255, 255, 255, 0.4);
 }
 
 .streak-longest {
   font-family: var(--font-mono);
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-wide);
-  color: var(--muted-foreground);
+  color: rgba(255, 255, 255, 0.3);
   margin-top: 0.5rem;
+}
+
+/* Dark mode - invert hero to white on black page */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .hero {
+    background: #FFFFFF;
+    color: #000000;
+  }
+
+  :root:not([data-theme="light"]) .hero::before {
+    background: repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 1px,
+      rgba(0, 0, 0, 0.03) 1px,
+      rgba(0, 0, 0, 0.03) 2px
+    );
+  }
+
+  :root:not([data-theme="light"]) .hero h1 {
+    color: #000000;
+  }
+
+  :root:not([data-theme="light"]) .hero p {
+    color: rgba(0, 0, 0, 0.5);
+  }
+
+  :root:not([data-theme="light"]) .hero p::after {
+    background: rgba(0, 0, 0, 0.2);
+  }
+
+  :root:not([data-theme="light"]) .streak-current {
+    color: #000000;
+  }
+
+  :root:not([data-theme="light"]) .streak-label {
+    color: rgba(0, 0, 0, 0.4);
+  }
+
+  :root:not([data-theme="light"]) .streak-longest {
+    color: rgba(0, 0, 0, 0.3);
+  }
+}
+
+[data-theme="dark"] .hero {
+  background: #FFFFFF;
+  color: #000000;
+}
+
+[data-theme="dark"] .hero::before {
+  background: repeating-linear-gradient(
+    90deg,
+    transparent,
+    transparent 1px,
+    rgba(0, 0, 0, 0.03) 1px,
+    rgba(0, 0, 0, 0.03) 2px
+  );
+}
+
+[data-theme="dark"] .hero h1 {
+  color: #000000;
+}
+
+[data-theme="dark"] .hero p {
+  color: rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="dark"] .hero p::after {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="dark"] .streak-current {
+  color: #000000;
+}
+
+[data-theme="dark"] .streak-label {
+  color: rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="dark"] .streak-longest {
+  color: rgba(0, 0, 0, 0.3);
 }
 
 /* Entry styles */
@@ -822,28 +936,38 @@ textarea:focus-visible {
   border: var(--border-medium);
 }
 
-/* Archive */
+/* ==========================================================================
+   ARCHIVE - Editorial index styling
+   ========================================================================== */
 .archive-intro {
   color: var(--muted-foreground);
   margin-bottom: 2rem;
 }
 
 .archive-year {
-  font-family: var(--font-mono);
-  font-size: 1.5rem;
+  font-family: var(--font-display);
+  font-size: var(--text-6xl);
   font-weight: 400;
-  margin: 2.5rem 0 1rem;
-  padding-bottom: 0.5rem;
-  border-bottom: var(--border-medium);
+  font-style: italic;
+  margin: 4rem 0 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: var(--border-thick);
+  letter-spacing: var(--tracking-tight);
+}
+
+.archive-year:first-of-type {
+  margin-top: 0;
 }
 
 .archive-month {
   font-family: var(--font-mono);
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   color: var(--muted-foreground);
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  margin: 1.5rem 0 0.5rem;
+  letter-spacing: var(--tracking-widest);
+  margin: 2.5rem 0 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: var(--border-hairline);
 }
 
 .archive-list {
@@ -852,23 +976,31 @@ textarea:focus-visible {
 }
 
 .archive-list li {
-  margin: 0.25rem 0;
+  margin: 0;
+  border-bottom: var(--border-hairline);
+}
+
+.archive-list li:last-child {
+  border-bottom: none;
 }
 
 .archive-list a {
   text-decoration: none;
   display: flex;
   justify-content: space-between;
-  padding: 0.5rem;
-  margin: 0 -0.5rem;
+  align-items: center;
+  padding: 1rem 0.75rem;
+  margin: 0 -0.75rem;
   transition: all 100ms;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
 }
 
 /* Full color inversion on hover */
 .archive-list a:hover {
   background: var(--black);
   color: var(--white);
-  padding: 0.5rem;
+  padding: 1rem 0.75rem;
 }
 
 .archive-list a:hover .mood {
@@ -877,7 +1009,8 @@ textarea:focus-visible {
 
 .archive-list .mood {
   color: var(--muted-foreground);
-  font-size: 0.875rem;
+  font-size: var(--text-base);
+  transition: color 100ms;
 }
 
 /* Site Navigation - editorial masthead style */
@@ -999,7 +1132,12 @@ textarea:focus-visible {
 
   /* Scale down oversized typography */
   h1 { font-size: var(--text-3xl); }
+  .hero {
+    margin: -2rem -1rem 3rem;
+    padding: 4rem 1.5rem;
+  }
   .hero h1 { font-size: var(--text-5xl); }
+  .streak-current { font-size: var(--text-3xl); }
   .entry-date { font-size: var(--text-3xl); }
 
   /* Full-width horizontal rules on mobile */
