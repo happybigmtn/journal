@@ -30,9 +30,6 @@ vitals:
 ## Morning
 
 ### I am grateful for...
-1.
-2.
-3.
 
 ### What would make today great?
 -
@@ -46,15 +43,6 @@ I am
 ---
 
 ## Evening
-
-### Sleep (last night)
-
-Hours: <!-- Update sleep_hours in frontmatter -->
-
-Quality: <!-- deep/restless/interrupted -->
-
-Notes:
-
 
 ### 3 amazing things that happened today
 1.
