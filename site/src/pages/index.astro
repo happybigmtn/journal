@@ -85,10 +85,10 @@ function calculateStreak(entries: typeof allEntries) {
 const streak = calculateStreak(allEntries);
 ---
 
-<BaseLayout title="Journal">
+<BaseLayout title="거산의 침묵 속에서">
   <header class="hero">
-    <h1>Journal</h1>
-    <p>A record of days</p>
+    <h1>거산의 침묵 속에서</h1>
+    <p>In the Silence of the Mountain</p>
     {streak.current > 0 && (
       <div class="streak-display">
         <span class="streak-current">{streak.current} day{streak.current === 1 ? '' : 's'}</span>
@@ -100,33 +100,163 @@ const streak = calculateStreak(allEntries);
     )}
   </header>
 
-  {years.length === 0 ? (
-    <p style="color: var(--gray-mid); margin-top: 2rem;">
-      No entries yet. Start journaling with <code>:JournalNew</code> in Neovim.
-    </p>
-  ) : (
-    years.map(year => (
-      <section>
-        <h2 class="archive-year">{year}</h2>
-        {Object.keys(grouped[year]).map(month => (
-          <div>
-            <h3 class="archive-month">{month}</h3>
-            <ul class="archive-list">
-              {grouped[year][month]
-                .sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime())
-                .map(entry => (
-                  <li>
-                    <a href={`/${entry.slug}`}>
-                      <span>{formatDay(new Date(entry.data.date))}</span>
-                      {entry.data.mood && <span class="mood">{entry.data.mood}</span>}
-                    </a>
-                  </li>
-                ))
-              }
-            </ul>
-          </div>
-        ))}
-      </section>
-    ))
-  )}
+  <!-- About Section -->
+  <section class="about-section">
+    <h2 class="section-label">About</h2>
+
+    <div class="about-content">
+      <p>
+        Over the first half of 2024, a lifetime of bad habits blew up, as I
+        gambled away the trust that it took 20 years to build and lost millions.
+        I exiled myself in shame, having lost friends, family, wealth, and
+        reputation. And for that, I am infinitely grateful, because it allowed
+        me to start becoming the person I've always wanted to be.
+      </p>
+
+      <p>
+        What would you do if one day you woke up and realized you had no credit
+        as a human being? That it didn't matter where you went to school or
+        where you worked, or what you did? That you suddenly became nobody, and
+        couldn't reference your past, because it had been completely erased? How
+        quickly could you become "somebody" again?
+      </p>
+
+      <p>
+        Somewhere along the way, expectation leads us astray. Gambling is the
+        product of lies we tell ourselves, a false bridge between reality and
+        perception. The thought that I was nearly 40 and had little resources,
+        no hard skills, no job prospects, and nobody to lean on is terrifying.
+        If I am to survive, it will be from the product of my creations, not the
+        facade of my stories. Want everything, have nothing; want nothing, have
+        everything.
+      </p>
+
+      <p>
+        I often think about those whose trust I betrayed. It is so painful that
+        I can't communicate the full depths of my heart to all those who
+        believed in me. And I don't expect to regain their trust overnight,
+        because if I were in their shoes, I wouldn't trust me either. But this I
+        can say for sure: I am getting healthier, stronger, wiser, with each
+        passing day. On the redemption arc, the paths ahead are infinite.
+      </p>
+
+      <p>
+        Nothing is real if we can see the results in a day. Because that's not
+        you, that's the machine. Real progress is the kind we can't see,
+        emanating from the non-negotiable routines we implement into our lives.
+        Entrepreneur's mind, athlete's body, artist's soul.
+      </p>
+
+      <p class="about-tagline">In self exile to learn, create and regenerate.</p>
+    </div>
+
+    <img
+      src="/mountain.jpg"
+      alt="Mountain landscape"
+      class="about-image"
+    />
+  </section>
+
+  <hr class="section-rule" />
+
+  <!-- Archive Section -->
+  <section class="archive-section">
+    <h2 class="section-label">Archive</h2>
+
+    {years.length === 0 ? (
+      <p class="no-entries">
+        No entries yet. Start journaling with <code>:JournalNew</code> in Neovim.
+      </p>
+    ) : (
+      years.map(year => (
+        <div class="archive-year-group">
+          <h3 class="archive-year">{year}</h3>
+          {Object.keys(grouped[year]).map(month => (
+            <div>
+              <h4 class="archive-month">{month}</h4>
+              <ul class="archive-list">
+                {grouped[year][month]
+                  .sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime())
+                  .map(entry => (
+                    <li>
+                      <a href={`/${entry.slug}`}>
+                        <span>{formatDay(new Date(entry.data.date))}</span>
+                        {entry.data.mood && <span class="mood">{entry.data.mood}</span>}
+                      </a>
+                    </li>
+                  ))
+                }
+              </ul>
+            </div>
+          ))}
+        </div>
+      ))
+    )}
+  </section>
 </BaseLayout>
+
+<style>
+  /* About Section */
+  .about-section {
+    margin-bottom: 4rem;
+  }
+
+  .section-label {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-widest);
+    color: var(--muted-foreground);
+    margin-bottom: 2rem;
+    padding-bottom: 0.5rem;
+    border-bottom: var(--border-hairline);
+  }
+
+  .about-content {
+    max-width: var(--content-width);
+  }
+
+  .about-content p {
+    text-align: justify;
+    margin-bottom: 1.5rem;
+    line-height: 1.8;
+  }
+
+  .about-tagline {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: var(--text-xl);
+    text-align: center !important;
+    margin-top: 3rem;
+    margin-bottom: 3rem;
+    color: var(--black);
+  }
+
+  .about-image {
+    display: block;
+    width: 100%;
+    max-width: 40rem;
+    margin: 0 auto;
+    border: var(--border-thin);
+  }
+
+  .section-rule {
+    border: none;
+    border-top: var(--border-thick);
+    margin: 4rem 0;
+  }
+
+  /* Archive Section */
+  .archive-section {
+    margin-top: 2rem;
+  }
+
+  .archive-year-group {
+    margin-bottom: 3rem;
+  }
+
+  .no-entries {
+    color: var(--muted-foreground);
+    margin-top: 2rem;
+  }
+</style>
