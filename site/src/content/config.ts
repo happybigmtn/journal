@@ -14,6 +14,19 @@ const vitalsSchema = z.object({
   kindness: z.number().min(0).max(10).nullable().optional(),    // 0-10 scale
 }).optional();
 
+// Saved articles collection - interesting reads to reference
+const articles = defineCollection({
+  type: 'content',
+  schema: z.object({
+    title: z.string(),
+    author: z.string().optional(),
+    source: z.string().optional(),
+    url: z.string().optional(),
+    date: z.coerce.date(),
+    tags: z.array(z.string()).default([]),
+  }),
+});
+
 const journal = defineCollection({
   type: 'content',
   schema: z.object({
@@ -44,4 +57,4 @@ const journal = defineCollection({
   }),
 });
 
-export const collections = { journal };
+export const collections = { journal, articles };
