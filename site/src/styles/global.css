@@ -654,7 +654,7 @@ textarea:focus-visible {
 
 .hero h1 {
   font-family: var(--font-display);
-  font-size: var(--text-8xl);
+  font-size: var(--text-5xl);
   font-weight: 400;
   font-style: italic;
   letter-spacing: var(--tracking-tight);
@@ -1052,7 +1052,7 @@ textarea:focus-visible {
   color: var(--black);
   padding: 0.5rem 0.75rem;
   border-bottom: 4px solid transparent;
-  transition: all 100ms;
+  transition: background-color 100ms, color 100ms, border-color 100ms;
 }
 
 .nav-link:hover {
