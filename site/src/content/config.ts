@@ -1,17 +1,18 @@
 import { defineCollection, z } from 'astro:content';
 
 // Daily vitals: 10 quantitative health metrics (1-10 scale)
+// Using nullable() because empty YAML values parse as null
 const vitalsSchema = z.object({
-  sleep: z.number().min(1).max(10).optional(),      // Sleep quality (1=terrible, 10=perfect)
-  recovery: z.number().min(1).max(10).optional(),   // How recovered you feel
-  energy: z.number().min(1).max(10).optional(),     // Overall energy level
-  stress: z.number().min(1).max(10).optional(),     // Stress level (1=calm, 10=overwhelmed)
-  mood: z.number().min(1).max(10).optional(),       // Emotional state
-  focus: z.number().min(1).max(10).optional(),      // Mental clarity/concentration
-  physical: z.number().min(1).max(10).optional(),   // Body wellness (aches, pain, comfort)
-  nutrition: z.number().min(1).max(10).optional(),  // Food quality/choices
-  kindness: z.number().min(1).max(10).optional(),   // Acts of kindness/compassion
-  exercise: z.number().min(1).max(10).optional(),   // Physical activity intensity
+  sleep: z.number().min(1).max(10).nullable().optional(),
+  recovery: z.number().min(1).max(10).nullable().optional(),
+  energy: z.number().min(1).max(10).nullable().optional(),
+  stress: z.number().min(1).max(10).nullable().optional(),
+  mood: z.number().min(1).max(10).nullable().optional(),
+  focus: z.number().min(1).max(10).nullable().optional(),
+  physical: z.number().min(1).max(10).nullable().optional(),
+  nutrition: z.number().min(1).max(10).nullable().optional(),
+  kindness: z.number().min(1).max(10).nullable().optional(),
+  exercise: z.number().min(1).max(10).nullable().optional(),
 }).optional();
 
 const journal = defineCollection({
@@ -20,7 +21,7 @@ const journal = defineCollection({
     title: z.string(),
     date: z.coerce.date(),
     mood: z.string().optional(), // Emoji mood (for insights page)
-    sleep_hours: z.number().min(0).max(24).optional(),
+    sleep_hours: z.number().min(0).max(24).nullable().optional(),
     tags: z.array(z.string()).default([]),
     type: z.enum(['daily', 'weekly', 'monthly', 'yearly', 'project', 'book', 'travel']).default('daily'),
     // Daily vitals - 10 quantitative health metrics
