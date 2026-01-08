@@ -1,6 +1,6 @@
 ---
-title: "Gold Has No Enemies"
-author: "Unknown"
+title: "It's Different This Time / Gold 2026"
+author: "Alyosha"
 source: "Market Vibes"
 date: 2026-01-04
 tags: [gold, markets, precious-metals, investing]
