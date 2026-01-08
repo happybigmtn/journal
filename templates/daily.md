@@ -102,11 +102,5 @@ What affected my energy today?
 ### Highlights
 
 
-### People I connected with
-
-<!-- Use @name to mention people, e.g., "Had lunch with @john" -->
-<!-- They'll appear on the /people page automatically -->
-
-
 ### How I felt
 
