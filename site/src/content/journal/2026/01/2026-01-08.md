@@ -72,21 +72,14 @@ Notes:
 
 ---
 
-## Vitals
+## Habits
 
-Rate each metric in the frontmatter above:
-
-| Metric     | Scale  | What it measures                           |
-|------------|--------|-------------------------------------------|
-| sleep      | 0-100  | Sleep quality score                        |
-| recovery   | 0-100  | Recovery score from yesterday              |
-| physical   | 0-20   | Body wellness, aches, pain, comfort        |
-| energy     | 0-10   | Overall energy throughout the day          |
-| stress     | 0-10   | Stress level (0=zen, 10=overwhelmed)       |
-| mood       | 0-10   | Emotional state (0=low, 10=euphoric)       |
-| focus      | 0-10   | Mental clarity and concentration           |
-| nutrition  | 0-10   | Quality of food choices today              |
-| kindness   | 0-10   | Acts of kindness/compassion today          |
+- [ ] anki
+- [ ] math
+- [ ] kindle
+- [ ] yoga
+- [ ] cardio
+- [ ] weights
 
 ---
 
