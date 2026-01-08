@@ -6,16 +6,16 @@ sleep_hours:
 tags: []
 type: daily
 vitals:
-  sleep:      # Sleep quality (1=terrible, 10=perfect)
-  recovery:   # How recovered you feel from yesterday
-  energy:     # Overall energy level
-  stress:     # Stress level (1=calm, 10=overwhelmed)
-  mood:       # Emotional state
-  focus:      # Mental clarity/concentration
-  physical:   # Body wellness (aches, pain, comfort)
-  nutrition:  # Food quality/choices
-  hydration:  # Water intake
-  exercise:   # Physical activity intensity
+  sleep:
+  recovery:
+  energy:
+  stress:
+  mood:
+  focus:
+  physical:
+  nutrition:
+  hydration:
+  exercise:
 ---
 
 ## Today's Reflection
