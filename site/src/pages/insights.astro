@@ -7,6 +7,43 @@ const allEntries = await getCollection('journal', ({ data }) =>
   !data.draft && (import.meta.env.DEV || data.published)
 );
 
+// Habits to track
+const habitsConfig = ['anki', 'math', 'kindle', 'yoga', 'cardio', 'weights'];
+
+// Parse habits from markdown body
+const parseHabits = (body: string) => {
+  const habits: Record<string, boolean | null> = {};
+  habitsConfig.forEach(habit => {
+    // Match patterns like "- anki: yes" or "- anki: no" or "- anki: yes no"
+    const regex = new RegExp(`-\\s*${habit}:\\s*(yes|no)(?:\\s|$)`, 'i');
+    const match = body.match(regex);
+    if (match) {
+      habits[habit] = match[1].toLowerCase() === 'yes';
+    } else {
+      habits[habit] = null; // Not yet answered (still "yes no")
+    }
+  });
+  return habits;
+};
+
+// Get habit data from all entries
+const entriesWithHabits = allEntries
+  .map(e => ({
+    date: e.data.date,
+    habits: parseHabits(e.body),
+    slug: e.slug,
+  }))
+  .filter(e => Object.values(e.habits).some(v => v !== null))
+  .sort((a, b) => a.date.getTime() - b.date.getTime());
+
+// Calculate habit completion rates
+const habitStats = habitsConfig.map(habit => {
+  const completed = entriesWithHabits.filter(e => e.habits[habit] === true).length;
+  const total = entriesWithHabits.filter(e => e.habits[habit] !== null).length;
+  const rate = total > 0 ? (completed / total) * 100 : null;
+  return { habit, completed, total, rate };
+});
+
 // Vitals keys, labels, and scales (different metrics have different ranges)
 const vitalsConfig = [
   { key: 'sleep', label: 'Sleep', description: 'Sleep quality', max: 100 },
@@ -186,6 +223,31 @@ const formatDate = (date: Date) => {
           })}
         </div>
       </section>
+
+      {entriesWithHabits.length > 0 && (
+        <section class="insight-section">
+          <h2>Habits</h2>
+          <p class="section-subtitle">{entriesWithHabits.length} days tracked</p>
+          <div class="habits-chart">
+            {habitStats.map(({ habit, completed, total, rate }) => (
+              <div class="habit-row">
+                <span class="habit-label">{habit}</span>
+                <div class="habit-bar-container">
+                  {rate !== null && (
+                    <div
+                      class="habit-bar-fill"
+                      style={`width: ${rate}%`}
+                    />
+                  )}
+                </div>
+                <span class="habit-value">
+                  {rate !== null ? `${completed}/${total}` : '-'}
+                </span>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
     </>
   )}
 </BaseLayout>
@@ -289,6 +351,48 @@ const formatDate = (date: Date) => {
   }
 
   .vital-value {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--accent);
+    text-align: right;
+  }
+
+  /* Habits chart */
+  .habits-chart {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .habit-row {
+    display: grid;
+    grid-template-columns: 5rem 1fr 3rem;
+    gap: 1rem;
+    align-items: center;
+  }
+
+  .habit-label {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--fg-muted);
+    text-transform: lowercase;
+  }
+
+  .habit-bar-container {
+    height: 6px;
+    background: var(--bg-elevated);
+    position: relative;
+  }
+
+  .habit-bar-fill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    background: var(--accent);
+  }
+
+  .habit-value {
     font-family: var(--font-mono);
     font-size: var(--text-xs);
     color: var(--accent);

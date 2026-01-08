@@ -74,12 +74,12 @@ Notes:
 
 ## Habits
 
-- [ ] anki
-- [ ] math
-- [ ] kindle
-- [ ] yoga
-- [ ] cardio
-- [ ] weights
+- anki: yes no
+- math: yes no
+- kindle: yes no
+- yoga: yes no
+- cardio: yes no
+- weights: yes no
 
 ---
 
