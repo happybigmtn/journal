@@ -89,15 +89,6 @@ const streak = calculateStreak(allEntries);
   <header class="hero">
     <h1>거산의 침묵 속에서</h1>
     <p>In the Silence of the Mountain</p>
-    {streak.current > 0 && (
-      <div class="streak-display">
-        <span class="streak-current">{streak.current} day{streak.current === 1 ? '' : 's'}</span>
-        <span class="streak-label">current streak</span>
-        {streak.longest > streak.current && (
-          <span class="streak-longest">longest: {streak.longest}</span>
-        )}
-      </div>
-    )}
   </header>
 
   <!-- About Section -->

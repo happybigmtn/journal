@@ -25,14 +25,10 @@ const ogImageURL = ogImage ? new URL(ogImage, Astro.site).toString() : undefined
 
 // Navigation items
 const navItems = [
-  { href: '/', label: 'Archive' },
+  { href: '/', label: 'Entries' },
   { href: '/timeline', label: 'Timeline' },
-  { href: '/calendar', label: 'Calendar' },
-  { href: '/tags', label: 'Tags' },
   { href: '/insights', label: 'Insights' },
-  { href: '/gratitude', label: 'Gratitude' },
-  { href: '/people', label: 'People' },
-  { href: '/search', label: 'Search' },
+  { href: '/on-this-day', label: 'On This Day' },
 ];
 ---
 
@@ -254,22 +250,15 @@ const navItems = [
     document.addEventListener('DOMContentLoaded', initSortableTables);
   </script>
   <script>
-    // Vim-style keyboard navigation
+    // Single-key keyboard navigation
     (function() {
-      let gPressed = false;
-      let gTimeout: number | undefined;
-
       const shortcuts: Record<string, string> = {
-        'h': '/',         // home/archive
-        'a': '/',         // archive
-        't': '/timeline', // timeline
-        'c': '/calendar', // calendar
-        'g': '/tags',     // tags (g g)
-        'i': '/insights', // insights
-        'r': '/gratitude',// gratitude
-        'p': '/people',   // people
-        's': '/search',   // search
-        'o': '/on-this-day', // on this day
+        'e': '/',           // entries
+        'h': '/',           // home
+        't': '/timeline',   // timeline
+        'i': '/insights',   // insights
+        'o': '/on-this-day',// on this day
+        's': '/search',     // search
       };
 
       function isInputFocused() {
@@ -293,30 +282,14 @@ const navItems = [
           <div class="kb-overlay"></div>
           <div class="kb-modal">
             <h2>Keyboard Shortcuts</h2>
-            <div class="kb-grid">
-              <div class="kb-section">
-                <h3>Navigation (g + key)</h3>
-                <dl>
-                  <dt><kbd>g</kbd> <kbd>h</kbd></dt><dd>Home / Archive</dd>
-                  <dt><kbd>g</kbd> <kbd>t</kbd></dt><dd>Timeline</dd>
-                  <dt><kbd>g</kbd> <kbd>c</kbd></dt><dd>Calendar</dd>
-                  <dt><kbd>g</kbd> <kbd>g</kbd></dt><dd>Tags</dd>
-                  <dt><kbd>g</kbd> <kbd>i</kbd></dt><dd>Insights</dd>
-                  <dt><kbd>g</kbd> <kbd>r</kbd></dt><dd>Gratitude</dd>
-                  <dt><kbd>g</kbd> <kbd>p</kbd></dt><dd>People</dd>
-                  <dt><kbd>g</kbd> <kbd>s</kbd></dt><dd>Search</dd>
-                  <dt><kbd>g</kbd> <kbd>o</kbd></dt><dd>On This Day</dd>
-                </dl>
-              </div>
-              <div class="kb-section">
-                <h3>Quick Actions</h3>
-                <dl>
-                  <dt><kbd>/</kbd></dt><dd>Focus search</dd>
-                  <dt><kbd>?</kbd></dt><dd>Show this help</dd>
-                  <dt><kbd>Esc</kbd></dt><dd>Close modal</dd>
-                </dl>
-              </div>
-            </div>
+            <dl>
+              <dt><kbd>e</kbd></dt><dd>Entries</dd>
+              <dt><kbd>t</kbd></dt><dd>Timeline</dd>
+              <dt><kbd>i</kbd></dt><dd>Insights</dd>
+              <dt><kbd>o</kbd></dt><dd>On This Day</dd>
+              <dt><kbd>s</kbd></dt><dd>Search</dd>
+              <dt><kbd>?</kbd></dt><dd>Help</dd>
+            </dl>
             <button class="kb-close" aria-label="Close">&times;</button>
           </div>
         `;
@@ -332,39 +305,20 @@ const navItems = [
 
         const key = e.key.toLowerCase();
 
-        // Escape closes help modal
         if (key === 'escape') {
           const modal = document.getElementById('keyboard-help');
           if (modal) modal.remove();
           return;
         }
 
-        // ? shows help
         if (key === '?' || (e.shiftKey && key === '/')) {
           e.preventDefault();
           showHelp();
           return;
         }
 
-        // / focuses search
-        if (key === '/' && !e.shiftKey) {
+        if (shortcuts[key]) {
           e.preventDefault();
-          window.location.href = '/search';
-          return;
-        }
-
-        // g prefix for navigation
-        if (key === 'g' && !gPressed) {
-          gPressed = true;
-          clearTimeout(gTimeout);
-          gTimeout = window.setTimeout(() => { gPressed = false; }, 1000);
-          return;
-        }
-
-        if (gPressed && shortcuts[key]) {
-          e.preventDefault();
-          gPressed = false;
-          clearTimeout(gTimeout);
           window.location.href = shortcuts[key];
         }
       });
@@ -388,35 +342,18 @@ const navItems = [
       position: relative;
       background: var(--white);
       color: var(--black);
-      border: var(--border-thick);
-      padding: 2rem;
-      max-width: 600px;
+      border: var(--border-thin);
+      padding: 1.5rem 2rem;
+      max-width: 280px;
       width: 90%;
       font-family: var(--font-mono);
     }
     #keyboard-help h2 {
       font-family: var(--font-display);
-      font-size: var(--text-2xl);
-      margin-bottom: 1.5rem;
-      border-bottom: var(--border-thin);
+      font-size: var(--text-lg);
+      margin-bottom: 1rem;
+      border-bottom: var(--border-hairline);
       padding-bottom: 0.5rem;
-    }
-    #keyboard-help h3 {
-      font-size: var(--text-sm);
-      text-transform: uppercase;
-      letter-spacing: var(--tracking-widest);
-      margin-bottom: 0.75rem;
-      color: var(--muted-foreground);
-    }
-    #keyboard-help .kb-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 2rem;
-    }
-    @media (max-width: 500px) {
-      #keyboard-help .kb-grid {
-        grid-template-columns: 1fr;
-      }
     }
     #keyboard-help dl {
       display: grid;
@@ -436,16 +373,16 @@ const navItems = [
       border: 1px solid var(--border-hairline-color);
       padding: 0.125rem 0.375rem;
       font-size: var(--text-xs);
-      min-width: 1.5rem;
+      min-width: 1.25rem;
       text-align: center;
     }
     #keyboard-help .kb-close {
       position: absolute;
-      top: 0.5rem;
+      top: 0.25rem;
       right: 0.5rem;
       background: none;
       border: none;
-      font-size: var(--text-2xl);
+      font-size: var(--text-xl);
       cursor: pointer;
       color: var(--muted-foreground);
       line-height: 1;

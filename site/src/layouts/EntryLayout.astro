@@ -176,29 +176,10 @@ const similarEntries = allEntries
   publishedTime={entry.data.date}
   tags={entry.data.tags}
 >
-  <header class="site-header">
-    <a href="/">← Archive</a>
-  </header>
-
   <article>
     <header class="entry-header">
-      <p class="entry-date">{formatDate(entry.data.date)}</p>
-      <div class="entry-meta">
-        {entry.data.published && (
-          <span class="entry-published" title="Published to public site">PUBLIC</span>
-        )}
-        <span class="entry-reading-time">{readingTime} min read</span>
-        <span class="entry-word-count">{wordCount.toLocaleString()} words</span>
-        {entry.data.mood && <span class="entry-mood">Mood: {entry.data.mood}</span>}
-        {entry.data.sleep_hours !== undefined && (
-          <span class="entry-sleep">Sleep: {entry.data.sleep_hours}h</span>
-        )}
-        {entry.data.energy !== undefined && (
-          <span class="entry-energy">
-            Energy: <span class="energy-dots">{'●'.repeat(entry.data.energy)}{'○'.repeat(10 - entry.data.energy)}</span>
-          </span>
-        )}
-      </div>
+      <time class="entry-date">{formatDate(entry.data.date)}</time>
+      {entry.data.mood && <span class="entry-mood">{entry.data.mood}</span>}
     </header>
 
     <div class:list={["entry-content", { "invert-images-dark": entry.data.invert_images }]}>
