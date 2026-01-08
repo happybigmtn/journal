@@ -1,0 +1,141 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const articles = await getCollection('articles');
+  return articles.map(article => ({
+    params: { slug: article.slug },
+    props: { article },
+  }));
+}
+
+const { article } = Astro.props;
+const { Content } = await article.render();
+
+const formatDate = (date: Date) => {
+  return date.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+};
+---
+
+<BaseLayout title={article.data.title}>
+  <article class="article">
+    <header class="article-header">
+      <h1 class="article-title">{article.data.title}</h1>
+      <div class="article-meta">
+        {article.data.author && <span class="author">by {article.data.author}</span>}
+        {article.data.source && <span class="source">{article.data.source}</span>}
+        <span class="date">{formatDate(article.data.date)}</span>
+      </div>
+      {article.data.tags && article.data.tags.length > 0 && (
+        <div class="article-tags">
+          {article.data.tags.map(tag => (
+            <span class="tag">{tag}</span>
+          ))}
+        </div>
+      )}
+    </header>
+    <div class="article-content">
+      <Content />
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .article {
+    max-width: 65ch;
+  }
+
+  .article-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .article-title {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    font-weight: 400;
+    font-style: italic;
+    color: var(--fg);
+    margin-bottom: 0.5rem;
+  }
+
+  .article-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--fg-muted);
+  }
+
+  .article-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+  }
+
+  .tag {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--fg-muted);
+    background: var(--bg-elevated);
+    padding: 0.125rem 0.5rem;
+  }
+
+  .article-content {
+    font-family: var(--font-body);
+    line-height: 1.7;
+  }
+
+  .article-content :global(h2) {
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    font-style: italic;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+  }
+
+  .article-content :global(h3) {
+    font-family: var(--font-display);
+    font-size: var(--text-base);
+    font-style: italic;
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .article-content :global(p) {
+    margin-bottom: 1rem;
+  }
+
+  .article-content :global(blockquote) {
+    border-left: 2px solid var(--accent);
+    padding-left: 1rem;
+    margin: 1.5rem 0;
+    font-style: italic;
+    color: var(--fg-muted);
+  }
+
+  .article-content :global(strong) {
+    font-weight: 600;
+  }
+
+  .article-content :global(em) {
+    font-style: italic;
+  }
+
+  .article-content :global(ul), .article-content :global(ol) {
+    margin-bottom: 1rem;
+    padding-left: 1.5rem;
+  }
+
+  .article-content :global(li) {
+    margin-bottom: 0.25rem;
+  }
+</style>
