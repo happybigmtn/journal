@@ -7,18 +7,17 @@ const allEntries = await getCollection('journal', ({ data }) =>
   !data.draft && (import.meta.env.DEV || data.published)
 );
 
-// Vitals keys and labels
+// Vitals keys, labels, and scales (different metrics have different ranges)
 const vitalsConfig = [
-  { key: 'sleep', label: 'Sleep', description: 'Sleep quality' },
-  { key: 'recovery', label: 'Recovery', description: 'Recovery from yesterday' },
-  { key: 'energy', label: 'Energy', description: 'Overall energy' },
-  { key: 'stress', label: 'Stress', description: 'Stress level (lower is better)', inverted: true },
-  { key: 'mood', label: 'Mood', description: 'Emotional state' },
-  { key: 'focus', label: 'Focus', description: 'Mental clarity' },
-  { key: 'physical', label: 'Physical', description: 'Body wellness' },
-  { key: 'nutrition', label: 'Nutrition', description: 'Food quality' },
-  { key: 'kindness', label: 'Kindness', description: 'Acts of compassion' },
-  { key: 'exercise', label: 'Exercise', description: 'Physical activity' },
+  { key: 'sleep', label: 'Sleep', description: 'Sleep quality', max: 100 },
+  { key: 'recovery', label: 'Recovery', description: 'Recovery from yesterday', max: 100 },
+  { key: 'physical', label: 'Physical', description: 'Body wellness', max: 20 },
+  { key: 'energy', label: 'Energy', description: 'Overall energy', max: 10 },
+  { key: 'stress', label: 'Stress', description: 'Stress level (lower is better)', max: 10, inverted: true },
+  { key: 'mood', label: 'Mood', description: 'Emotional state', max: 10 },
+  { key: 'focus', label: 'Focus', description: 'Mental clarity', max: 10 },
+  { key: 'nutrition', label: 'Nutrition', description: 'Food quality', max: 10 },
+  { key: 'kindness', label: 'Kindness', description: 'Acts of compassion', max: 10 },
 ];
 
 // Get entries with vitals data
@@ -34,28 +33,30 @@ const entriesWithVitals = allEntries
 const totalEntries = entriesWithVitals.length;
 
 // Calculate averages for each vital
-const vitalsAverages = vitalsConfig.map(({ key, label, description, inverted }) => {
+const vitalsAverages = vitalsConfig.map(({ key, label, description, max, inverted }) => {
   const values = entriesWithVitals
     .map(e => e.vitals?.[key as keyof typeof e.vitals])
-    .filter((v): v is number => v !== undefined);
+    .filter((v): v is number => v !== undefined && v !== null);
 
   const avg = values.length > 0
     ? (values.reduce((sum, v) => sum + v, 0) / values.length)
     : null;
 
-  return { key, label, description, avg, count: values.length, inverted };
+  return { key, label, description, max, avg, count: values.length, inverted };
 });
 
 // Recent trend data (last 14 entries)
 const recentEntries = entriesWithVitals.slice(-14);
 
-// Calculate composite health score (average of all vitals, with stress inverted)
+// Calculate composite health score (normalize all to 0-100, invert stress)
 const calculateHealthScore = (vitals: any) => {
   const values: number[] = [];
-  vitalsConfig.forEach(({ key, inverted }) => {
+  vitalsConfig.forEach(({ key, max, inverted }) => {
     const val = vitals?.[key];
-    if (val !== undefined) {
-      values.push(inverted ? (11 - val) : val); // Invert stress
+    if (val !== undefined && val !== null) {
+      // Normalize to 0-100 scale
+      const normalized = (val / max) * 100;
+      values.push(inverted ? (100 - normalized) : normalized);
     }
   });
   return values.length > 0 ? values.reduce((a, b) => a + b, 0) / values.length : null;
@@ -66,11 +67,16 @@ const recentHealthScores = recentEntries.map(e => ({
   score: calculateHealthScore(e.vitals),
 }));
 
-const overallHealthScore = vitalsAverages.every(v => v.avg !== null)
-  ? vitalsAverages.reduce((sum, v) => {
-      const val = v.avg!;
-      return sum + (v.inverted ? (11 - val) : val);
-    }, 0) / vitalsAverages.length
+// Overall health score (normalized to 0-100)
+const overallHealthScore = vitalsAverages.some(v => v.avg !== null)
+  ? (() => {
+      const validVitals = vitalsAverages.filter(v => v.avg !== null);
+      const sum = validVitals.reduce((acc, v) => {
+        const normalized = (v.avg! / v.max) * 100;
+        return acc + (v.inverted ? (100 - normalized) : normalized);
+      }, 0);
+      return sum / validVitals.length;
+    })()
   : null;
 
 // Format date for display
@@ -109,12 +115,12 @@ const formatDate = (date: Date) => {
                 {vital.avg !== null && (
                   <div
                     class:list={["vital-bar-fill", { inverted: vital.inverted }]}
-                    style={`width: ${vital.avg * 10}%`}
+                    style={`width: ${(vital.avg / vital.max) * 100}%`}
                   />
                 )}
               </div>
               <span class="vital-value">
-                {vital.avg !== null ? vital.avg.toFixed(1) : '-'}
+                {vital.avg !== null ? `${vital.avg.toFixed(0)}/${vital.max}` : '-'}
               </span>
             </div>
           ))}
@@ -132,8 +138,8 @@ const formatDate = (date: Date) => {
                   {entry.score !== null && (
                     <div
                       class="trend-point"
-                      style={`bottom: ${(entry.score / 10) * 100}%`}
-                      title={`${formatDate(entry.date)}: ${entry.score.toFixed(1)}`}
+                      style={`bottom: ${entry.score}%`}
+                      title={`${formatDate(entry.date)}: ${entry.score.toFixed(0)}%`}
                     />
                   )}
                   <span class="trend-date">{formatDate(entry.date)}</span>
@@ -141,8 +147,8 @@ const formatDate = (date: Date) => {
               ))}
             </div>
             <div class="trend-scale">
-              <span>10</span>
-              <span>5</span>
+              <span>100</span>
+              <span>50</span>
               <span>0</span>
             </div>
           </div>
@@ -153,12 +159,12 @@ const formatDate = (date: Date) => {
         <h2>Individual Trends</h2>
         <p class="section-subtitle">last {recentEntries.length} days</p>
         <div class="individual-trends">
-          {vitalsConfig.map(({ key, label }) => {
+          {vitalsConfig.map(({ key, label, max }) => {
             const data = recentEntries.map(e => ({
               date: e.date,
               value: e.vitals?.[key as keyof typeof e.vitals],
             }));
-            const hasData = data.some(d => d.value !== undefined);
+            const hasData = data.some(d => d.value !== undefined && d.value !== null);
 
             return hasData && (
               <div class="mini-trend">
@@ -166,10 +172,10 @@ const formatDate = (date: Date) => {
                 <div class="mini-trend-chart">
                   {data.map(d => (
                     <div class="mini-bar-wrapper">
-                      {d.value !== undefined && (
+                      {d.value !== undefined && d.value !== null && (
                         <div
                           class="mini-bar"
-                          style={`height: ${d.value * 10}%`}
+                          style={`height: ${(d.value / max) * 100}%`}
                         />
                       )}
                     </div>
@@ -252,7 +258,7 @@ const formatDate = (date: Date) => {
 
   .vital-row {
     display: grid;
-    grid-template-columns: 5rem 1fr 2rem;
+    grid-template-columns: 5rem 1fr 4rem;
     gap: 1rem;
     align-items: center;
   }
@@ -399,7 +405,7 @@ const formatDate = (date: Date) => {
     }
 
     .vital-row {
-      grid-template-columns: 4rem 1fr 1.5rem;
+      grid-template-columns: 4rem 1fr 3.5rem;
       gap: 0.5rem;
     }
 

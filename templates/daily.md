@@ -8,14 +8,13 @@ type: daily
 vitals:
   sleep:
   recovery:
+  physical:
   energy:
   stress:
   mood:
   focus:
-  physical:
   nutrition:
   kindness:
-  exercise:
 ---
 
 ## Today's Reflection
@@ -75,20 +74,19 @@ Notes:
 
 ## Vitals
 
-Rate each metric 1-10 in the frontmatter above:
+Rate each metric in the frontmatter above:
 
-| Metric     | What it measures                           |
-|------------|-------------------------------------------|
-| sleep      | Sleep quality (1=terrible, 10=perfect)     |
-| recovery   | How recovered from yesterday's exertion    |
-| energy     | Overall energy throughout the day          |
-| stress     | Stress level (1=zen, 10=overwhelmed)       |
-| mood       | Emotional state (1=low, 10=euphoric)       |
-| focus      | Mental clarity and concentration           |
-| physical   | Body wellness, aches, pain, comfort        |
-| nutrition  | Quality of food choices today              |
-| kindness   | Acts of kindness/compassion today          |
-| exercise   | Physical activity intensity                |
+| Metric     | Scale  | What it measures                           |
+|------------|--------|-------------------------------------------|
+| sleep      | 0-100  | Sleep quality score                        |
+| recovery   | 0-100  | Recovery score from yesterday              |
+| physical   | 0-20   | Body wellness, aches, pain, comfort        |
+| energy     | 0-10   | Overall energy throughout the day          |
+| stress     | 0-10   | Stress level (0=zen, 10=overwhelmed)       |
+| mood       | 0-10   | Emotional state (0=low, 10=euphoric)       |
+| focus      | 0-10   | Mental clarity and concentration           |
+| nutrition  | 0-10   | Quality of food choices today              |
+| kindness   | 0-10   | Acts of kindness/compassion today          |
 
 ---
 

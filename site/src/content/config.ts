@@ -1,18 +1,17 @@
 import { defineCollection, z } from 'astro:content';
 
-// Daily vitals: 10 quantitative health metrics (1-10 scale)
+// Daily vitals: quantitative health metrics (various scales)
 // Using nullable() because empty YAML values parse as null
 const vitalsSchema = z.object({
-  sleep: z.number().min(1).max(10).nullable().optional(),
-  recovery: z.number().min(1).max(10).nullable().optional(),
-  energy: z.number().min(1).max(10).nullable().optional(),
-  stress: z.number().min(1).max(10).nullable().optional(),
-  mood: z.number().min(1).max(10).nullable().optional(),
-  focus: z.number().min(1).max(10).nullable().optional(),
-  physical: z.number().min(1).max(10).nullable().optional(),
-  nutrition: z.number().min(1).max(10).nullable().optional(),
-  kindness: z.number().min(1).max(10).nullable().optional(),
-  exercise: z.number().min(1).max(10).nullable().optional(),
+  sleep: z.number().min(0).max(100).nullable().optional(),      // 0-100 scale
+  recovery: z.number().min(0).max(100).nullable().optional(),   // 0-100 scale
+  physical: z.number().min(0).max(20).nullable().optional(),    // 0-20 scale
+  energy: z.number().min(0).max(10).nullable().optional(),      // 0-10 scale
+  stress: z.number().min(0).max(10).nullable().optional(),      // 0-10 scale
+  mood: z.number().min(0).max(10).nullable().optional(),        // 0-10 scale
+  focus: z.number().min(0).max(10).nullable().optional(),       // 0-10 scale
+  nutrition: z.number().min(0).max(10).nullable().optional(),   // 0-10 scale
+  kindness: z.number().min(0).max(10).nullable().optional(),    // 0-10 scale
 }).optional();
 
 const journal = defineCollection({
