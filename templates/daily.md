@@ -3,26 +3,19 @@ title: "{{DATE}}"
 date: {{DATE}}
 mood: ""
 sleep_hours:
-energy:
 tags: []
 type: daily
-habits:
-  # Boolean habits (did/didn't)
-  # - name: "Exercise"
-  #   done: false
-  # - name: "Meditate"
-  #   done: false
-  # - name: "Read"
-  #   done: false
-  # Numeric habits (with optional goals)
-  # - name: "Water"
-  #   value: 0
-  #   goal: 8
-connections: []
-  # People you connected with today
-  # - "John"
-  # - "Sarah"
-  # Or use @mentions in your text: "Had coffee with @john and @sarah"
+vitals:
+  sleep:      # Sleep quality (1=terrible, 10=perfect)
+  recovery:   # How recovered you feel from yesterday
+  energy:     # Overall energy level
+  stress:     # Stress level (1=calm, 10=overwhelmed)
+  mood:       # Emotional state
+  focus:      # Mental clarity/concentration
+  physical:   # Body wellness (aches, pain, comfort)
+  nutrition:  # Food quality/choices
+  hydration:  # Water intake
+  exercise:   # Physical activity intensity
 ---
 
 ## Today's Reflection
@@ -78,19 +71,24 @@ Notes:
 ### What is within my control, and what is not?
 
 
-### Energy Level (1-10)
-
-<!-- Update energy in frontmatter: 1=exhausted, 5=average, 10=peak -->
-
-What affected my energy today?
-
-
 ---
 
-## Habits
+## Vitals
 
-<!-- Track your daily habits in the frontmatter above. Uncomment and customize the habits array. -->
-<!-- Check off completed habits by setting done: true or updating value for numeric habits -->
+Rate each metric 1-10 in the frontmatter above:
+
+| Metric     | What it measures                           |
+|------------|-------------------------------------------|
+| sleep      | Sleep quality (1=terrible, 10=perfect)     |
+| recovery   | How recovered from yesterday's exertion    |
+| energy     | Overall energy throughout the day          |
+| stress     | Stress level (1=zen, 10=overwhelmed)       |
+| mood       | Emotional state (1=low, 10=euphoric)       |
+| focus      | Mental clarity and concentration           |
+| physical   | Body wellness, aches, pain, comfort        |
+| nutrition  | Quality of food choices today              |
+| hydration  | Water intake adequacy                      |
+| exercise   | Physical activity intensity                |
 
 ---
 

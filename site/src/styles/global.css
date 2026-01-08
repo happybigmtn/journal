@@ -582,70 +582,64 @@ textarea:focus-visible {
   letter-spacing: 0.1em;
 }
 
-/* Habits display */
-.habits-display {
-  margin-top: 2rem;
+/* Vitals display - health metrics visualization */
+.vitals-display {
+  margin-top: 2.5rem;
   padding-top: 1.5rem;
-  border-top: var(--border-hairline);
+  border-top: 1px solid var(--border-color);
 }
 
-.habits-display h3 {
+.vitals-display h3 {
   font-family: var(--font-mono);
   font-size: var(--text-xs);
-  text-transform: uppercase;
-  letter-spacing: var(--tracking-widest);
-  color: var(--muted-foreground);
+  text-transform: lowercase;
+  letter-spacing: var(--tracking-wide);
+  color: var(--fg-muted);
   margin-bottom: 1rem;
 }
 
-.habit-list {
-  list-style: none;
+.vitals-grid {
   display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-}
-
-.habit-item {
-  display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 0.5rem;
-  font-family: var(--font-mono);
-  font-size: var(--text-sm);
 }
 
-.habit-check {
-  width: 1.25rem;
-  height: 1.25rem;
-  display: inline-flex;
+.vital-item {
+  display: grid;
+  grid-template-columns: 5rem 1fr 1.5rem;
+  gap: 0.75rem;
   align-items: center;
-  justify-content: center;
-  border: var(--border-thin);
-  color: var(--muted-foreground);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
 }
 
-.habit-check.done {
-  background: var(--black);
-  color: var(--white);
+.vital-label {
+  color: var(--fg-muted);
+  text-transform: lowercase;
 }
 
-.habit-value {
-  font-weight: 500;
-}
-
-.habit-name {
-  color: var(--muted-foreground);
-}
-
-.habit-progress {
-  width: 50px;
+.vital-bar {
   height: 4px;
-  background: var(--muted);
+  background: var(--bg-elevated);
+  position: relative;
 }
 
-.habit-progress-bar {
+.vital-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
   height: 100%;
-  background: var(--black);
-  display: block;
+  background: var(--accent);
+  transition: width 300ms ease;
+}
+
+.vital-bar.stress .vital-fill {
+  background: #a88272; /* Warmer red-brown for stress */
+}
+
+.vital-value {
+  color: var(--accent);
+  text-align: right;
 }
 
 .entry-content h2 {

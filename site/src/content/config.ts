@@ -1,23 +1,30 @@
 import { defineCollection, z } from 'astro:content';
 
-// Habit item schema: supports boolean (did/didn't) and numeric habits
-const habitSchema = z.object({
-  name: z.string(),
-  done: z.boolean().optional(), // For boolean habits
-  value: z.number().optional(), // For numeric habits (e.g., glasses of water)
-  goal: z.number().optional(), // Optional goal for numeric habits
-});
+// Daily vitals: 10 quantitative health metrics (1-10 scale)
+const vitalsSchema = z.object({
+  sleep: z.number().min(1).max(10).optional(),      // Sleep quality (1=terrible, 10=perfect)
+  recovery: z.number().min(1).max(10).optional(),   // How recovered you feel
+  energy: z.number().min(1).max(10).optional(),     // Overall energy level
+  stress: z.number().min(1).max(10).optional(),     // Stress level (1=calm, 10=overwhelmed)
+  mood: z.number().min(1).max(10).optional(),       // Emotional state
+  focus: z.number().min(1).max(10).optional(),      // Mental clarity/concentration
+  physical: z.number().min(1).max(10).optional(),   // Body wellness (aches, pain, comfort)
+  nutrition: z.number().min(1).max(10).optional(),  // Food quality/choices
+  hydration: z.number().min(1).max(10).optional(),  // Water intake
+  exercise: z.number().min(1).max(10).optional(),   // Physical activity intensity
+}).optional();
 
 const journal = defineCollection({
   type: 'content',
   schema: z.object({
     title: z.string(),
     date: z.coerce.date(),
-    mood: z.string().optional(),
+    mood: z.string().optional(), // Emoji mood (for insights page)
     sleep_hours: z.number().min(0).max(24).optional(),
-    energy: z.number().int().min(1).max(10).optional(),
     tags: z.array(z.string()).default([]),
     type: z.enum(['daily', 'weekly', 'monthly', 'yearly', 'project', 'book', 'travel']).default('daily'),
+    // Daily vitals - 10 quantitative health metrics
+    vitals: vitalsSchema,
     // Project-specific fields
     project_status: z.enum(['active', 'paused', 'completed', 'archived']).optional(),
     // Book-specific fields
@@ -32,9 +39,7 @@ const journal = defineCollection({
     trip_end: z.coerce.date().optional(),
     draft: z.boolean().default(false),
     published: z.boolean().default(false), // Privacy: false = private, true = public on site
-    habits: z.array(habitSchema).default([]), // Optional habit tracking
     og_image: z.string().optional(), // Custom Open Graph image URL (overrides auto-generated)
-    connections: z.array(z.string()).default([]), // People mentioned/met (alternative to @mentions)
     invert_images: z.boolean().default(false), // Invert all images in this entry in dark mode (for diagrams/screenshots)
   }),
 });
