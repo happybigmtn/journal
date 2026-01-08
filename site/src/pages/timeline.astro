@@ -7,387 +7,92 @@ const allEntries = await getCollection('journal', ({ data }) =>
   !data.draft && (import.meta.env.DEV || data.published)
 );
 
-// Sort chronologically (oldest first for timeline)
+// Sort reverse chronologically (newest first)
 const sortedEntries = allEntries.sort((a, b) =>
-  new Date(a.data.date).getTime() - new Date(b.data.date).getTime()
+  new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
 );
-
-// Get unique years for filtering
-const years = [...new Set(sortedEntries.map(e => new Date(e.data.date).getFullYear()))].sort();
-
-// Get unique months (as numbers 0-11) for filtering
-const months = [
-  'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December'
-];
 
 const formatDate = (date: Date) => {
   return date.toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'short',
-    day: 'numeric',
-    weekday: 'short'
+    day: 'numeric'
   });
 };
-
-// Build JSON for client-side filtering
-const entriesJson = JSON.stringify(sortedEntries.map(entry => ({
-  slug: entry.slug,
-  date: entry.data.date,
-  mood: entry.data.mood || null,
-  type: entry.data.type,
-  energy: entry.data.energy || null,
-  year: new Date(entry.data.date).getFullYear(),
-  month: new Date(entry.data.date).getMonth()
-})));
 ---
 
 <BaseLayout title="Timeline | Journal">
-  <header class="timeline-header">
-    <h1 class="timeline-title">Timeline</h1>
-    <p class="timeline-subtitle">Life replay</p>
-  </header>
-
-  <div class="timeline-filters">
-    <label>
-      <span class="filter-label">Year</span>
-      <select id="year-filter">
-        <option value="all">All Years</option>
-        {years.map(year => (
-          <option value={year}>{year}</option>
-        ))}
-      </select>
-    </label>
-    <label>
-      <span class="filter-label">Month</span>
-      <select id="month-filter">
-        <option value="all">All Months</option>
-        {months.map((month, i) => (
-          <option value={i}>{month}</option>
-        ))}
-      </select>
-    </label>
-  </div>
-
-  <div class="timeline-stats" id="timeline-stats">
-    <span class="stat-count">{sortedEntries.length}</span> entries
-  </div>
+  <h1 class="page-title">Timeline</h1>
 
   {sortedEntries.length === 0 ? (
-    <p class="timeline-empty">
-      No entries yet. Start journaling with <code>:JournalNew</code> in Neovim.
-    </p>
+    <p class="empty-state">No entries yet.</p>
   ) : (
-    <div class="timeline" id="timeline">
-      <div class="timeline-line" aria-hidden="true"></div>
-      {sortedEntries.map((entry, index) => {
-        const date = new Date(entry.data.date);
-        const isLeft = index % 2 === 0;
-        return (
-          <div
-            class={`timeline-item ${isLeft ? 'left' : 'right'}`}
-            data-year={date.getFullYear()}
-            data-month={date.getMonth()}
-          >
-            <div class="timeline-point" aria-hidden="true">
-              {entry.data.mood && (
-                <span class="timeline-mood">{entry.data.mood}</span>
-              )}
-            </div>
-            <a href={`/${entry.slug}`} class="timeline-content">
-              <time class="timeline-date">{formatDate(date)}</time>
-              <span class="timeline-type">{entry.data.type}</span>
-              {entry.data.energy && (
-                <span class="timeline-energy" title={`Energy: ${entry.data.energy}/10`}>
-                  {'●'.repeat(entry.data.energy)}{'○'.repeat(10 - entry.data.energy)}
-                </span>
-              )}
-            </a>
-          </div>
-        );
-      })}
-    </div>
+    <ul class="entry-list">
+      {sortedEntries.map(entry => (
+        <li>
+          <a href={`/${entry.slug}`} class="entry-link">
+            <time class="entry-date">{formatDate(new Date(entry.data.date))}</time>
+            <span class="entry-title">{entry.data.title}</span>
+            {entry.data.mood && <span class="entry-mood">{entry.data.mood}</span>}
+          </a>
+        </li>
+      ))}
+    </ul>
   )}
 </BaseLayout>
 
 <style>
-  .timeline-header {
-    text-align: center;
-    margin-bottom: 3rem;
-  }
-
-  .timeline-title {
+  .page-title {
     font-family: var(--font-display);
-    font-size: var(--text-5xl);
-    font-weight: 500;
-    letter-spacing: var(--tracking-tight);
-    margin-bottom: 0.5rem;
+    font-size: var(--text-2xl);
+    font-weight: 400;
+    margin-bottom: 2rem;
   }
 
-  .timeline-subtitle {
-    font-family: var(--font-mono);
-    font-size: var(--text-sm);
-    letter-spacing: var(--tracking-widest);
-    text-transform: uppercase;
+  .empty-state {
     color: var(--muted-foreground);
+  }
+
+  .entry-list {
+    list-style: none;
+    padding: 0;
     margin: 0;
   }
 
-  .timeline-filters {
+  .entry-list li {
+    border-bottom: 1px solid var(--border-hairline-color);
+  }
+
+  .entry-list li:last-child {
+    border-bottom: none;
+  }
+
+  .entry-link {
     display: flex;
-    gap: 1.5rem;
-    justify-content: center;
-    margin-bottom: 2rem;
-  }
-
-  .timeline-filters label {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-  }
-
-  .filter-label {
-    font-family: var(--font-mono);
-    font-size: var(--text-xs);
-    letter-spacing: var(--tracking-widest);
-    text-transform: uppercase;
-    color: var(--muted-foreground);
-  }
-
-  .timeline-filters select {
-    font-family: var(--font-mono);
-    font-size: var(--text-sm);
-    padding: 0.5rem 1rem;
-    background: var(--white);
-    border: var(--border-thin);
-    color: var(--black);
-    cursor: pointer;
-    min-width: 140px;
-  }
-
-  .timeline-filters select:hover {
-    background: var(--muted);
-  }
-
-  .timeline-stats {
-    text-align: center;
-    font-family: var(--font-mono);
-    font-size: var(--text-sm);
-    color: var(--muted-foreground);
-    margin-bottom: 3rem;
-  }
-
-  .stat-count {
-    font-size: var(--text-2xl);
-    color: var(--black);
-    display: block;
-    margin-bottom: 0.25rem;
-  }
-
-  .timeline-empty {
-    text-align: center;
-    color: var(--muted-foreground);
-    margin-top: 2rem;
-  }
-
-  .timeline {
-    position: relative;
-    max-width: var(--content-width);
-    margin: 0 auto;
-    padding: 2rem 0;
-  }
-
-  .timeline-line {
-    position: absolute;
-    left: 50%;
-    top: 0;
-    bottom: 0;
-    width: 4px;
-    background: var(--black);
-    transform: translateX(-50%);
-  }
-
-  .timeline-item {
-    position: relative;
-    margin-bottom: 2rem;
-    width: 50%;
-  }
-
-  .timeline-item.left {
-    padding-right: 2rem;
-    text-align: right;
-  }
-
-  .timeline-item.right {
-    margin-left: 50%;
-    padding-left: 2rem;
-    text-align: left;
-  }
-
-  .timeline-item.hidden {
-    display: none;
-  }
-
-  .timeline-point {
-    position: absolute;
-    top: 0.5rem;
-    width: 16px;
-    height: 16px;
-    background: var(--white);
-    border: var(--border-medium);
-  }
-
-  .timeline-item.left .timeline-point {
-    right: -8px;
-  }
-
-  .timeline-item.right .timeline-point {
-    left: -8px;
-  }
-
-  .timeline-mood {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: var(--text-lg);
-    line-height: 1;
-  }
-
-  .timeline-item.left .timeline-mood {
-    right: 100%;
-    margin-right: 0.5rem;
-  }
-
-  .timeline-item.right .timeline-mood {
-    left: 100%;
-    margin-left: 0.5rem;
-  }
-
-  .timeline-content {
-    display: block;
-    padding: 1rem;
-    border: var(--border-thin);
+    align-items: baseline;
+    gap: 1rem;
+    padding: 0.75rem 0;
     text-decoration: none;
-    transition: all 100ms;
-  }
-
-  .timeline-content:hover {
-    background: var(--black);
-    color: var(--white);
-  }
-
-  .timeline-content:hover .timeline-date,
-  .timeline-content:hover .timeline-type,
-  .timeline-content:hover .timeline-energy {
-    color: var(--white);
-  }
-
-  .timeline-date {
-    display: block;
-    font-family: var(--font-mono);
-    font-size: var(--text-sm);
-    letter-spacing: var(--tracking-wide);
     color: var(--black);
-    margin-bottom: 0.25rem;
   }
 
-  .timeline-type {
-    display: block;
+  .entry-link:hover {
+    opacity: 0.6;
+  }
+
+  .entry-date {
     font-family: var(--font-mono);
     font-size: var(--text-xs);
-    letter-spacing: var(--tracking-widest);
-    text-transform: uppercase;
     color: var(--muted-foreground);
+    min-width: 6rem;
   }
 
-  .timeline-energy {
-    display: block;
-    font-family: var(--font-mono);
-    font-size: var(--text-xs);
-    letter-spacing: 0.05em;
-    color: var(--muted-foreground);
-    margin-top: 0.25rem;
+  .entry-title {
+    flex: 1;
   }
 
-  /* Mobile: single column timeline */
-  @media (max-width: 768px) {
-    .timeline-title {
-      font-size: var(--text-3xl);
-    }
-
-    .timeline-filters {
-      flex-direction: column;
-      align-items: stretch;
-    }
-
-    .timeline-filters select {
-      width: 100%;
-    }
-
-    .timeline-line {
-      left: 8px;
-    }
-
-    .timeline-item,
-    .timeline-item.left,
-    .timeline-item.right {
-      width: 100%;
-      margin-left: 0;
-      padding-left: 2.5rem;
-      padding-right: 0;
-      text-align: left;
-    }
-
-    .timeline-point,
-    .timeline-item.left .timeline-point,
-    .timeline-item.right .timeline-point {
-      left: 0;
-      right: auto;
-    }
-
-    .timeline-mood,
-    .timeline-item.left .timeline-mood,
-    .timeline-item.right .timeline-mood {
-      position: static;
-      display: block;
-      transform: none;
-      margin: 0 0 0.5rem 0;
-    }
+  .entry-mood {
+    font-size: var(--text-sm);
+    color: var(--muted-foreground);
   }
 </style>
-
-<script define:vars={{ entriesJson }}>
-  const entries = JSON.parse(entriesJson);
-  const yearFilter = document.getElementById('year-filter');
-  const monthFilter = document.getElementById('month-filter');
-  const timeline = document.getElementById('timeline');
-  const stats = document.getElementById('timeline-stats');
-
-  function filterEntries() {
-    const selectedYear = yearFilter.value;
-    const selectedMonth = monthFilter.value;
-
-    const items = timeline.querySelectorAll('.timeline-item');
-    let visibleCount = 0;
-
-    items.forEach(item => {
-      const itemYear = item.dataset.year;
-      const itemMonth = item.dataset.month;
-
-      const matchesYear = selectedYear === 'all' || itemYear === selectedYear;
-      const matchesMonth = selectedMonth === 'all' || itemMonth === selectedMonth;
-
-      if (matchesYear && matchesMonth) {
-        item.classList.remove('hidden');
-        visibleCount++;
-      } else {
-        item.classList.add('hidden');
-      }
-    });
-
-    stats.innerHTML = `<span class="stat-count">${visibleCount}</span> entries`;
-  }
-
-  yearFilter.addEventListener('change', filterEntries);
-  monthFilter.addEventListener('change', filterEntries);
-</script>

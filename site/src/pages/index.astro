@@ -1,88 +1,5 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { getCollection } from 'astro:content';
-
-// In production, only show published entries; in dev, show all non-draft entries
-const allEntries = await getCollection('journal', ({ data }) =>
-  !data.draft && (import.meta.env.DEV || data.published)
-);
-
-// Group by year and month
-const grouped = allEntries.reduce((acc, entry) => {
-  const date = new Date(entry.data.date);
-  const year = date.getFullYear();
-  const month = date.toLocaleDateString('en-US', { month: 'long' });
-
-  if (!acc[year]) acc[year] = {};
-  if (!acc[year][month]) acc[year][month] = [];
-  acc[year][month].push(entry);
-
-  return acc;
-}, {} as Record<number, Record<string, typeof allEntries>>);
-
-// Sort years descending
-const years = Object.keys(grouped).map(Number).sort((a, b) => b - a);
-
-const formatDay = (date: Date) => {
-  return date.toLocaleDateString('en-US', { day: 'numeric', weekday: 'short' });
-};
-
-// Calculate streak
-function calculateStreak(entries: typeof allEntries) {
-  if (entries.length === 0) return { current: 0, longest: 0 };
-
-  // Get all dates as timestamps (normalized to noon)
-  const dates = entries
-    .filter(e => e.data.type === 'daily')
-    .map(e => {
-      const d = new Date(e.data.date);
-      return new Date(d.getFullYear(), d.getMonth(), d.getDate(), 12).getTime();
-    })
-    .sort((a, b) => a - b);
-
-  if (dates.length === 0) return { current: 0, longest: 0 };
-
-  const oneDay = 24 * 60 * 60 * 1000;
-
-  // Calculate longest streak
-  let longest = 1;
-  let currentRun = 1;
-  for (let i = 1; i < dates.length; i++) {
-    const diff = dates[i] - dates[i - 1];
-    if (diff >= oneDay - 3600000 && diff <= oneDay + 3600000) {
-      currentRun++;
-      if (currentRun > longest) longest = currentRun;
-    } else {
-      currentRun = 1;
-    }
-  }
-
-  // Calculate current streak
-  const now = new Date();
-  const todayNoon = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 12).getTime();
-  const yesterdayNoon = todayNoon - oneDay;
-
-  let current = 0;
-  let checkTime = todayNoon;
-
-  // Check if today has an entry
-  const hasToday = dates.some(d => Math.abs(d - todayNoon) < 12 * 60 * 60 * 1000);
-  if (!hasToday) {
-    checkTime = yesterdayNoon;
-  }
-
-  // Count consecutive days going backwards
-  while (true) {
-    const found = dates.some(d => Math.abs(d - checkTime) < 12 * 60 * 60 * 1000);
-    if (!found) break;
-    current++;
-    checkTime -= oneDay;
-  }
-
-  return { current, longest };
-}
-
-const streak = calculateStreak(allEntries);
 ---
 
 <BaseLayout title="거산의 침묵 속에서">
@@ -91,7 +8,6 @@ const streak = calculateStreak(allEntries);
     <p>In the Silence of the Mountain</p>
   </header>
 
-  <!-- About Section -->
   <section class="about-section">
     <h2 class="section-label">About</h2>
 
@@ -137,53 +53,19 @@ const streak = calculateStreak(allEntries);
         emanating from the non-negotiable routines we implement into our lives.
         Entrepreneur's mind, athlete's body, artist's soul.
       </p>
-
-      <p class="about-tagline">In self exile to learn, create and regenerate.</p>
     </div>
   </section>
 
   <hr class="section-rule" />
 
-  <!-- Archive Section -->
-  <section class="archive-section">
-    <h2 class="section-label">Archive</h2>
-
-    {years.length === 0 ? (
-      <p class="no-entries">
-        No entries yet. Start journaling with <code>:JournalNew</code> in Neovim.
-      </p>
-    ) : (
-      years.map(year => (
-        <div class="archive-year-group">
-          <h3 class="archive-year">{year}</h3>
-          {Object.keys(grouped[year]).map(month => (
-            <div>
-              <h4 class="archive-month">{month}</h4>
-              <ul class="archive-list">
-                {grouped[year][month]
-                  .sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime())
-                  .map(entry => (
-                    <li>
-                      <a href={`/${entry.slug}`}>
-                        <span>{formatDay(new Date(entry.data.date))}</span>
-                        {entry.data.mood && <span class="mood">{entry.data.mood}</span>}
-                      </a>
-                    </li>
-                  ))
-                }
-              </ul>
-            </div>
-          ))}
-        </div>
-      ))
-    )}
+  <section class="blog-link-section">
+    <a href="/timeline" class="blog-link">Read the journal →</a>
   </section>
 </BaseLayout>
 
 <style>
-  /* About Section */
   .about-section {
-    margin-bottom: 4rem;
+    margin-bottom: 3rem;
   }
 
   .section-label {
@@ -192,9 +74,7 @@ const streak = calculateStreak(allEntries);
     text-transform: uppercase;
     letter-spacing: var(--tracking-widest);
     color: var(--muted-foreground);
-    margin-bottom: 2rem;
-    padding-bottom: 0.5rem;
-    border-bottom: var(--border-hairline);
+    margin-bottom: 1.5rem;
   }
 
   .about-content {
@@ -202,46 +82,31 @@ const streak = calculateStreak(allEntries);
   }
 
   .about-content p {
-    text-align: justify;
-    margin-bottom: 1.5rem;
-    line-height: 1.8;
-  }
-
-  .about-tagline {
-    font-family: var(--font-display);
-    font-style: italic;
-    font-size: var(--text-xl);
-    text-align: center !important;
-    margin-top: 3rem;
-    margin-bottom: 3rem;
-    color: var(--black);
-  }
-
-  .about-image {
-    display: block;
-    width: 100%;
-    max-width: 40rem;
-    margin: 0 auto;
-    border: var(--border-thin);
+    margin-bottom: 1.25rem;
+    line-height: 1.7;
   }
 
   .section-rule {
     border: none;
-    border-top: var(--border-thick);
-    margin: 4rem 0;
+    border-top: 1px solid var(--muted-foreground);
+    margin: 3rem 0;
+    opacity: 0.3;
   }
 
-  /* Archive Section */
-  .archive-section {
-    margin-top: 2rem;
+  .blog-link-section {
+    margin: 2rem 0;
   }
 
-  .archive-year-group {
-    margin-bottom: 3rem;
+  .blog-link {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    color: var(--black);
+    text-decoration: none;
+    border-bottom: 1px solid var(--black);
+    padding-bottom: 0.125rem;
   }
 
-  .no-entries {
-    color: var(--muted-foreground);
-    margin-top: 2rem;
+  .blog-link:hover {
+    opacity: 0.6;
   }
 </style>
