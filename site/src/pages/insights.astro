@@ -7,324 +7,404 @@ const allEntries = await getCollection('journal', ({ data }) =>
   !data.draft && (import.meta.env.DEV || data.published)
 );
 
-// Map emoji moods to numeric scores (1-5 scale)
-const moodScores: Record<string, number> = {
-  '😊': 5, '🥰': 5, '😄': 5, '🤩': 5, '😎': 5,
-  '🙂': 4, '😌': 4, '🤗': 4, '😏': 4,
-  '😐': 3, '🤔': 3, '😑': 3,
-  '😕': 2, '😢': 2, '😔': 2, '😟': 2, '🫤': 2,
-  '😞': 1, '😭': 1, '😤': 1, '😠': 1, '😩': 1,
-};
+// Vitals keys and labels
+const vitalsConfig = [
+  { key: 'sleep', label: 'Sleep', description: 'Sleep quality' },
+  { key: 'recovery', label: 'Recovery', description: 'Recovery from yesterday' },
+  { key: 'energy', label: 'Energy', description: 'Overall energy' },
+  { key: 'stress', label: 'Stress', description: 'Stress level (lower is better)', inverted: true },
+  { key: 'mood', label: 'Mood', description: 'Emotional state' },
+  { key: 'focus', label: 'Focus', description: 'Mental clarity' },
+  { key: 'physical', label: 'Physical', description: 'Body wellness' },
+  { key: 'nutrition', label: 'Nutrition', description: 'Food quality' },
+  { key: 'kindness', label: 'Kindness', description: 'Acts of compassion' },
+  { key: 'exercise', label: 'Exercise', description: 'Physical activity' },
+];
 
-// Get entries with mood data
-const entriesWithMood = allEntries
-  .filter(e => e.data.mood && moodScores[e.data.mood])
+// Get entries with vitals data
+const entriesWithVitals = allEntries
+  .filter(e => e.data.vitals && Object.values(e.data.vitals).some(v => v !== undefined))
   .map(e => ({
     date: e.data.date,
-    mood: e.data.mood,
-    score: moodScores[e.data.mood],
-    dayOfWeek: e.data.date.getDay(),
-    month: e.data.date.getMonth(),
-    year: e.data.date.getFullYear(),
+    vitals: e.data.vitals,
+    slug: e.slug,
   }))
   .sort((a, b) => a.date.getTime() - b.date.getTime());
 
-// Calculate overall statistics
-const totalEntries = entriesWithMood.length;
-const avgMood = totalEntries > 0
-  ? (entriesWithMood.reduce((sum, e) => sum + e.score, 0) / totalEntries).toFixed(1)
-  : 'N/A';
+const totalEntries = entriesWithVitals.length;
 
-// Group by day of week
-const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-const byDayOfWeek = dayNames.map((name, i) => {
-  const dayEntries = entriesWithMood.filter(e => e.dayOfWeek === i);
-  const count = dayEntries.length;
-  const avg = count > 0
-    ? (dayEntries.reduce((sum, e) => sum + e.score, 0) / count).toFixed(1)
+// Calculate averages for each vital
+const vitalsAverages = vitalsConfig.map(({ key, label, description, inverted }) => {
+  const values = entriesWithVitals
+    .map(e => e.vitals?.[key as keyof typeof e.vitals])
+    .filter((v): v is number => v !== undefined);
+
+  const avg = values.length > 0
+    ? (values.reduce((sum, v) => sum + v, 0) / values.length)
     : null;
-  return { name, count, avg };
+
+  return { key, label, description, avg, count: values.length, inverted };
 });
 
-// Group by month
-const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-const byMonth = monthNames.map((name, i) => {
-  const monthEntries = entriesWithMood.filter(e => e.month === i);
-  const count = monthEntries.length;
-  const avg = count > 0
-    ? (monthEntries.reduce((sum, e) => sum + e.score, 0) / count).toFixed(1)
-    : null;
-  return { name, count, avg };
-});
+// Recent trend data (last 14 entries)
+const recentEntries = entriesWithVitals.slice(-14);
 
-// Mood distribution
-const moodCounts: Record<string, number> = {};
-entriesWithMood.forEach(e => {
-  moodCounts[e.mood] = (moodCounts[e.mood] || 0) + 1;
-});
-const moodDistribution = Object.entries(moodCounts)
-  .sort((a, b) => b[1] - a[1])
-  .slice(0, 10);
+// Calculate composite health score (average of all vitals, with stress inverted)
+const calculateHealthScore = (vitals: any) => {
+  const values: number[] = [];
+  vitalsConfig.forEach(({ key, inverted }) => {
+    const val = vitals?.[key];
+    if (val !== undefined) {
+      values.push(inverted ? (11 - val) : val); // Invert stress
+    }
+  });
+  return values.length > 0 ? values.reduce((a, b) => a + b, 0) / values.length : null;
+};
 
-// Recent mood trend (last 30 entries)
-const recentEntries = entriesWithMood.slice(-30);
+const recentHealthScores = recentEntries.map(e => ({
+  date: e.date,
+  score: calculateHealthScore(e.vitals),
+}));
+
+const overallHealthScore = vitalsAverages.every(v => v.avg !== null)
+  ? vitalsAverages.reduce((sum, v) => {
+      const val = v.avg!;
+      return sum + (v.inverted ? (11 - val) : val);
+    }, 0) / vitalsAverages.length
+  : null;
+
+// Format date for display
+const formatDate = (date: Date) => {
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+};
 ---
 
 <BaseLayout title="Insights">
-  <header class="page-hero">
-    <h1>Insights</h1>
-    <p class="hero-subtitle">Patterns and trends from your journal</p>
-  </header>
+  <h1 class="page-title">Insights</h1>
 
   {totalEntries === 0 ? (
-    <p class="empty-state">No mood data yet. Add mood emojis to your journal entries to see insights.</p>
+    <p class="empty-state">No vitals data yet. Rate your daily vitals (1-10) to see insights.</p>
   ) : (
     <>
       <section class="stats-overview">
         <div class="stat-card">
           <span class="stat-value">{totalEntries}</span>
-          <span class="stat-label">Entries with mood</span>
+          <span class="stat-label">days tracked</span>
         </div>
-        <div class="stat-card">
-          <span class="stat-value">{avgMood}</span>
-          <span class="stat-label">Average mood (1-5)</span>
-        </div>
+        {overallHealthScore !== null && (
+          <div class="stat-card">
+            <span class="stat-value">{overallHealthScore.toFixed(1)}</span>
+            <span class="stat-label">health score</span>
+          </div>
+        )}
       </section>
 
       <section class="insight-section">
-        <h2>Mood by Day of Week</h2>
-        <p class="section-subtitle">When are you happiest?</p>
-        <div class="bar-chart">
-          {byDayOfWeek.map(day => (
-            <div class="bar-item">
-              <span class="bar-label">{day.name}</span>
-              <div class="bar-container">
-                {day.avg && (
+        <h2>Vitals Averages</h2>
+        <div class="vitals-chart">
+          {vitalsAverages.map(vital => (
+            <div class="vital-row">
+              <span class="vital-label">{vital.label}</span>
+              <div class="vital-bar-container">
+                {vital.avg !== null && (
                   <div
-                    class="bar-fill"
-                    style={`width: ${(Number(day.avg) / 5) * 100}%`}
+                    class:list={["vital-bar-fill", { inverted: vital.inverted }]}
+                    style={`width: ${vital.avg * 10}%`}
                   />
                 )}
               </div>
-              <span class="bar-value">{day.avg || '-'}</span>
+              <span class="vital-value">
+                {vital.avg !== null ? vital.avg.toFixed(1) : '-'}
+              </span>
             </div>
           ))}
         </div>
       </section>
 
-      <section class="insight-section">
-        <h2>Mood by Month</h2>
-        <p class="section-subtitle">Seasonal patterns</p>
-        <div class="bar-chart">
-          {byMonth.map(month => (
-            <div class="bar-item">
-              <span class="bar-label">{month.name}</span>
-              <div class="bar-container">
-                {month.avg && (
-                  <div
-                    class="bar-fill"
-                    style={`width: ${(Number(month.avg) / 5) * 100}%`}
-                  />
-                )}
-              </div>
-              <span class="bar-value">{month.avg || '-'}</span>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section class="insight-section">
-        <h2>Most Frequent Moods</h2>
-        <div class="mood-distribution">
-          {moodDistribution.map(([emoji, count]) => (
-            <div class="mood-item">
-              <span class="mood-emoji">{emoji}</span>
-              <span class="mood-count">{count}</span>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {recentEntries.length > 5 && (
+      {recentHealthScores.length > 3 && (
         <section class="insight-section">
-          <h2>Recent Mood Trend</h2>
-          <p class="section-subtitle">Last {recentEntries.length} entries</p>
+          <h2>Health Trend</h2>
+          <p class="section-subtitle">last {recentHealthScores.length} days</p>
           <div class="trend-chart">
-            {recentEntries.map((entry, i) => (
-              <div
-                class="trend-point"
-                style={`bottom: ${(entry.score / 5) * 100}%`}
-                title={`${entry.date.toLocaleDateString()}: ${entry.mood}`}
-              />
-            ))}
+            <div class="trend-line">
+              {recentHealthScores.map((entry, i) => (
+                <div class="trend-point-wrapper">
+                  {entry.score !== null && (
+                    <div
+                      class="trend-point"
+                      style={`bottom: ${(entry.score / 10) * 100}%`}
+                      title={`${formatDate(entry.date)}: ${entry.score.toFixed(1)}`}
+                    />
+                  )}
+                  <span class="trend-date">{formatDate(entry.date)}</span>
+                </div>
+              ))}
+            </div>
+            <div class="trend-scale">
+              <span>10</span>
+              <span>5</span>
+              <span>0</span>
+            </div>
           </div>
         </section>
       )}
+
+      <section class="insight-section">
+        <h2>Individual Trends</h2>
+        <p class="section-subtitle">last {recentEntries.length} days</p>
+        <div class="individual-trends">
+          {vitalsConfig.map(({ key, label }) => {
+            const data = recentEntries.map(e => ({
+              date: e.date,
+              value: e.vitals?.[key as keyof typeof e.vitals],
+            }));
+            const hasData = data.some(d => d.value !== undefined);
+
+            return hasData && (
+              <div class="mini-trend">
+                <span class="mini-trend-label">{label}</span>
+                <div class="mini-trend-chart">
+                  {data.map(d => (
+                    <div class="mini-bar-wrapper">
+                      {d.value !== undefined && (
+                        <div
+                          class="mini-bar"
+                          style={`height: ${d.value * 10}%`}
+                        />
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
     </>
   )}
 </BaseLayout>
 
 <style>
-  .page-hero {
-    padding: 4rem 0;
-    margin-bottom: 3rem;
-    border-bottom: var(--border-thick);
-  }
-
-  .page-hero h1 {
+  .page-title {
     font-family: var(--font-display);
-    font-size: var(--text-5xl);
-    letter-spacing: var(--tracking-tight);
-    margin-bottom: 0.5rem;
-  }
-
-  .hero-subtitle {
-    font-family: var(--font-mono);
-    font-size: var(--text-sm);
-    text-transform: uppercase;
-    letter-spacing: var(--tracking-widest);
-    color: var(--muted-foreground);
+    font-size: var(--text-lg);
+    font-weight: 400;
+    font-style: italic;
+    color: var(--fg-muted);
+    margin-bottom: 2rem;
   }
 
   .empty-state {
-    color: var(--muted-foreground);
+    color: var(--fg-muted);
     font-style: italic;
-    padding: 4rem 0;
+    padding: 2rem 0;
   }
 
   .stats-overview {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 1.5rem;
-    margin-bottom: 4rem;
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 3rem;
   }
 
   .stat-card {
-    padding: 2rem;
-    background: var(--muted);
-    text-align: center;
+    display: flex;
+    flex-direction: column;
   }
 
   .stat-value {
-    display: block;
     font-family: var(--font-mono);
-    font-size: var(--text-4xl);
-    font-weight: 700;
-    margin-bottom: 0.5rem;
+    font-size: var(--text-2xl);
+    color: var(--accent);
   }
 
   .stat-label {
     font-family: var(--font-mono);
     font-size: var(--text-xs);
-    text-transform: uppercase;
-    letter-spacing: var(--tracking-widest);
-    color: var(--muted-foreground);
+    color: var(--fg-muted);
   }
 
   .insight-section {
-    margin-bottom: 4rem;
+    margin-bottom: 3rem;
   }
 
   .insight-section h2 {
     font-family: var(--font-display);
-    font-size: var(--text-2xl);
+    font-size: var(--text-base);
+    font-style: italic;
+    color: var(--fg-muted);
     margin-bottom: 0.5rem;
   }
 
   .section-subtitle {
     font-family: var(--font-mono);
     font-size: var(--text-xs);
-    text-transform: uppercase;
-    letter-spacing: var(--tracking-widest);
-    color: var(--muted-foreground);
-    margin-bottom: 2rem;
+    color: var(--fg-muted);
+    margin-bottom: 1rem;
+    opacity: 0.7;
   }
 
-  .bar-chart {
+  /* Vitals averages chart */
+  .vitals-chart {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 0.5rem;
   }
 
-  .bar-item {
+  .vital-row {
     display: grid;
-    grid-template-columns: 3rem 1fr 2.5rem;
+    grid-template-columns: 5rem 1fr 2rem;
     gap: 1rem;
     align-items: center;
   }
 
-  .bar-label {
+  .vital-label {
     font-family: var(--font-mono);
-    font-size: var(--text-sm);
+    font-size: var(--text-xs);
+    color: var(--fg-muted);
+    text-transform: lowercase;
   }
 
-  .bar-container {
-    height: 1.5rem;
-    background: var(--muted);
+  .vital-bar-container {
+    height: 6px;
+    background: var(--bg-elevated);
     position: relative;
   }
 
-  .bar-fill {
+  .vital-bar-fill {
+    position: absolute;
+    left: 0;
+    top: 0;
     height: 100%;
-    background: var(--black);
-    transition: width 100ms;
+    background: var(--accent);
   }
 
-  .bar-value {
+  .vital-bar-fill.inverted {
+    background: #a88272;
+  }
+
+  .vital-value {
     font-family: var(--font-mono);
-    font-size: var(--text-sm);
+    font-size: var(--text-xs);
+    color: var(--accent);
     text-align: right;
   }
 
-  .mood-distribution {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1.5rem;
-  }
-
-  .mood-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .mood-emoji {
-    font-size: var(--text-3xl);
-  }
-
-  .mood-count {
-    font-family: var(--font-mono);
-    font-size: var(--text-sm);
-    color: var(--muted-foreground);
-  }
-
+  /* Health trend chart */
   .trend-chart {
-    height: 150px;
-    background: var(--muted);
-    position: relative;
+    display: flex;
+    gap: 1rem;
+    height: 120px;
+  }
+
+  .trend-line {
+    flex: 1;
     display: flex;
     align-items: flex-end;
-    padding: 0.5rem;
     gap: 2px;
+    position: relative;
+    background: var(--bg-elevated);
+    padding: 0.5rem;
+  }
+
+  .trend-point-wrapper {
+    flex: 1;
+    height: 100%;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
   }
 
   .trend-point {
-    width: 8px;
-    height: 8px;
-    background: var(--black);
-    position: relative;
-    flex-shrink: 0;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 6px;
+    height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+  }
+
+  .trend-date {
+    font-family: var(--font-mono);
+    font-size: 0.5rem;
+    color: var(--fg-muted);
+    text-align: center;
+    opacity: 0.5;
+    margin-top: auto;
+    display: none;
+  }
+
+  .trend-point-wrapper:first-child .trend-date,
+  .trend-point-wrapper:last-child .trend-date {
+    display: block;
+  }
+
+  .trend-scale {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--fg-muted);
+    opacity: 0.5;
+  }
+
+  /* Individual mini trends */
+  .individual-trends {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 1rem;
+  }
+
+  .mini-trend {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .mini-trend-label {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    color: var(--fg-muted);
+    text-transform: lowercase;
+  }
+
+  .mini-trend-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 1px;
+    height: 40px;
+    background: var(--bg-elevated);
+    padding: 2px;
+  }
+
+  .mini-bar-wrapper {
+    flex: 1;
+    height: 100%;
+    display: flex;
+    align-items: flex-end;
+  }
+
+  .mini-bar {
+    width: 100%;
+    background: var(--accent);
+    min-height: 1px;
   }
 
   @media (max-width: 640px) {
-    .page-hero h1 {
-      font-size: var(--text-3xl);
+    .stats-overview {
+      flex-direction: column;
+      gap: 1rem;
     }
 
-    .bar-item {
-      grid-template-columns: 2.5rem 1fr 2rem;
+    .vital-row {
+      grid-template-columns: 4rem 1fr 1.5rem;
       gap: 0.5rem;
+    }
+
+    .individual-trends {
+      grid-template-columns: repeat(2, 1fr);
     }
   }
 </style>

@@ -582,66 +582,6 @@ textarea:focus-visible {
   letter-spacing: 0.1em;
 }
 
-/* Vitals display - health metrics visualization */
-.vitals-display {
-  margin-top: 2.5rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid var(--border-color);
-}
-
-.vitals-display h3 {
-  font-family: var(--font-mono);
-  font-size: var(--text-xs);
-  text-transform: lowercase;
-  letter-spacing: var(--tracking-wide);
-  color: var(--fg-muted);
-  margin-bottom: 1rem;
-}
-
-.vitals-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.vital-item {
-  display: grid;
-  grid-template-columns: 5rem 1fr 1.5rem;
-  gap: 0.75rem;
-  align-items: center;
-  font-family: var(--font-mono);
-  font-size: var(--text-xs);
-}
-
-.vital-label {
-  color: var(--fg-muted);
-  text-transform: lowercase;
-}
-
-.vital-bar {
-  height: 4px;
-  background: var(--bg-elevated);
-  position: relative;
-}
-
-.vital-fill {
-  position: absolute;
-  left: 0;
-  top: 0;
-  height: 100%;
-  background: var(--accent);
-  transition: width 300ms ease;
-}
-
-.vital-bar.stress .vital-fill {
-  background: #a88272; /* Warmer red-brown for stress */
-}
-
-.vital-value {
-  color: var(--accent);
-  text-align: right;
-}
-
 .entry-content h2 {
   font-family: var(--font-display);
   font-size: var(--text-lg);
