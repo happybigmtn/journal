@@ -32,13 +32,10 @@ vitals:
 ### I am grateful for...
 
 ### What would make today great?
--
 
 ### Daily affirmation
-I am
 
 ### What am I worried about? (Stoic premeditation)
-
 
 ---
 
@@ -71,13 +68,4 @@ I am
 
 ---
 
-## Daily Log
-
-### Activities
-
-
-### Highlights
-
-
-### How I felt
-
+## Interesting Links
