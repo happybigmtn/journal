@@ -27,45 +27,5 @@ vitals:
 
 ---
 
-## Morning
-
-### I am grateful for...
-
-### What would make today great?
-
-### Daily affirmation
-
-### What am I worried about? (Stoic premeditation)
-
----
-
-## Evening
-
-### 3 amazing things that happened today
-1.
-2.
-3.
-
-### How could I have made today even better?
-
-
-### What did I learn today?
-
-
-### What is within my control, and what is not?
-
-
----
-
-## Habits
-
-- anki: yes no
-- math: yes no
-- kindle: yes no
-- yoga: yes no
-- cardio: yes no
-- weights: yes no
-
----
-
 ## Interesting Links
+

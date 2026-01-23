@@ -1,0 +1,36 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Generator | Journal" description="Substrate Mountain - Generative art explorations">
+  <div class="generator-wrapper">
+    <iframe
+      src="/generator/app.html"
+      title="Substrate Mountain Generator"
+      allow="fullscreen"
+    ></iframe>
+  </div>
+</BaseLayout>
+
+<style>
+  .generator-wrapper {
+    position: fixed;
+    top: 60px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #000;
+  }
+
+  .generator-wrapper iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+
+  /* Hide the normal container padding */
+  :global(.container) {
+    padding: 0 !important;
+    max-width: none !important;
+  }
+</style>
