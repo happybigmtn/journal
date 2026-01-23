@@ -2,18 +2,17 @@
 import EntryLayout from '../layouts/EntryLayout.astro';
 import { getCollection } from 'astro:content';
 
-export async function getStaticPaths() {
-  // In production, only generate pages for published entries; in dev, generate all non-draft
-  const entries = await getCollection('journal', ({ data }) =>
-    !data.draft
-  );
-  return entries.map(entry => ({
-    params: { slug: entry.slug },
-    props: { entry },
-  }));
-}
+// Get slug from URL params (SSR mode)
+const { slug } = Astro.params;
 
-const { entry } = Astro.props;
+// Fetch all entries and find the matching one
+const entries = await getCollection('journal', ({ data }) => !data.draft);
+const entry = entries.find(e => e.slug === slug);
+
+// 404 if entry not found
+if (!entry) {
+  return Astro.redirect('/404');
+}
 ---
 
 <EntryLayout entry={entry} />

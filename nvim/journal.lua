@@ -27,6 +27,7 @@ M.config = {
   site_dir = vim.fn.expand("~/Coding/journal/site"),
   auto_publish = true,
   keymaps = true, -- Set to false when using with LazyVim (it handles keymaps)
+  silent = false, -- Set to true to suppress info notifications
 }
 
 -- Utility: Get formatted date parts
@@ -298,7 +299,7 @@ function M.journal_new(args)
 
   -- Show confirmation for interpreted dates
   local date_formatted = string.format("%04d-%02d-%02d", date.year, date.month, date.day)
-  if interpreted_as then
+  if interpreted_as and not M.config.silent then
     vim.notify(string.format("Creating entry for %s (%s)", date_formatted, interpreted_as), vim.log.levels.INFO)
   end
 
@@ -386,10 +387,14 @@ function M.journal_new(args)
       local lines = vim.split(content, "\n")
       vim.api.nvim_buf_set_lines(0, 0, -1, false, lines)
       vim.cmd("write")
-      vim.notify("Created new " .. entry_type .. " entry: " .. filename, vim.log.levels.INFO)
+      if not M.config.silent then
+        vim.notify("Created new " .. entry_type .. " entry: " .. filename, vim.log.levels.INFO)
+      end
     end
   else
-    vim.notify("Opened existing entry: " .. filename, vim.log.levels.INFO)
+    if not M.config.silent then
+      vim.notify("Opened existing entry: " .. filename, vim.log.levels.INFO)
+    end
   end
 end
 
@@ -1512,12 +1517,14 @@ function M.setup(opts)
   end
 
   -- Show streak in startup notification
-  local current_streak, longest_streak = M.calculate_streak()
-  local streak_info = ""
-  if current_streak > 0 then
-    streak_info = string.format(" | Streak: %d day%s", current_streak, current_streak == 1 and "" or "s")
+  if not M.config.silent then
+    local current_streak, longest_streak = M.calculate_streak()
+    local streak_info = ""
+    if current_streak > 0 then
+      streak_info = string.format(" | Streak: %d day%s", current_streak, current_streak == 1 and "" or "s")
+    end
+    vim.notify("Journal loaded. Use :JournalNew to start." .. streak_info, vim.log.levels.INFO)
   end
-  vim.notify("Journal loaded. Use :JournalNew to start." .. streak_info, vim.log.levels.INFO)
 end
 
 return M

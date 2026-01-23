@@ -2,14 +2,14 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
 
-export async function getStaticPaths() {
-  const entries = await getCollection('journal', (e) => !e.data.draft);
-  const years = [...new Set(entries.map((e) => e.data.date.getFullYear()))];
-  return years.map((year) => ({ params: { year: year.toString() } }));
-}
-
+// Get year from URL params (SSR mode)
 const { year } = Astro.params;
-const yearNum = parseInt(year);
+const yearNum = parseInt(year!);
+
+// Validate year
+if (isNaN(yearNum)) {
+  return Astro.redirect('/404');
+}
 
 const allEntries = await getCollection('journal', (e) => !e.data.draft);
 const yearEntries = allEntries.filter((e) => e.data.date.getFullYear() === yearNum);

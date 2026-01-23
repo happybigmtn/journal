@@ -2,40 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
 
-export async function getStaticPaths() {
-  // Parse @mentions from entry content
-  function extractMentions(content: string): string[] {
-    const mentionRegex = /@(\w+)/g;
-    const mentions = new Set<string>();
-    let match;
-    while ((match = mentionRegex.exec(content)) !== null) {
-      mentions.add(match[1].toLowerCase());
-    }
-    return Array.from(mentions);
-  }
-
-  const allEntries = await getCollection('journal', (e) => !e.data.draft);
-
-  // Collect all unique mentions
-  const allMentions = new Set<string>();
-  for (const entry of allEntries) {
-    const mentions = extractMentions(entry.body);
-    const connections = (entry.data as any).connections || [];
-    for (const mention of mentions) {
-      allMentions.add(mention);
-    }
-    for (const connection of connections) {
-      if (typeof connection === 'string') {
-        allMentions.add(connection.toLowerCase());
-      }
-    }
-  }
-
-  return Array.from(allMentions).map((name) => ({
-    params: { name },
-  }));
-}
-
+// Get name from URL params (SSR mode)
 const { name } = Astro.params;
 
 // Parse @mentions from entry content (duplicate for main script context)

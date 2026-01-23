@@ -2,15 +2,18 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
 
-export async function getStaticPaths() {
-  const articles = await getCollection('articles');
-  return articles.map(article => ({
-    params: { slug: article.slug },
-    props: { article },
-  }));
+// Get slug from URL params (SSR mode)
+const { slug } = Astro.params;
+
+// Fetch all articles and find the matching one
+const articles = await getCollection('articles');
+const article = articles.find(a => a.slug === slug);
+
+// 404 if article not found
+if (!article) {
+  return Astro.redirect('/404');
 }
 
-const { article } = Astro.props;
 const { Content } = await article.render();
 
 const formatDate = (date: Date) => {
