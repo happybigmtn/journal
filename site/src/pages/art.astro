@@ -3,154 +3,73 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 ---
 
 <BaseLayout title="Art | Journal" description="Generative art and visual explorations">
-  <header class="art-header">
-    <h1>Art</h1>
-    <p class="subtitle">Generative explorations</p>
-  </header>
-
-  <section class="art-section">
-    <div class="art-card featured">
-      <a href="/generator/app.html" class="art-link">
-        <div class="art-preview substrate">
-          <div class="substrate-pattern"></div>
-        </div>
-        <div class="art-info">
-          <h2>Substrate Mountain</h2>
-          <p>Interactive generative art. Click to explore.</p>
-          <span class="art-tag">Interactive</span>
-        </div>
-      </a>
-    </div>
-
-    <div class="art-grid">
-      <div class="art-card">
-        <div class="art-preview gradient-1"></div>
-        <div class="art-info">
-          <h3>Coming Soon</h3>
-          <p>More experiments in progress</p>
-        </div>
-      </div>
-    </div>
-  </section>
+  <div class="art-container">
+    <a href="/generator/app.html" class="slash-button">
+      <span class="slash">/</span>
+    </a>
+    <p class="hint">click to generate</p>
+  </div>
 </BaseLayout>
 
 <style>
-  .art-header {
-    text-align: center;
-    margin-bottom: 3rem;
-    padding-top: 2rem;
+  .art-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 70vh;
+    gap: 2rem;
   }
 
-  .art-header h1 {
-    font-size: 2.5rem;
-    margin-bottom: 0.5rem;
-  }
-
-  .subtitle {
-    color: var(--text-muted, #888);
-    font-style: italic;
-  }
-
-  .art-section {
-    max-width: 800px;
-    margin: 0 auto;
-  }
-
-  .art-card {
-    background: var(--surface, #1a1a1a);
-    border-radius: 12px;
-    overflow: hidden;
-    transition: transform 0.2s, box-shadow 0.2s;
-    margin-bottom: 2rem;
-  }
-
-  .art-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-  }
-
-  .art-card.featured .art-preview {
-    height: 300px;
-  }
-
-  .art-link {
-    text-decoration: none;
-    color: inherit;
-    display: block;
-  }
-
-  .art-preview {
+  .slash-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 200px;
     height: 200px;
-    position: relative;
-    overflow: hidden;
+    background: #0a0a0a;
+    border: 2px solid #00ff00;
+    border-radius: 24px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 30px rgba(0, 255, 0, 0.1);
   }
 
-  .art-preview.substrate {
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  .slash-button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 60px rgba(0, 255, 0, 0.3);
+    border-color: #00ff88;
   }
 
-  .substrate-pattern {
-    position: absolute;
-    inset: 0;
-    background-image: 
-      repeating-linear-gradient(
-        45deg,
-        transparent,
-        transparent 10px,
-        rgba(255,255,255,0.03) 10px,
-        rgba(255,255,255,0.03) 20px
-      ),
-      repeating-linear-gradient(
-        -45deg,
-        transparent,
-        transparent 10px,
-        rgba(100,200,255,0.05) 10px,
-        rgba(100,200,255,0.05) 20px
-      );
-    animation: shimmer 20s linear infinite;
+  .slash-button:active {
+    transform: scale(0.98);
   }
 
-  @keyframes shimmer {
-    0% { background-position: 0 0; }
-    100% { background-position: 100px 100px; }
+  .slash {
+    font-family: 'IBM Plex Mono', 'SF Mono', 'Consolas', monospace;
+    font-size: 8rem;
+    font-weight: 500;
+    color: #00ff00;
+    text-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+    line-height: 1;
   }
 
-  .art-info {
-    padding: 1.5rem;
+  .hint {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.9rem;
+    color: #00ff00;
+    opacity: 0.6;
+    letter-spacing: 0.1em;
+    text-transform: lowercase;
   }
 
-  .art-info h2 {
-    margin: 0 0 0.5rem 0;
-    font-size: 1.5rem;
+  /* Subtle terminal cursor blink on the slash */
+  @keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0.7; }
   }
 
-  .art-info h3 {
-    margin: 0 0 0.5rem 0;
-    font-size: 1.2rem;
-  }
-
-  .art-info p {
-    margin: 0;
-    color: var(--text-muted, #888);
-  }
-
-  .art-tag {
-    display: inline-block;
-    margin-top: 1rem;
-    padding: 0.25rem 0.75rem;
-    background: rgba(100,200,255,0.2);
-    border-radius: 4px;
-    font-size: 0.8rem;
-    color: #64c8ff;
-  }
-
-  .art-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 1.5rem;
-  }
-
-  .gradient-1 {
-    background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
+  .slash-button:hover .slash {
+    animation: blink 1s infinite;
   }
 </style>
