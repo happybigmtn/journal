@@ -240,9 +240,9 @@
     
     <!-- Menu Toggle Button -->
     <div class="menu-toggle" id="menuToggle">
-      <span class="slash-icon">/</span><!-- svg viewBox="0 0 24 24">
+      <svg viewBox="0 0 24 24">
         <path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-      </svg -->
+      </svg>
     </div>
     
     <!-- Controls Menu -->
@@ -329,6 +329,12 @@
       const menuToggle = document.getElementById('menuToggle');
       const controlsMenu = document.getElementById('controlsMenu');
       
+      // Listen for parent commands
+      window.addEventListener('message', (e) => {
+        if (e.data === 'toggleMenu') {
+          controlsMenu.classList.toggle('visible');
+        }
+      });
       menuToggle.addEventListener('click', () => {
         controlsMenu.classList.toggle('show');
       });

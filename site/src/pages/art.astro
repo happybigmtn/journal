@@ -34,3 +34,23 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     padding: 0 !important;
   }
 </style>
+
+<script>
+  // Handle slash button click to toggle generator menu
+  const slashBtn = document.getElementById('slashCmd');
+  const artFrame = document.getElementById('artFrame') as HTMLIFrameElement;
+
+  slashBtn?.addEventListener('click', () => {
+    artFrame?.contentWindow?.postMessage('toggleMenu', '*');
+  });
+
+  // Also handle "/" key press
+  document.addEventListener('keydown', (e) => {
+    const isInputFocused = document.activeElement?.tagName === 'INPUT' || 
+                           document.activeElement?.tagName === 'TEXTAREA';
+    if (e.key === '/' && !isInputFocused) {
+      e.preventDefault();
+      artFrame?.contentWindow?.postMessage('toggleMenu', '*');
+    }
+  });
+</script>

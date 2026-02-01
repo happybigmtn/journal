@@ -762,7 +762,58 @@ textarea:focus-visible {
 }
 
 .nav-link.active {
+
+.slash-cmd {
+  background: none;
+  border: none;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 1rem;
+  font-weight: 500;
   color: var(--accent);
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  margin-right: 0.5rem;
+  transition: opacity 0.2s;
+}
+
+.slash-cmd:hover {
+  opacity: 0.7;
+}
+  color: var(--accent);
+
+.slash-cmd {
+  background: none;
+  border: none;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--accent);
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  margin-right: 0.5rem;
+  transition: opacity 0.2s;
+}
+
+.slash-cmd:hover {
+  opacity: 0.7;
+}
+}
+
+.slash-cmd {
+  background: none;
+  border: none;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--accent);
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  margin-right: 0.5rem;
+  transition: opacity 0.2s;
+}
+
+.slash-cmd:hover {
+  opacity: 0.7;
 }
 
 .nav-link .shortcut-key {

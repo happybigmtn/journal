@@ -78,6 +78,7 @@ const navItems = [
   </div>
   <a href="#main" class="skip-link">Skip to content</a>
   <nav class="site-nav" aria-label="Main navigation">
+    <button class="slash-cmd" id="slashCmd" aria-label="Commands">/</button>
     <ul class="nav-list">
       {navItems.map(item => {
         const isActive = currentPath === item.href ||
