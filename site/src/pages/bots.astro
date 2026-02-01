@@ -1,0 +1,276 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Bots | Journal" description="Agent chain network statistics">
+  <div class="bots-page">
+    <h1>🤖 Bot Networks</h1>
+    <p class="subtitle">Live stats from the agent chain mining fleet</p>
+    
+    <div id="loading" class="loading">Loading stats...</div>
+    <div id="error" class="error" hidden></div>
+    
+    <div id="stats-container" class="stats-container" hidden>
+      <!-- Botcoin Section -->
+      <section class="chain-section">
+        <h2>🪙 Botcoin (BOT)</h2>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-label">Block Height</span>
+            <span class="stat-value" id="bot-blocks">-</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Difficulty</span>
+            <span class="stat-value" id="bot-difficulty">-</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Connected Peers</span>
+            <span class="stat-value" id="bot-peers">-</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Mining Nodes</span>
+            <span class="stat-value" id="bot-nodes">-</span>
+          </div>
+        </div>
+        <div class="links">
+          <a href="https://github.com/happybigmtn/botcoin" target="_blank">GitHub</a>
+          <a href="https://clawdhub.com/happybigmtn/botcoin-miner" target="_blank">Mining Skill</a>
+        </div>
+      </section>
+
+      <!-- Bonero Section -->
+      <section class="chain-section">
+        <h2>🦴 Bonero (BONER)</h2>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-label">Block Height</span>
+            <span class="stat-value" id="boner-blocks">-</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Difficulty</span>
+            <span class="stat-value" id="boner-difficulty">-</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Hashrate</span>
+            <span class="stat-value" id="boner-hashrate">-</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Connected Peers</span>
+            <span class="stat-value" id="boner-peers">-</span>
+          </div>
+        </div>
+        <div class="links">
+          <a href="https://github.com/happybigmtn/bonero" target="_blank">GitHub</a>
+          <a href="https://clawdhub.com/happybigmtn/bonero-miner" target="_blank">Mining Skill</a>
+        </div>
+      </section>
+
+      <!-- Fleet Status -->
+      <section class="chain-section">
+        <h2>⚡ Mining Fleet</h2>
+        <div class="fleet-grid" id="fleet-status">
+          <!-- Populated by JS -->
+        </div>
+      </section>
+
+      <p class="last-updated">Last updated: <span id="updated-at">-</span></p>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+async function loadStats() {
+  const loading = document.getElementById('loading');
+  const error = document.getElementById('error');
+  const container = document.getElementById('stats-container');
+  
+  try {
+    const response = await fetch('/data/bot-stats.json');
+    if (!response.ok) throw new Error('Stats not available');
+    
+    const data = await response.json();
+    
+    // Botcoin stats
+    document.getElementById('bot-blocks').textContent = data.botcoin?.blocks?.toLocaleString() || '-';
+    document.getElementById('bot-difficulty').textContent = data.botcoin?.difficulty?.toExponential(2) || '-';
+    document.getElementById('bot-peers').textContent = data.botcoin?.peers || '-';
+    document.getElementById('bot-nodes').textContent = data.botcoin?.nodes_online || '-';
+    
+    // Bonero stats
+    document.getElementById('boner-blocks').textContent = data.bonero?.height?.toLocaleString() || '-';
+    document.getElementById('boner-difficulty').textContent = data.bonero?.difficulty?.toLocaleString() || '-';
+    document.getElementById('boner-hashrate').textContent = formatHashrate(data.bonero?.hashrate);
+    document.getElementById('boner-peers').textContent = 
+      ((data.bonero?.incoming_connections || 0) + (data.bonero?.outgoing_connections || 0)) || '-';
+    
+    // Fleet status
+    const fleetGrid = document.getElementById('fleet-status');
+    if (data.fleet) {
+      fleetGrid.innerHTML = data.fleet.map(node => `
+        <div class="node-card ${node.status}">
+          <span class="node-id">#${node.id}</span>
+          <span class="node-ip">${node.ip.split('.').slice(-1)[0]}</span>
+          <span class="node-status">${node.status === 'online' ? '✅' : '❌'}</span>
+        </div>
+      `).join('');
+    }
+    
+    // Timestamp
+    document.getElementById('updated-at').textContent = 
+      new Date(data.timestamp).toLocaleString();
+    
+    loading.hidden = true;
+    container.hidden = false;
+  } catch (e) {
+    loading.hidden = true;
+    error.textContent = 'Failed to load stats. Collector may not be running.';
+    error.hidden = false;
+    console.error(e);
+  }
+}
+
+function formatHashrate(h) {
+  if (!h) return '-';
+  if (h > 1e9) return (h / 1e9).toFixed(2) + ' GH/s';
+  if (h > 1e6) return (h / 1e6).toFixed(2) + ' MH/s';
+  if (h > 1e3) return (h / 1e3).toFixed(2) + ' KH/s';
+  return h.toFixed(2) + ' H/s';
+}
+
+loadStats();
+// Refresh every 5 minutes
+setInterval(loadStats, 5 * 60 * 1000);
+</script>
+
+<style>
+  .bots-page {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+  }
+
+  h1 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .subtitle {
+    color: var(--color-text-muted, #888);
+    margin-bottom: 2rem;
+  }
+
+  .loading, .error {
+    text-align: center;
+    padding: 2rem;
+    color: var(--color-text-muted, #888);
+  }
+
+  .error {
+    color: #e74c3c;
+  }
+
+  .chain-section {
+    background: var(--color-surface, #1a1a1a);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .chain-section h2 {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--color-border, #333);
+    padding-bottom: 0.5rem;
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .stat-card {
+    background: var(--color-bg, #0a0a0a);
+    padding: 1rem;
+    border-radius: 8px;
+    text-align: center;
+  }
+
+  .stat-label {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--color-text-muted, #888);
+    margin-bottom: 0.25rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .stat-value {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 600;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  .links {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.875rem;
+  }
+
+  .links a {
+    color: var(--color-accent, #c4a882);
+    text-decoration: none;
+  }
+
+  .links a:hover {
+    text-decoration: underline;
+  }
+
+  .fleet-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0.5rem;
+  }
+
+  .node-card {
+    background: var(--color-bg, #0a0a0a);
+    padding: 0.5rem;
+    border-radius: 6px;
+    text-align: center;
+    font-size: 0.75rem;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  .node-card.online {
+    border: 1px solid #27ae60;
+  }
+
+  .node-card.offline {
+    border: 1px solid #e74c3c;
+    opacity: 0.6;
+  }
+
+  .node-id {
+    display: block;
+    font-weight: 600;
+  }
+
+  .node-ip {
+    color: var(--color-text-muted, #888);
+  }
+
+  .last-updated {
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--color-text-muted, #888);
+    margin-top: 2rem;
+  }
+
+  @media (max-width: 600px) {
+    .fleet-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+</style>
