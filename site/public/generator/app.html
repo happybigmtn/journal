@@ -31,11 +31,11 @@
       .menu-toggle {
         position: fixed;
         top: 20px;
-        left: 20px;
+        right: 20px;
         width: 40px;
         height: 40px;
         background: rgba(0, 0, 0, 0.7);
-        border: 1px solid #00ff00;
+        border: none;
         border-radius: 8px;
         cursor: pointer;
         display: flex;
@@ -47,20 +47,13 @@
       }
       .menu-toggle:hover {
         background: rgba(0, 0, 0, 0.9);
-        border-color: #00ff88; box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
+        opacity: 0.8;
         transform: scale(1.05);
-      }
-      .slash-icon {
-        font-family: "IBM Plex Mono", "SF Mono", monospace;
-        font-size: 1.5rem;
-        font-weight: 600;
-        color: #00ff00;
-        line-height: 1;
       }
       .menu-toggle svg {
         width: 20px;
         height: 20px;
-        stroke: #ffffff;
+        stroke: #c4a882;
         fill: none;
       }
       
@@ -68,7 +61,7 @@
       .controls {
         position: fixed;
         top: 70px;
-        left: 20px;
+        right: 20px;
         background: rgba(0, 0, 0, 0.85);
         backdrop-filter: blur(20px);
         border: 1px solid rgba(255, 255, 255, 0.1);
@@ -135,7 +128,7 @@
       button {
         padding: 8px 12px;
         background: rgba(255, 255, 255, 0.1);
-        border: 1px solid #00ff00;
+        border: none;
         color: rgba(255, 255, 255, 0.9);
         cursor: pointer;
         border-radius: 6px;
@@ -154,7 +147,7 @@
       }
       button:hover {
         background: rgba(255, 255, 255, 0.2);
-        border-color: #00ff88; box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
+        opacity: 0.8;
         transform: translateY(-1px);
       }
       button:active {
@@ -184,7 +177,7 @@
       .info {
         position: absolute;
         bottom: 20px;
-        left: 20px;
+        right: 20px;
         color: rgba(255, 255, 255, 0.7);
         font-size: 12px;
         font-family: monospace;
