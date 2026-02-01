@@ -4,10 +4,53 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
 <BaseLayout title="Art | Journal" description="Generative art and visual explorations">
   <div class="art-container">
-    <a href="/generator/app.html" class="slash-button">
+    <button class="slash-button" id="openMenu">
       <span class="slash">/</span>
-    </a>
-    <p class="hint">click to generate</p>
+    </button>
+    <p class="hint">press <kbd>/</kbd> to open menu</p>
+  </div>
+
+  <!-- Command Menu -->
+  <div class="command-menu" id="commandMenu" hidden>
+    <div class="menu-overlay"></div>
+    <div class="menu-modal">
+      <div class="menu-header">
+        <span class="menu-slash">/</span>
+        <input type="text" class="menu-input" id="menuInput" placeholder="type a command..." autocomplete="off" />
+      </div>
+      <ul class="menu-list" id="menuList">
+        <li data-href="/generator/app.html" data-key="g">
+          <kbd>g</kbd>
+          <span class="menu-label">generate</span>
+          <span class="menu-desc">interactive substrate art</span>
+        </li>
+        <li data-href="/musings" data-key="m">
+          <kbd>m</kbd>
+          <span class="menu-label">musings</span>
+          <span class="menu-desc">journal entries</span>
+        </li>
+        <li data-href="/links" data-key="l">
+          <kbd>l</kbd>
+          <span class="menu-label">links</span>
+          <span class="menu-desc">bookmarks & resources</span>
+        </li>
+        <li data-href="/about" data-key="a">
+          <kbd>a</kbd>
+          <span class="menu-label">about</span>
+          <span class="menu-desc">who is this</span>
+        </li>
+        <li data-href="/search" data-key="s">
+          <kbd>s</kbd>
+          <span class="menu-label">search</span>
+          <span class="menu-desc">find entries</span>
+        </li>
+      </ul>
+      <div class="menu-footer">
+        <span><kbd>↑↓</kbd> navigate</span>
+        <span><kbd>enter</kbd> select</span>
+        <span><kbd>esc</kbd> close</span>
+      </div>
+    </div>
   </div>
 </BaseLayout>
 
@@ -30,7 +73,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     background: #0a0a0a;
     border: 2px solid #00ff00;
     border-radius: 24px;
-    text-decoration: none;
+    cursor: pointer;
     transition: all 0.3s ease;
     box-shadow: 0 0 30px rgba(0, 255, 0, 0.1);
   }
@@ -41,35 +84,284 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     border-color: #00ff88;
   }
 
-  .slash-button:active {
-    transform: scale(0.98);
-  }
-
   .slash {
-    font-family: 'IBM Plex Mono', 'SF Mono', 'Consolas', monospace;
+    font-family: 'IBM Plex Mono', 'SF Mono', monospace;
     font-size: 8rem;
     font-weight: 500;
     color: #00ff00;
     text-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
-    line-height: 1;
   }
 
   .hint {
     font-family: 'IBM Plex Mono', monospace;
     font-size: 0.9rem;
+    color: #666;
+  }
+
+  .hint kbd {
+    background: #1a1a1a;
+    border: 1px solid #00ff00;
+    border-radius: 4px;
+    padding: 0.2em 0.5em;
     color: #00ff00;
-    opacity: 0.6;
-    letter-spacing: 0.1em;
-    text-transform: lowercase;
+    font-family: inherit;
   }
 
-  /* Subtle terminal cursor blink on the slash */
-  @keyframes blink {
-    0%, 50% { opacity: 1; }
-    51%, 100% { opacity: 0.7; }
+  /* Command Menu */
+  .command-menu {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 15vh;
   }
 
-  .slash-button:hover .slash {
-    animation: blink 1s infinite;
+  .command-menu[hidden] {
+    display: none;
+  }
+
+  .menu-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(4px);
+  }
+
+  .menu-modal {
+    position: relative;
+    width: 90%;
+    max-width: 500px;
+    background: #0a0a0a;
+    border: 1px solid #00ff00;
+    border-radius: 12px;
+    box-shadow: 0 0 60px rgba(0, 255, 0, 0.2);
+    overflow: hidden;
+  }
+
+  .menu-header {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid #1a1a1a;
+    gap: 0.5rem;
+  }
+
+  .menu-slash {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 1.5rem;
+    color: #00ff00;
+  }
+
+  .menu-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 1rem;
+    color: #fff;
+  }
+
+  .menu-input::placeholder {
+    color: #444;
+  }
+
+  .menu-list {
+    list-style: none;
+    margin: 0;
+    padding: 0.5rem 0;
+    max-height: 300px;
+    overflow-y: auto;
+  }
+
+  .menu-list li {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    gap: 1rem;
+    transition: background 0.1s;
+  }
+
+  .menu-list li:hover,
+  .menu-list li.selected {
+    background: rgba(0, 255, 0, 0.1);
+  }
+
+  .menu-list li.hidden {
+    display: none;
+  }
+
+  .menu-list kbd {
+    background: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 4px;
+    padding: 0.2em 0.5em;
+    color: #00ff00;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.8rem;
+    min-width: 1.5em;
+    text-align: center;
+  }
+
+  .menu-label {
+    color: #fff;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  .menu-desc {
+    color: #666;
+    font-size: 0.85rem;
+    margin-left: auto;
+  }
+
+  .menu-footer {
+    display: flex;
+    gap: 1.5rem;
+    padding: 0.75rem 1rem;
+    border-top: 1px solid #1a1a1a;
+    font-size: 0.75rem;
+    color: #444;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  .menu-footer kbd {
+    background: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 3px;
+    padding: 0.1em 0.4em;
+    font-family: inherit;
   }
 </style>
+
+<script>
+  const menu = document.getElementById('commandMenu');
+  const menuInput = document.getElementById('menuInput');
+  const menuList = document.getElementById('menuList');
+  const slashButton = document.getElementById('openMenu');
+  const items = Array.from(menuList?.querySelectorAll('li') || []);
+  let selectedIndex = 0;
+
+  function openMenu() {
+    menu?.removeAttribute('hidden');
+    menuInput?.focus();
+    selectedIndex = 0;
+    updateSelection();
+    filterItems('');
+  }
+
+  function closeMenu() {
+    menu?.setAttribute('hidden', '');
+    if (menuInput) menuInput.value = '';
+    filterItems('');
+  }
+
+  function updateSelection() {
+    const visible = items.filter(i => !i.classList.contains('hidden'));
+    visible.forEach((item, i) => {
+      item.classList.toggle('selected', i === selectedIndex);
+    });
+  }
+
+  function filterItems(query: string) {
+    const q = query.toLowerCase();
+    items.forEach(item => {
+      const label = item.querySelector('.menu-label')?.textContent?.toLowerCase() || '';
+      const desc = item.querySelector('.menu-desc')?.textContent?.toLowerCase() || '';
+      const matches = !q || label.includes(q) || desc.includes(q);
+      item.classList.toggle('hidden', !matches);
+    });
+    selectedIndex = 0;
+    updateSelection();
+  }
+
+  function selectItem() {
+    const visible = items.filter(i => !i.classList.contains('hidden'));
+    const item = visible[selectedIndex];
+    if (item) {
+      const href = item.getAttribute('data-href');
+      if (href) window.location.href = href;
+    }
+  }
+
+  // Click handlers
+  slashButton?.addEventListener('click', openMenu);
+  menu?.querySelector('.menu-overlay')?.addEventListener('click', closeMenu);
+
+  items.forEach(item => {
+    item.addEventListener('click', () => {
+      const href = item.getAttribute('data-href');
+      if (href) window.location.href = href;
+    });
+  });
+
+  // Input handler
+  menuInput?.addEventListener('input', (e) => {
+    filterItems((e.target as HTMLInputElement).value);
+  });
+
+  // Keyboard handler
+  document.addEventListener('keydown', (e) => {
+    const isMenuOpen = !menu?.hasAttribute('hidden');
+    const isInputFocused = document.activeElement?.tagName === 'INPUT' || 
+                           document.activeElement?.tagName === 'TEXTAREA';
+
+    // Open menu with /
+    if (e.key === '/' && !isMenuOpen && !isInputFocused) {
+      e.preventDefault();
+      openMenu();
+      return;
+    }
+
+    if (!isMenuOpen) {
+      // Quick shortcuts when menu is closed
+      const shortcuts: Record<string, string> = {
+        'g': '/generator/app.html',
+        'm': '/musings',
+        'l': '/links',
+        'a': '/about',
+        's': '/search'
+      };
+      if (!isInputFocused && shortcuts[e.key]) {
+        e.preventDefault();
+        window.location.href = shortcuts[e.key];
+      }
+      return;
+    }
+
+    // Menu is open
+    const visible = items.filter(i => !i.classList.contains('hidden'));
+
+    switch (e.key) {
+      case 'Escape':
+        e.preventDefault();
+        closeMenu();
+        break;
+      case 'ArrowDown':
+        e.preventDefault();
+        selectedIndex = (selectedIndex + 1) % visible.length;
+        updateSelection();
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        selectedIndex = (selectedIndex - 1 + visible.length) % visible.length;
+        updateSelection();
+        break;
+      case 'Enter':
+        e.preventDefault();
+        selectItem();
+        break;
+      default:
+        // Single key shortcuts
+        const key = e.key.toLowerCase();
+        const match = items.find(i => i.getAttribute('data-key') === key && !i.classList.contains('hidden'));
+        if (match && menuInput?.value === '') {
+          e.preventDefault();
+          const href = match.getAttribute('data-href');
+          if (href) window.location.href = href;
+        }
+    }
+  });
+</script>
