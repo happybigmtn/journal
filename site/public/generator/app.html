@@ -35,7 +35,7 @@
         width: 40px;
         height: 40px;
         background: rgba(0, 0, 0, 0.7);
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        border: 1px solid #00ff00;
         border-radius: 8px;
         cursor: pointer;
         display: flex;
@@ -47,8 +47,15 @@
       }
       .menu-toggle:hover {
         background: rgba(0, 0, 0, 0.9);
-        border-color: rgba(255, 255, 255, 0.4);
+        border-color: #00ff88; box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
         transform: scale(1.05);
+      }
+      .slash-icon {
+        font-family: "IBM Plex Mono", "SF Mono", monospace;
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #00ff00;
+        line-height: 1;
       }
       .menu-toggle svg {
         width: 20px;
@@ -128,7 +135,7 @@
       button {
         padding: 8px 12px;
         background: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        border: 1px solid #00ff00;
         color: rgba(255, 255, 255, 0.9);
         cursor: pointer;
         border-radius: 6px;
@@ -147,7 +154,7 @@
       }
       button:hover {
         background: rgba(255, 255, 255, 0.2);
-        border-color: rgba(255, 255, 255, 0.4);
+        border-color: #00ff88; box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
         transform: translateY(-1px);
       }
       button:active {
@@ -233,9 +240,9 @@
     
     <!-- Menu Toggle Button -->
     <div class="menu-toggle" id="menuToggle">
-      <svg viewBox="0 0 24 24">
+      <span class="slash-icon">/</span><!-- svg viewBox="0 0 24 24">
         <path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-      </svg>
+      </svg -->
     </div>
     
     <!-- Controls Menu -->
