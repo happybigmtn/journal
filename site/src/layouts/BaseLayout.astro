@@ -25,10 +25,10 @@ const ogImageURL = ogImage ? new URL(ogImage, Astro.site).toString() : undefined
 
 // Navigation items with shortcut keys (letter to underline)
 const navItems = [
+  { href: '/art', label: 'Art', shortcut: 'r' },
   { href: '/musings', label: 'Musings', shortcut: 'm' },
   { href: '/links', label: 'Links', shortcut: 'l' },
-  { href: '/art', label: 'Art', shortcut: 'r' },
-  { href: '/', label: 'About', shortcut: 'a' },
+  { href: '/about', label: 'About', shortcut: 'a' },
 ];
 ---
 
@@ -213,13 +213,13 @@ const navItems = [
     // Single-key keyboard navigation
     (function() {
       const shortcuts: Record<string, string> = {
-        'a': '/',           // about
-        'h': '/',           // home
-        'm': '/musings',    // musings
-        'i': '/insights',   // insights
-        'l': '/links',      // links
-        'r': '/art',        // art
-        's': '/search',     // search
+        'r': '/art',         // art (home)
+        'h': '/art',         // home
+        'm': '/musings',     // musings
+        'i': '/insights',    // insights
+        'l': '/links',       // links
+        'a': '/about',       // about
+        's': '/search',      // search
       };
 
       function isInputFocused() {
@@ -244,9 +244,9 @@ const navItems = [
           <div class="kb-modal">
             <h2>Keyboard Shortcuts</h2>
             <dl>
+              <dt><kbd>r</kbd></dt><dd>Art</dd>
               <dt><kbd>m</kbd></dt><dd>Musings</dd>
               <dt><kbd>l</kbd></dt><dd>Links</dd>
-              <dt><kbd>r</kbd></dt><dd>Art</dd>
               <dt><kbd>a</kbd></dt><dd>About</dd>
               <dt><kbd>i</kbd></dt><dd>Insights</dd>
               <dt><kbd>s</kbd></dt><dd>Search</dd>
