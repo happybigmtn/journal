@@ -25,10 +25,10 @@ const ogImageURL = ogImage ? new URL(ogImage, Astro.site).toString() : undefined
 
 // Navigation items with shortcut keys (letter to underline)
 const navItems = [
-  { href: '/art', label: 'Art', shortcut: 'r' },
-  { href: '/musings', label: 'Musings', shortcut: 'm' },
+  { href: '/art', label: 'Art', shortcut: 'a' },
+  { href: '/musings', label: 'Musings', shortcut: 'u' },
   { href: '/links', label: 'Links', shortcut: 'l' },
-  { href: '/about', label: 'About', shortcut: 'a' },
+  { href: '/about', label: 'About', shortcut: 'm' },
 ];
 ---
 
@@ -213,12 +213,12 @@ const navItems = [
     // Single-key keyboard navigation
     (function() {
       const shortcuts: Record<string, string> = {
-        'r': '/art',         // art (home)
+        'a': '/art',         // art
         'h': '/art',         // home
-        'm': '/musings',     // musings
+        'u': '/musings',     // musings (changed from m)
         'i': '/insights',    // insights
         'l': '/links',       // links
-        'a': '/about',       // about
+        'm': '/about',       // about (me)
         's': '/search',      // search
       };
 
@@ -244,10 +244,10 @@ const navItems = [
           <div class="kb-modal">
             <h2>Keyboard Shortcuts</h2>
             <dl>
-              <dt><kbd>r</kbd></dt><dd>Art</dd>
-              <dt><kbd>m</kbd></dt><dd>Musings</dd>
+              <dt><kbd>a</kbd></dt><dd>Art</dd>
+              <dt><kbd>u</kbd></dt><dd>Musings</dd>
               <dt><kbd>l</kbd></dt><dd>Links</dd>
-              <dt><kbd>a</kbd></dt><dd>About</dd>
+              <dt><kbd>m</kbd></dt><dd>About (me)</dd>
               <dt><kbd>i</kbd></dt><dd>Insights</dd>
               <dt><kbd>s</kbd></dt><dd>Search</dd>
               <dt><kbd>?</kbd></dt><dd>Help</dd>
