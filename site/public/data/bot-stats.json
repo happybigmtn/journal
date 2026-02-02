@@ -1,10 +1,12 @@
 {
-  "blocks": 1691,
+  "blocks": 1692,
   "difficulty": 4.656542373906925E-10,
   "peers": 8,
   "miners": 5,
-  "timestamp": 1769999075,
+  "timestamp": 1769999373,
   "latestBlocks": [
+{"height":1692,"hash":"729c6bd450c6f8ff0207007635d8bd21d9b3888df060bf36636a0af5824529ae","time":1769999120,"txCount":1}
+,
 {"height":1691,"hash":"9bdf8ac48148bf3dc082c2ed6c5545e5d8daf869396b020d81af8a3fdc57f253","time":1769998988,"txCount":1}
 ,
 {"height":1690,"hash":"c956308db391dd78cfc591efb9482ebc8f73d624e0055ffd810892539b8f5092","time":1769998858,"txCount":1}
@@ -22,7 +24,5 @@
 {"height":1684,"hash":"939022773be647909d10735c5ea0e4c052f726d7d11f55f5da22c8f75aff0d82","time":1769997084,"txCount":1}
 ,
 {"height":1683,"hash":"92554daf5c8ff1cd31f25fb36fed7fdbebf9f48bc4e4d71939f1e99c7707576d","time":1769997069,"txCount":1}
-,
-{"height":1682,"hash":"a03220a5306ac681853fc14a157da59fe0a0055a8285647ef3fdd7617e1c69f3","time":1769996807,"txCount":1}
 ]
 }
