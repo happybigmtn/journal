@@ -1,28 +1,17 @@
 {
-  "blocks": 1936,
-  "difficulty": 0.00002090924707184396,
-  "peers": 4,
-  "miners": 0,
-  "timestamp": 1770017296,
-  "latestBlocks": [
-{"height":1937,"hash":"685a37a139413a011c4c762ffffd8ac94968145c7f13b9d40aea4b8b24c95045","time":1770017294,"txCount":1}
-,
-{"height":1936,"hash":"2a1e3789d11ba7a93eefd3f17dfac494bf144a415861a4287019c13e918ad02f","time":1770017243,"txCount":1}
-,
-{"height":1935,"hash":"964ad4a36a41ce4f98d9f1beaa4cb3870d3fd2158195b3c96a7f8ba178442422","time":1770017216,"txCount":1}
-,
-{"height":1934,"hash":"739b1439495f064881ffad353a6643d1a6a21565e7b0ab91033eae587c9755b6","time":1770017207,"txCount":1}
-,
-{"height":1933,"hash":"ae3498682f7afe3077e1132c98991b4140937327ab2dbe10396e6f8c8a5e4e8f","time":1770017187,"txCount":1}
-,
-{"height":1932,"hash":"f211d78710c0b0c46519dc2a614f8af274c63fc17c9cf1c383191341c23af7fc","time":1770017170,"txCount":1}
-,
-{"height":1931,"hash":"d5b30cd9022536e82c9808b787cc84ae62c9ef8ca9366ed043c2425e9fd3dbdb","time":1770017160,"txCount":1}
-,
-{"height":1930,"hash":"b7c88c703f1fb1ca9d0746929de4f75a6e997606470107612cc42d113bfcdd60","time":1770017156,"txCount":1}
-,
-{"height":1929,"hash":"4be95dab73f9c96c3c4551e9996f9f30398ce940ccb2a4a0125000471b473b98","time":1770017144,"txCount":1}
-,
-{"height":1928,"hash":"f1bfd79537b903b5856273a33bcf101ef6c63b1519468212944e03bff37d9c0a","time":1770017100,"txCount":1}
-]
+  "timestamp": "2026-02-02T05:52:44Z",
+  "botcoin": {
+    "blocks": 1721,
+    "difficulty": 4.656542373906925E-10,
+    "peers": 15,
+    "nodes_online": 10
+  },
+  "bonero": {
+    "height": 0,
+    "difficulty": 0,
+    "hashrate": 0,
+    "incoming_connections": 0,
+    "outgoing_connections": 0
+  },
+  "fleet": [{"id":1,"ip":"95.111.227.14","status":"online"},{"id":2,"ip":"95.111.229.108","status":"online"},{"id":3,"ip":"95.111.239.142","status":"online"},{"id":4,"ip":"161.97.83.147","status":"online"},{"id":5,"ip":"161.97.97.83","status":"online"},{"id":6,"ip":"161.97.114.192","status":"online"},{"id":7,"ip":"161.97.117.0","status":"online"},{"id":8,"ip":"194.163.144.177","status":"online"},{"id":9,"ip":"185.218.126.23","status":"online"},{"id":10,"ip":"185.239.209.227","status":"online"}]
 }
