@@ -1,28 +1,28 @@
 {
-  "blocks": 1729,
-  "difficulty": 0.00001574159372232881,
-  "peers": 7,
-  "miners": 0,
-  "timestamp": 1770012991,
+  "blocks": 1784,
+  "difficulty": 4.656542373906925E-10,
+  "peers": 12,
+  "miners": 4,
+  "timestamp": 1770014197,
   "latestBlocks": [
-{"height":1729,"hash":"6b4e0b3b541a5d7a5e83dc589301755cec82261d2d562c982555db51fbee8de8","time":1770012965,"txCount":1}
+{"height":1784,"hash":"23639f96133b6392d29f1bef5987b8346ddb313d253690d88fce4bae3d0bbee7","time":1770014063,"txCount":1}
 ,
-{"height":1728,"hash":"6313f4e1d623c3bd64df9db2395ddb2bd36e5483953cf99bb9d2b4dd6c2b2690","time":1770012937,"txCount":1}
+{"height":1783,"hash":"ed8f502e13a61a37f9407f16713bfb452a55a993422beb0bd02b6926c7aa6a2b","time":1770013633,"txCount":1}
 ,
-{"height":1727,"hash":"880319c2991bd4c0bf674d16d646316f8c47f42f0cbcc122153eafba09995aa8","time":1770012933,"txCount":1}
+{"height":1782,"hash":"bc71b51b8372dbfb023c86b93c3b79456d041328166b1b737f0fabcf7ce6efb4","time":1770013630,"txCount":1}
 ,
-{"height":1726,"hash":"bb2ed20ba4f43a606f8d7c52dd8aa6c0ace900ddf233ce4b962d5a6a021a2ade","time":1770012871,"txCount":1}
+{"height":1781,"hash":"7a295c0d712f9c2228004e53dfc7f450203b04c399276d25832e2ddc7b2c4f18","time":1770013630,"txCount":1}
 ,
-{"height":1725,"hash":"a2e945ce7c7d86199a37cd5585c614366489c3dc987d5e5cb204f79d9336b482","time":1770012382,"txCount":1}
+{"height":1780,"hash":"d90136b81112117c8d149ac49818bde89fc79b16f05e06d37585c3bbf1da10f1","time":1770013628,"txCount":1}
 ,
-{"height":1724,"hash":"4fa5a4de711556dba3b1d48a4fb1c9476d0ef75879b50eeddbe984938896493a","time":1770012261,"txCount":1}
+{"height":1779,"hash":"f29a4421be0681f9d38b0104e6e8b055c58864626ac3bd36da8bfcbc3c00f3bc","time":1770013627,"txCount":1}
 ,
-{"height":1723,"hash":"ae5c2fa31e8dd3d9c65e7f4c546b23a84d5892a0f30494bc13a7493463261d87","time":1770011481,"txCount":1}
+{"height":1778,"hash":"18fc4df6094011350e20e6524eda21798cea817605f26f7f58dd91e6292f8049","time":1770013627,"txCount":1}
 ,
-{"height":1722,"hash":"a0e3cc6078144b392d54f9ebfa245c0b2530544752fc22540ad05e76fef77dd6","time":1770011475,"txCount":1}
+{"height":1777,"hash":"f7bf24f7668c7a3dc302b34467c0931901ee53b0474c26ebf21c85c8c61bfa82","time":1770013627,"txCount":1}
 ,
-{"height":1721,"hash":"6ec7d95363135f0fb1ef13ee0d771d608e791d2cb8281fd3c43a007e4922c415","time":1770010924,"txCount":1}
+{"height":1776,"hash":"ff7fc63cf5a4345c2f54c7a11cdb157df8d4b13f254b57864b72b3a08bb5b9d5","time":1770013626,"txCount":1}
 ,
-{"height":1720,"hash":"1ee67def48df7ee95a1bd3cfb1512571aa53eb0145ba180d539fa468ba90f357","time":1770010658,"txCount":1}
+{"height":1775,"hash":"ba181fcc556ef320ae126dece296a017bde82d88204a3860c40895c53ad960bc","time":1770013623,"txCount":1}
 ]
 }
