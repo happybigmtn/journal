@@ -1,17 +1,28 @@
 {
-  "timestamp": "2026-02-01T22:05:48Z",
-  "botcoin": {
-    "blocks": 1546,
-    "difficulty": 0.000001210815582963247,
-    "peers": 11,
-    "nodes_online": 10
-  },
-  "bonero": {
-    "height": 308,
-    "difficulty": 287788,
-    "hashrate": 287788,
-    "incoming_connections": 0,
-    "outgoing_connections": 9
-  },
-  "fleet": [{"id":1,"ip":"95.111.227.14","status":"online"},{"id":2,"ip":"95.111.229.108","status":"online"},{"id":3,"ip":"95.111.239.142","status":"online"},{"id":4,"ip":"161.97.83.147","status":"online"},{"id":5,"ip":"161.97.97.83","status":"online"},{"id":6,"ip":"161.97.114.192","status":"online"},{"id":7,"ip":"161.97.117.0","status":"online"},{"id":8,"ip":"194.163.144.177","status":"online"},{"id":9,"ip":"185.218.126.23","status":"online"},{"id":10,"ip":"185.239.209.227","status":"online"}]
+  "blocks": 1642,
+  "difficulty": 4.656542373906925E-10,
+  "peers": 10,
+  "miners": 10,
+  "timestamp": 1769995501,
+  "latestBlocks": [
+{"height":1642,"hash":"67e944925894769cf1989a38a93788cc57b390403c32e4a6009350f739dcb623","time":1769995313,"txCount":1}
+,
+{"height":1641,"hash":"1b314a3403203331c2a33968d38b2e08e8a063dd98b9618a242090996e35137c","time":1769992334,"txCount":1}
+,
+{"height":1640,"hash":"9bdbe118dd97714a3289f49d6d6856c77b5945fa82bc323a4c00cc9d9faed214","time":1769992217,"txCount":1}
+,
+{"height":1639,"hash":"c7e93acc321e821dc890194deb872d93d7bb3d705b2490b6b6003fa36282f24a","time":1769990123,"txCount":1}
+,
+{"height":1638,"hash":"e78e9dc244bba47eee8066208c3c89f1a5285f074382c0b7acb9557d09baadea","time":1769989996,"txCount":1}
+,
+{"height":1637,"hash":"d11cce3c8cd7a8bd9adae12abc70bb4525c9e3d4c6f7f662fa75a0798d68724f","time":1769989927,"txCount":1}
+,
+{"height":1636,"hash":"52fe1ee7f2663b6609a319b9fbd0ce7bb0d031072cd68e52d873405a8177db77","time":1769989733,"txCount":1}
+,
+{"height":1635,"hash":"a2151031f4afb45cdb7afac467361d0b0c3132c0a7d09002b19998e45688a8e1","time":1769989732,"txCount":1}
+,
+{"height":1634,"hash":"010f395da0542fe2e89e2e44661642c2e62bdd0ceba4ef8941117b37a4e5b936","time":1769989608,"txCount":1}
+,
+{"height":1633,"hash":"5b1db9f361425070bfe80650bf8d9d63c5fd9cbd3f863c3e5711c150f9d18b9b","time":1769989560,"txCount":1}
+]
 }

@@ -2,38 +2,20 @@
 
 import { useState, useEffect } from "react";
 
-const CONVEX_URL = "http://5.161.124.82:3220";
-
 interface Block {
   height: number;
   hash: string;
-  timestamp: number;
+  time: number;
   txCount: number;
-  miner?: string;
-  difficulty: number;
 }
 
-interface NetworkStats {
-  blockHeight: number;
-  hashrate: number;
-  difficulty: number;
-  totalSupply: number;
-}
-
-interface Miner {
-  address: string;
+interface Stats {
   blocks: number;
-}
-
-async function convexQuery(fn: string, args: Record<string, unknown> = {}) {
-  const res = await fetch(`${CONVEX_URL}/api/query`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ path: `explorer:${fn}`, args }),
-  });
-  if (!res.ok) throw new Error(`Convex query failed: ${res.status}`);
-  const data = await res.json();
-  return data.value;
+  difficulty: number;
+  peers: number;
+  miners: number;
+  timestamp: number;
+  latestBlocks: Block[];
 }
 
 function formatAge(timestamp: number): string {
@@ -45,32 +27,26 @@ function formatAge(timestamp: number): string {
 }
 
 export function BotcoinExplorer() {
-  const [blocks, setBlocks] = useState<Block[]>([]);
-  const [stats, setStats] = useState<NetworkStats | null>(null);
-  const [miners, setMiners] = useState<Miner[]>([]);
+  const [stats, setStats] = useState<Stats | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchData() {
       try {
-        const [blocksData, statsData, minersData] = await Promise.all([
-          convexQuery("getLatestBlocks", { limit: 10 }),
-          convexQuery("getNetworkStats"),
-          convexQuery("getTopMiners", { limit: 5 }),
-        ]);
-        setBlocks(blocksData || []);
-        setStats(statsData);
-        setMiners(minersData || []);
+        const res = await fetch("/data/bot-stats.json");
+        if (!res.ok) throw new Error("Stats not available");
+        const data = await res.json();
+        setStats(data);
         setError(null);
       } catch (e) {
-        setError(e instanceof Error ? e.message : "Failed to fetch data");
+        setError(e instanceof Error ? e.message : "Failed to fetch");
       } finally {
         setLoading(false);
       }
     }
     fetchData();
-    const interval = setInterval(fetchData, 30000);
+    const interval = setInterval(fetchData, 60000);
     return () => clearInterval(interval);
   }, []);
 
@@ -85,63 +61,48 @@ export function BotcoinExplorer() {
         <div className="stats-grid">
           <div className="stat-card">
             <span className="stat-label">Block Height</span>
-            <span className="stat-value">{stats?.blockHeight?.toLocaleString() ?? "-"}</span>
-          </div>
-          <div className="stat-card">
-            <span className="stat-label">Hashrate</span>
-            <span className="stat-value">{stats?.hashrate ? `${stats.hashrate.toFixed(2)} H/s` : "-"}</span>
+            <span className="stat-value">{stats?.blocks?.toLocaleString() ?? "-"}</span>
           </div>
           <div className="stat-card">
             <span className="stat-label">Difficulty</span>
             <span className="stat-value">{stats?.difficulty?.toExponential(2) ?? "-"}</span>
           </div>
           <div className="stat-card">
-            <span className="stat-label">Total Supply</span>
-            <span className="stat-value">
-              {stats?.totalSupply ? `${(stats.totalSupply / 100000000).toLocaleString()} BOT` : "-"}
-            </span>
+            <span className="stat-label">Connected Peers</span>
+            <span className="stat-value">{stats?.peers ?? "-"}</span>
+          </div>
+          <div className="stat-card">
+            <span className="stat-label">Active Miners</span>
+            <span className="stat-value">{stats?.miners ?? "-"}</span>
           </div>
         </div>
+        {stats?.timestamp && (
+          <p className="last-updated">Updated: {formatAge(stats.timestamp)}</p>
+        )}
       </section>
 
       {/* Latest Blocks */}
-      <section className="blocks-section">
-        <h2>Latest Blocks</h2>
-        <div className="blocks-table">
-          <div className="table-header">
-            <span>Height</span>
-            <span>Hash</span>
-            <span>Miner</span>
-            <span>Txs</span>
-            <span>Age</span>
+      {stats?.latestBlocks && stats.latestBlocks.length > 0 && (
+        <section className="blocks-section">
+          <h2>Latest Blocks</h2>
+          <div className="blocks-table">
+            <div className="table-header">
+              <span>Height</span>
+              <span>Hash</span>
+              <span>Txs</span>
+              <span>Age</span>
+            </div>
+            {stats.latestBlocks.map((block) => (
+              <div key={block.hash} className="table-row">
+                <span className="height">{block.height}</span>
+                <span className="hash">{block.hash.slice(0, 16)}...</span>
+                <span className="txs">{block.txCount}</span>
+                <span className="age">{formatAge(block.time)}</span>
+              </div>
+            ))}
           </div>
-          {blocks.map((block) => (
-            <div key={block.hash} className="table-row">
-              <span className="height">{block.height}</span>
-              <span className="hash">{block.hash.slice(0, 16)}...</span>
-              <span className="miner">
-                {block.miner ? `${block.miner.slice(0, 12)}...` : "Unknown"}
-              </span>
-              <span className="txs">{block.txCount}</span>
-              <span className="age">{formatAge(block.timestamp)}</span>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Top Miners */}
-      <section className="miners-section">
-        <h2>Top Miners</h2>
-        <div className="miners-list">
-          {miners.map((miner, i) => (
-            <div key={miner.address} className="miner-row">
-              <span className="rank">#{i + 1}</span>
-              <span className="address">{miner.address.slice(0, 16)}...</span>
-              <span className="blocks">{miner.blocks} blocks</span>
-            </div>
-          ))}
-        </div>
-      </section>
+        </section>
+      )}
     </div>
   );
 }
