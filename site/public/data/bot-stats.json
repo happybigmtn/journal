@@ -1,9 +1,9 @@
 {
   "blocks": 1716,
   "difficulty": 4.656542373906925E-10,
-  "peers": 12,
+  "peers": 17,
   "miners": 4,
-  "timestamp": 1770009151,
+  "timestamp": 1770009453,
   "latestBlocks": [
 {"height":1716,"hash":"6ab9c6a9c42f22fa48257e419c714406fd49d78e6606ef64bd3a3b2dcd0d5aa1","time":1770008722,"txCount":1}
 ,
