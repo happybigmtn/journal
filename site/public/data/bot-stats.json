@@ -1,27 +1,12 @@
 {
-<<<<<<< HEAD
-  "timestamp": "2026-02-02T03:19:44Z",
-  "botcoin": {
-    "blocks": 1698,
-    "difficulty": 4.656542373906925E-10,
-    "peers": 8,
-    "nodes_online": 9
-  },
-  "bonero": {
-    "height": 0,
-    "difficulty": 0,
-    "hashrate": 0,
-    "incoming_connections": 0,
-    "outgoing_connections": 0
-  },
-  "fleet": [{"id":1,"ip":"95.111.227.14","status":"online"},{"id":2,"ip":"95.111.229.108","status":"online"},{"id":3,"ip":"95.111.239.142","status":"online"},{"id":4,"ip":"161.97.83.147","status":"online"},{"id":5,"ip":"161.97.97.83","status":"online"},{"id":6,"ip":"161.97.114.192","status":"online"},{"id":7,"ip":"161.97.117.0","status":"online"},{"id":8,"ip":"194.163.144.177","status":"offline"},{"id":9,"ip":"185.218.126.23","status":"online"},{"id":10,"ip":"185.239.209.227","status":"online"}]
-=======
-  "blocks": 1698,
+  "blocks": 1699,
   "difficulty": 4.656542373906925E-10,
-  "peers": 9,
+  "peers": 11,
   "miners": 5,
-  "timestamp": 1770002642,
+  "timestamp": 1770002947,
   "latestBlocks": [
+{"height":1699,"hash":"e133268a3493f5a37043b73dc85f436afb37d5efdd3b819f3d6111b85cf7a8cb","time":1770002674,"txCount":1}
+,
 {"height":1698,"hash":"91ffa7c2d61485c367efb5ffafd0c2db124d730f8386bad08984c7f28c69d654","time":1770002285,"txCount":1}
 ,
 {"height":1697,"hash":"dce84ec4974e989e37d8503a69aa8f99678e4ec8525ae5979f427bfc1da6177a","time":1770001728,"txCount":1}
@@ -39,8 +24,5 @@
 {"height":1691,"hash":"9bdf8ac48148bf3dc082c2ed6c5545e5d8daf869396b020d81af8a3fdc57f253","time":1769998988,"txCount":1}
 ,
 {"height":1690,"hash":"c956308db391dd78cfc591efb9482ebc8f73d624e0055ffd810892539b8f5092","time":1769998858,"txCount":1}
-,
-{"height":1689,"hash":"2a53d8d659d291723da7dd34186bba59d81d515cee97c14b8a292a26f9ee455f","time":1769998855,"txCount":1}
 ]
->>>>>>> 987ae447f3f6e6fdb07b00d5be3ca9272554c254
 }
