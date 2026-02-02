@@ -1,11 +1,13 @@
 {
-  "blocks": 1788,
+  "blocks": 1789,
   "difficulty": 4.656542373906925E-10,
-  "peers": 7,
+  "peers": 6,
   "miners": 0,
-  "timestamp": 1770014917,
+  "timestamp": 1770015166,
   "latestBlocks": [
-{"height":1788,"hash":"6f1259fc30e74c49e357d4766790eb10cba8163ac91756a537fddc5547dbbb08","time":1770014843,"txCount":1}
+{"height":1789,"hash":"306eefd9c3a80abd3abffd8ab3a9d17b3d02243673a388375b54d094072a35d3","time":1770015029,"txCount":1}
+,
+{"height":1788,"hash":"3fabb74ca5de74122264e0d62382c5206eea9e2375208a7f6f244aed61aa8223","time":1770014521,"txCount":1}
 ,
 {"height":1787,"hash":"607bda37a92c0e2c657097fc191037a20cb43afc2fe4cc464a73acf4e9d4a760","time":1770014509,"txCount":1}
 ,
@@ -22,7 +24,5 @@
 {"height":1781,"hash":"7a295c0d712f9c2228004e53dfc7f450203b04c399276d25832e2ddc7b2c4f18","time":1770013630,"txCount":1}
 ,
 {"height":1780,"hash":"d90136b81112117c8d149ac49818bde89fc79b16f05e06d37585c3bbf1da10f1","time":1770013628,"txCount":1}
-,
-{"height":1779,"hash":"f29a4421be0681f9d38b0104e6e8b055c58864626ac3bd36da8bfcbc3c00f3bc","time":1770013627,"txCount":1}
 ]
 }
