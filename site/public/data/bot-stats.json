@@ -1,4 +1,21 @@
 {
+<<<<<<< HEAD
+  "timestamp": "2026-02-02T03:19:44Z",
+  "botcoin": {
+    "blocks": 1698,
+    "difficulty": 4.656542373906925E-10,
+    "peers": 8,
+    "nodes_online": 9
+  },
+  "bonero": {
+    "height": 0,
+    "difficulty": 0,
+    "hashrate": 0,
+    "incoming_connections": 0,
+    "outgoing_connections": 0
+  },
+  "fleet": [{"id":1,"ip":"95.111.227.14","status":"online"},{"id":2,"ip":"95.111.229.108","status":"online"},{"id":3,"ip":"95.111.239.142","status":"online"},{"id":4,"ip":"161.97.83.147","status":"online"},{"id":5,"ip":"161.97.97.83","status":"online"},{"id":6,"ip":"161.97.114.192","status":"online"},{"id":7,"ip":"161.97.117.0","status":"online"},{"id":8,"ip":"194.163.144.177","status":"offline"},{"id":9,"ip":"185.218.126.23","status":"online"},{"id":10,"ip":"185.239.209.227","status":"online"}]
+=======
   "blocks": 1698,
   "difficulty": 4.656542373906925E-10,
   "peers": 9,
@@ -25,4 +42,5 @@
 ,
 {"height":1689,"hash":"2a53d8d659d291723da7dd34186bba59d81d515cee97c14b8a292a26f9ee455f","time":1769998855,"txCount":1}
 ]
+>>>>>>> 987ae447f3f6e6fdb07b00d5be3ca9272554c254
 }
