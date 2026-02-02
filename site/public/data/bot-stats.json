@@ -1,17 +1,17 @@
 {
-  "timestamp": "2026-02-02T18:35:39Z",
+  "timestamp": "2026-02-02T18:45:35Z",
   "botcoin": {
-    "blocks": 2823,
+    "blocks": 2837,
     "difficulty": 0.00002444352826230598,
-    "peers": 22,
+    "peers": 17,
     "nodes_online": 0
   },
   "bonero": {
-    "height": 0,
-    "difficulty": 0,
-    "hashrate": 0,
+    "height": 1243,
+    "difficulty": 186454,
+    "hashrate": 186454,
     "incoming_connections": 0,
-    "outgoing_connections": 0
+    "outgoing_connections": 6
   },
   "fleet": [{"id":1,"ip":"95.111.227.14","status":"offline"},{"id":2,"ip":"95.111.229.108","status":"offline"},{"id":3,"ip":"95.111.239.142","status":"offline"},{"id":4,"ip":"161.97.83.147","status":"offline"},{"id":5,"ip":"161.97.97.83","status":"offline"},{"id":6,"ip":"161.97.114.192","status":"offline"},{"id":7,"ip":"161.97.117.0","status":"offline"},{"id":8,"ip":"194.163.144.177","status":"offline"},{"id":9,"ip":"185.218.126.23","status":"offline"},{"id":10,"ip":"185.239.209.227","status":"offline"}]
 }
