@@ -1,13 +1,21 @@
 {
-  "blocks": 1683,
+  "blocks": 1687,
   "difficulty": 4.656542373906925E-10,
-  "peers": 6,
+  "peers": 10,
   "miners": 5,
-  "timestamp": 1769998175,
+  "timestamp": 1769998551,
   "latestBlocks": [
-{"height":1683,"hash":"943999bed899919c66aa1197f73304c0def2c9e5fa8665a25190e3ea31564828","time":1769998087,"txCount":1}
+{"height":1687,"hash":"ab36170e7c01d40f4171e8badffebc35546f29d804761855208fe8f35e0e928e","time":1769998265,"txCount":1}
 ,
-{"height":1682,"hash":"f66101d27ef1efb2b5fcbe3138717c4d4b05b78421218f81634f03ae4b5ea18a","time":1769996683,"txCount":1}
+{"height":1686,"hash":"52181833d00ae436fa10858c6ef41cf71802bb887f28b6ff97f7d7da97b1264c","time":1769997848,"txCount":1}
+,
+{"height":1685,"hash":"3db120cbf7275e339edc53a24a12eaba4fb06f57169093bb55174b1f5512400b","time":1769997709,"txCount":1}
+,
+{"height":1684,"hash":"939022773be647909d10735c5ea0e4c052f726d7d11f55f5da22c8f75aff0d82","time":1769997084,"txCount":1}
+,
+{"height":1683,"hash":"92554daf5c8ff1cd31f25fb36fed7fdbebf9f48bc4e4d71939f1e99c7707576d","time":1769997069,"txCount":1}
+,
+{"height":1682,"hash":"a03220a5306ac681853fc14a157da59fe0a0055a8285647ef3fdd7617e1c69f3","time":1769996807,"txCount":1}
 ,
 {"height":1681,"hash":"e2bac2df284ef0400b23aa5ad4925c15d21b217a2e8685afd0d9f150312ba0ce","time":1769996683,"txCount":1}
 ,
@@ -16,13 +24,5 @@
 {"height":1679,"hash":"aa6af6aba35eeac38e62584d93d1d98deb24769cc9400a38ea23169f7ac5eb85","time":1769995904,"txCount":1}
 ,
 {"height":1678,"hash":"3cd97228379ad05818c0b61f177c392c1b8308eddb2a8060399e6ae611e9795e","time":1769995877,"txCount":1}
-,
-{"height":1677,"hash":"001fb0225a6df3f6001473b0f837e3824d85bd2a6251e95f037d91a85f25022c","time":1769995764,"txCount":1}
-,
-{"height":1676,"hash":"924111b1fe6b451d6abcfa2e467c943be4eb2afa32e594f84b8829361b9074a5","time":1769995764,"txCount":1}
-,
-{"height":1675,"hash":"21b86cbfa8b05ef7e21a2b2198d680437709e12f33b0ac914f9eb25a2801d495","time":1769995075,"txCount":1}
-,
-{"height":1674,"hash":"0b4a4e4478185203fdc988d13697e7f2c42ef0a122adf08aa0c830b2d38bba0d","time":1769994958,"txCount":1}
 ]
 }
