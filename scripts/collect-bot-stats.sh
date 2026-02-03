@@ -18,17 +18,54 @@ NODES=(
   "10:185.239.209.227"
 )
 
-# Get Botcoin stats from node 1 (genesis)
+# Get Botcoin stats from node 1
+# NOTE: Do not rely on PATH or botcoin-cli on the remote host.
+# Use cookie-authenticated JSON-RPC directly so this works even when PATH is minimal.
 echo "Fetching Botcoin stats..."
-BOT_JSON=$(ssh -i "$KEY" -o ConnectTimeout=5 -o StrictHostKeyChecking=no root@95.111.227.14 \
-  "botcoin-cli getblockchaininfo 2>/dev/null" 2>/dev/null || echo '{}')
+BOT_RPCPORT=18433
+BOT_DATADIR="/root/.botcoin-light"
 
-BOT_BLOCKS=$(echo "$BOT_JSON" | jq -r '.blocks // 0')
-BOT_DIFF=$(echo "$BOT_JSON" | jq -r '.difficulty // 0')
+BOT_JSON=$(ssh -i "$KEY" -o ConnectTimeout=8 -o StrictHostKeyChecking=no root@95.111.227.14 \
+  "BOT_DATADIR='$BOT_DATADIR' BOT_RPCPORT='$BOT_RPCPORT' bash -s" <<'EOF' 2>/dev/null || echo '{}'
+set -euo pipefail
+COOKIE_FILE="${BOT_DATADIR}/.cookie"
+if [ ! -f "$COOKIE_FILE" ]; then
+  echo '{}'
+  exit 0
+fi
+COOKIE=$(cat "$COOKIE_FILE")
+U=${COOKIE%:*}
+P=${COOKIE#*:}
 
-BOT_PEERS=$(ssh -i "$KEY" -o ConnectTimeout=5 -o StrictHostKeyChecking=no root@95.111.227.14 \
-  "botcoin-cli getconnectioncount 2>/dev/null" 2>/dev/null || echo '0')
+curl -s --user "$U:$P" \
+  --data-binary '{"jsonrpc":"1.0","id":"b","method":"getblockchaininfo","params":[]}' \
+  -H 'content-type:text/plain;' \
+  http://127.0.0.1:${BOT_RPCPORT}/
+EOF
+)
 
+BOT_BLOCKS=$(echo "$BOT_JSON" | jq -r '.result.blocks // 0')
+BOT_DIFF=$(echo "$BOT_JSON" | jq -r '.result.difficulty // 0')
+
+BOT_PEERS=$(ssh -i "$KEY" -o ConnectTimeout=8 -o StrictHostKeyChecking=no root@95.111.227.14 \
+  "BOT_DATADIR='$BOT_DATADIR' BOT_RPCPORT='$BOT_RPCPORT' bash -s" <<'EOF' 2>/dev/null || echo '0'
+set -euo pipefail
+COOKIE_FILE="${BOT_DATADIR}/.cookie"
+if [ ! -f "$COOKIE_FILE" ]; then
+  echo 0
+  exit 0
+fi
+COOKIE=$(cat "$COOKIE_FILE")
+U=${COOKIE%:*}
+P=${COOKIE#*:}
+
+curl -s --user "$U:$P" \
+  --data-binary '{"jsonrpc":"1.0","id":"c","method":"getconnectioncount","params":[]}' \
+  -H 'content-type:text/plain;' \
+  http://127.0.0.1:${BOT_RPCPORT}/ \
+  | jq -r '.result // 0'
+EOF
+)
 # Get Bonero stats from node 10
 echo "Fetching Bonero stats..."
 BONER_JSON=$(ssh -i "$KEY" -o ConnectTimeout=5 -o StrictHostKeyChecking=no root@185.239.209.227 \
