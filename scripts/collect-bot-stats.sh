@@ -49,7 +49,7 @@ for entry in "${NODES[@]}"; do
   IP="${entry#*:}"
   
   STATUS="offline"
-  if ssh -i "$KEY" -o ConnectTimeout=3 -o StrictHostKeyChecking=no root@$IP "pgrep -x botcoind >/dev/null" 2>/dev/null; then
+  if ssh -i "$KEY" -o ConnectTimeout=3 -o StrictHostKeyChecking=no root@$IP "(pgrep -x botcoind-v2.1 >/dev/null 2>&1) || (pgrep -x botcoind >/dev/null 2>&1)" 2>/dev/null; then
     STATUS="online"
     ((NODES_ONLINE++)) || true
   fi
