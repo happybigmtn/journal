@@ -49,10 +49,18 @@ for entry in "${NODES[@]}"; do
   IP="${entry#*:}"
   
   STATUS="offline"
-  if ssh -i "$KEY" -o ConnectTimeout=3 -o StrictHostKeyChecking=no root@$IP "(pgrep -x botcoind-v2.1 >/dev/null 2>&1) || (pgrep -x botcoind >/dev/null 2>&1)" 2>/dev/null; then
-    STATUS="online"
-    ((NODES_ONLINE++)) || true
-  fi
+
+  # SSH can occasionally reset; retry a few times before declaring offline.
+  for _try in 1 2 3; do
+    if ssh -i "$KEY" -o ConnectTimeout=8 -o StrictHostKeyChecking=no root@$IP \
+      "(pgrep -x botcoind-v2.1 >/dev/null 2>&1) || (pgrep -x botcoind >/dev/null 2>&1)" \
+      2>/dev/null; then
+      STATUS="online"
+      ((NODES_ONLINE++)) || true
+      break
+    fi
+    sleep 1
+  done
   
   [ "$FLEET_JSON" != "[" ] && FLEET_JSON+=","
   FLEET_JSON+="{\"id\":$ID,\"ip\":\"$IP\",\"status\":\"$STATUS\"}"
