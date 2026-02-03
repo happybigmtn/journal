@@ -1,17 +1,17 @@
 {
-  "timestamp": "2026-02-03T06:49:39Z",
+  "timestamp": "2026-02-03T06:51:42Z",
   "botcoin": {
-    "blocks": 116,
-    "difficulty": 8.388978904843513E-7,
+    "blocks": 0,
+    "difficulty": 0,
     "peers": 18,
-    "nodes_online": 9
+    "nodes_online": 10
   },
   "bonero": {
-    "height": 1843,
-    "difficulty": 154242,
-    "hashrate": 154242,
+    "height": 1845,
+    "difficulty": 154148,
+    "hashrate": 154148,
     "incoming_connections": 3,
     "outgoing_connections": 2
   },
-  "fleet": [{"id":1,"ip":"95.111.227.14","status":"offline"},{"id":2,"ip":"95.111.229.108","status":"online"},{"id":3,"ip":"95.111.239.142","status":"online"},{"id":4,"ip":"161.97.83.147","status":"online"},{"id":5,"ip":"161.97.97.83","status":"online"},{"id":6,"ip":"161.97.114.192","status":"online"},{"id":7,"ip":"161.97.117.0","status":"online"},{"id":8,"ip":"194.163.144.177","status":"online"},{"id":9,"ip":"185.218.126.23","status":"online"},{"id":10,"ip":"185.239.209.227","status":"online"}]
+  "fleet": [{"id":1,"ip":"95.111.227.14","status":"online"},{"id":2,"ip":"95.111.229.108","status":"online"},{"id":3,"ip":"95.111.239.142","status":"online"},{"id":4,"ip":"161.97.83.147","status":"online"},{"id":5,"ip":"161.97.97.83","status":"online"},{"id":6,"ip":"161.97.114.192","status":"online"},{"id":7,"ip":"161.97.117.0","status":"online"},{"id":8,"ip":"194.163.144.177","status":"online"},{"id":9,"ip":"185.218.126.23","status":"online"},{"id":10,"ip":"185.239.209.227","status":"online"}]
 }
