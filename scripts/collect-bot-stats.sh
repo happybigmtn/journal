@@ -78,31 +78,50 @@ BONER_IN=$(echo "$BONER_JSON" | jq -r '.result.incoming_connections_count // 0')
 BONER_OUT=$(echo "$BONER_JSON" | jq -r '.result.outgoing_connections_count // 0')
 
 # Check fleet status
-echo "Checking fleet status..."
-FLEET_JSON="["
-NODES_ONLINE=0
-for entry in "${NODES[@]}"; do
-  ID="${entry%%:*}"
-  IP="${entry#*:}"
-  
-  STATUS="offline"
+echo "Checking fleet status (parallel)..."
+TMP_DIR=$(mktemp -d)
+trap "rm -rf $TMP_DIR" EXIT
 
-  # SSH can occasionally reset; retry a few times before declaring offline.
-  for _try in 1 2 3; do
-    if ssh -i "$KEY" -o ConnectTimeout=8 -o StrictHostKeyChecking=no root@$IP \
-      "(pgrep -x botcoind-v2.1 >/dev/null 2>&1) || (pgrep -x botcoind >/dev/null 2>&1)" \
-      2>/dev/null; then
-      STATUS="online"
-      ((NODES_ONLINE++)) || true
-      break
-    fi
-    sleep 1
-  done
+check_node() {
+  local entry="$1"
+  local id="${entry%%:*}"
+  local ip="${entry#*:}"
+  local status="offline"
   
-  [ "$FLEET_JSON" != "[" ] && FLEET_JSON+=","
-  FLEET_JSON+="{\"id\":$ID,\"ip\":\"$IP\",\"status\":\"$STATUS\"}"
+  # Try SSH check (one attempt is usually enough if timeout works, but we can do a simple retry logic if needed)
+  if ssh -i "$KEY" -o ConnectTimeout=8 -o StrictHostKeyChecking=no "root@$ip" \
+    "(pgrep -x botcoind-v2.1 >/dev/null 2>&1) || (pgrep -x botcoind >/dev/null 2>&1)" \
+    2>/dev/null; then
+    status="online"
+  fi
+  
+  echo "{\"id\":$id,\"ip\":\"$ip\",\"status\":\"$status\"}" > "$TMP_DIR/$id.json"
+}
+
+for entry in "${NODES[@]}"; do
+  check_node "$entry" &
+done
+
+wait
+
+# Assemble JSON from tmp files
+# Sort by ID numerically to keep order stable
+FLEET_JSON="["
+FIRST=1
+for i in {1..10}; do
+  if [ -f "$TMP_DIR/$i.json" ]; then
+    if [ "$FIRST" -eq 1 ]; then
+      FIRST=0
+    else
+      FLEET_JSON+=","
+    fi
+    FLEET_JSON+=$(cat "$TMP_DIR/$i.json")
+  fi
 done
 FLEET_JSON+="]"
+
+# Count online nodes from the assembled JSON
+NODES_ONLINE=$(echo "$FLEET_JSON" | jq '[.[] | select(.status=="online")] | length')
 
 # Build final JSON
 TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
