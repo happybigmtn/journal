@@ -1,16 +1,16 @@
 {
-  "timestamp": "2026-02-05T10:02:22Z",
+  "timestamp": "2026-02-05T10:29:14Z",
   "botcoin": {
     "blocks": 2579,
     "difficulty": 4.656542373906925E-10,
-    "peers": 13,
+    "peers": 14,
     "nodes_online": 10
   },
   "bonero": {
-    "height": 4621,
-    "difficulty": 101959,
-    "hashrate": 101959,
-    "incoming_connections": 3,
+    "height": 4643,
+    "difficulty": 101740,
+    "hashrate": 101740,
+    "incoming_connections": 4,
     "outgoing_connections": 2
   },
   "fleet": [{"id":1,"ip":"95.111.227.14","status":"online"},{"id":2,"ip":"95.111.229.108","status":"online"},{"id":3,"ip":"95.111.239.142","status":"online"},{"id":4,"ip":"161.97.83.147","status":"online"},{"id":5,"ip":"161.97.97.83","status":"online"},{"id":6,"ip":"161.97.114.192","status":"online"},{"id":7,"ip":"161.97.117.0","status":"online"},{"id":8,"ip":"194.163.144.177","status":"online"},{"id":9,"ip":"185.218.126.23","status":"online"},{"id":10,"ip":"185.239.209.227","status":"online"}]
