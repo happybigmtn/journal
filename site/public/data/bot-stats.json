@@ -1,9 +1,9 @@
 {
-  "timestamp": "2026-02-09T10:38:14Z",
+  "timestamp": "2026-02-09T10:43:12Z",
   "botcoin": {
     "blocks": 3419,
     "difficulty": 4.656542373906925E-10,
-    "peers": 19,
+    "peers": 20,
     "nodes_online": 9
   },
   "bonero": {
