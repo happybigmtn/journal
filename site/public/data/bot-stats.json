@@ -1,15 +1,15 @@
 {
-  "timestamp": "2026-02-14T02:10:53Z",
+  "timestamp": "2026-02-14T02:15:47Z",
   "botcoin": {
     "blocks": 3719,
     "difficulty": 4.656542373906925E-10,
-    "peers": 23,
+    "peers": 24,
     "nodes_online": 9
   },
   "bonero": {
-    "height": 15506,
-    "difficulty": 89358,
-    "hashrate": 89358,
+    "height": 15508,
+    "difficulty": 89252,
+    "hashrate": 89252,
     "incoming_connections": 3,
     "outgoing_connections": 3
   },
