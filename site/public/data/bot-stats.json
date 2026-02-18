@@ -1,8 +1,8 @@
 {
-  "timestamp": "2026-02-18T18:16:06Z",
+  "timestamp": "2026-02-18T18:21:05Z",
   "botcoin": {
-    "blocks": 0,
-    "difficulty": 4.656542373906925E-10,
+    "blocks": 1041,
+    "difficulty": 0.000001677148571149816,
     "peers": 12,
     "nodes_online": 10
   },
