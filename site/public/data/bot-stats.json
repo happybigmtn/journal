@@ -1,10 +1,12 @@
 {
-  "timestamp": "2026-02-19T04:26:58Z",
+  "timestamp": "2026-02-19T04:29:14Z",
   "botcoin": {
-    "blocks": 0,
-    "difficulty": 0,
-    "peers": 0,
-    "nodes_online": 3
+    "blocks": 239,
+    "difficulty": 0.00003650869101938099,
+    "peers": 7,
+    "nodes_online": 3,
+    "mining_distribution": {"95.111.239.142":2000.00,"161.97.114.192":3100.00,"185.218.126.23":1850.00},
+    "total_mined": 6950.00
   },
   "bonero": {
     "height": 0,

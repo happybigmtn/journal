@@ -18,15 +18,28 @@ NODES=(
   "10:185.239.209.227"
 )
 
-# Get Botcoin stats from node 1
-# NOTE: Do not rely on PATH or botcoin-cli on the remote host.
-# Use cookie-authenticated JSON-RPC directly so this works even when PATH is minimal.
+# Get Botcoin stats from first ONLINE node
+# Query nodes 3, 6, 9 (the ones currently online)
 echo "Fetching Botcoin stats..."
-BOT_RPCPORT=18433
-BOT_DATADIR="/root/.botcoin-light"
 
-BOT_JSON=$(ssh -i "$KEY" -o ConnectTimeout=8 -o StrictHostKeyChecking=no root@95.111.227.14 \
-  "BOT_DATADIR='$BOT_DATADIR' BOT_RPCPORT='$BOT_RPCPORT' bash -s" <<'EOF' 2>/dev/null || echo '{}'
+# Map node IDs to their RPC ports
+declare -A BOT_RPC_PORTS=(
+  ["95.111.239.142"]=18435
+  ["161.97.114.192"]=18438
+  ["185.218.126.23"]=18441
+)
+
+BOT_DATADIR="/root/.botcoin-light"
+BOT_BLOCKS=0
+BOT_DIFF=0
+BOT_PEERS=0
+
+# Try each online node until we get a response
+for BOT_IP in "95.111.239.142" "161.97.114.192" "185.218.126.23"; do
+  BOT_RPCPORT=${BOT_RPC_PORTS[$BOT_IP]}
+  
+  BOT_JSON=$(ssh -i "$KEY" -o ConnectTimeout=5 -o StrictHostKeyChecking=no root@$BOT_IP \
+    "BOT_DATADIR='$BOT_DATADIR' BOT_RPCPORT='$BOT_RPCPORT' bash -s" <<'EOF' 2>/dev/null || echo '{}'
 set -euo pipefail
 COOKIE_FILE="${BOT_DATADIR}/.cookie"
 if [ ! -f "$COOKIE_FILE" ]; then
@@ -43,12 +56,14 @@ curl -s --user "$U:$P" \
   http://127.0.0.1:${BOT_RPCPORT}/
 EOF
 )
-
-BOT_BLOCKS=$(echo "$BOT_JSON" | jq -r '.result.blocks // 0')
-BOT_DIFF=$(echo "$BOT_JSON" | jq -r '.result.difficulty // 0')
-
-BOT_PEERS=$(ssh -i "$KEY" -o ConnectTimeout=8 -o StrictHostKeyChecking=no root@95.111.227.14 \
-  "BOT_DATADIR='$BOT_DATADIR' BOT_RPCPORT='$BOT_RPCPORT' bash -s" <<'EOF' 2>/dev/null || echo '0'
+  
+  BOT_BLOCKS=$(echo "$BOT_JSON" | jq -r '.result.blocks // 0')
+  BOT_DIFF=$(echo "$BOT_JSON" | jq -r '.result.difficulty // 0')
+  
+  # If we got valid blocks, also get peer count
+  if [ "$BOT_BLOCKS" -gt 0 ]; then
+    BOT_PEERS=$(ssh -i "$KEY" -o ConnectTimeout=5 -o StrictHostKeyChecking=no root@$BOT_IP \
+      "BOT_DATADIR='$BOT_DATADIR' BOT_RPCPORT='$BOT_RPCPORT' bash -s" <<'EOF' 2>/dev/null || echo '0'
 set -euo pipefail
 COOKIE_FILE="${BOT_DATADIR}/.cookie"
 if [ ! -f "$COOKIE_FILE" ]; then
@@ -66,6 +81,54 @@ curl -s --user "$U:$P" \
   | jq -r '.result // 0'
 EOF
 )
+    break
+  fi
+done
+# Get mining distribution from online nodes
+echo "Fetching mining distribution..."
+declare -A MINING_BALANCES
+TOTAL_BALANCE=0
+
+for BOT_IP in "95.111.239.142" "161.97.114.192" "185.218.126.23"; do
+  BOT_RPCPORT=${BOT_RPC_PORTS[$BOT_IP]}
+  
+  BALANCE=$(ssh -i "$KEY" -o ConnectTimeout=5 -o StrictHostKeyChecking=no root@$BOT_IP \
+    "BOT_DATADIR='$BOT_DATADIR' BOT_RPCPORT='$BOT_RPCPORT' bash -s" <<'EOF' 2>/dev/null || echo '0'
+set -euo pipefail
+COOKIE_FILE="${BOT_DATADIR}/.cookie"
+if [ ! -f "$COOKIE_FILE" ]; then
+  echo 0
+  exit 0
+fi
+COOKIE=$(cat "$COOKIE_FILE")
+U=${COOKIE%:*}
+P=${COOKIE#*:}
+
+curl -s --user "$U:$P" \
+  --data-binary '{"jsonrpc":"1.0","id":"d","method":"getbalance","params":["*", 0]}' \
+  -H 'content-type:text/plain;' \
+  http://127.0.0.1:${BOT_RPCPORT}/wallet/miner \
+  | jq -r '.result // 0'
+EOF
+)
+  
+  MINING_BALANCES[$BOT_IP]=$(echo "$BALANCE" | awk '{printf "%.2f", $1}')
+  TOTAL_BALANCE=$(awk "BEGIN {print $TOTAL_BALANCE + $BALANCE}")
+done
+
+# Build mining distribution JSON
+MINING_JSON="{"
+FIRST=1
+for BOT_IP in "95.111.239.142" "161.97.114.192" "185.218.126.23"; do
+  if [ "$FIRST" -eq 1 ]; then
+    FIRST=0
+  else
+    MINING_JSON+=","
+  fi
+  MINING_JSON+="\"$BOT_IP\":${MINING_BALANCES[$BOT_IP]}"
+done
+MINING_JSON+="}"
+
 # Get Bonero stats from node 10
 echo "Fetching Bonero stats..."
 BONER_JSON=$(ssh -i "$KEY" -o ConnectTimeout=5 -o StrictHostKeyChecking=no root@185.239.209.227 \
@@ -133,7 +196,9 @@ cat > "$OUTPUT" << EOF
     "blocks": $BOT_BLOCKS,
     "difficulty": $BOT_DIFF,
     "peers": $BOT_PEERS,
-    "nodes_online": $NODES_ONLINE
+    "nodes_online": $NODES_ONLINE,
+    "mining_distribution": $MINING_JSON,
+    "total_mined": $(printf "%.2f" $TOTAL_BALANCE)
   },
   "bonero": {
     "height": $BONER_HEIGHT,
