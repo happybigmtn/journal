@@ -1,12 +1,12 @@
 {
-  "timestamp": "2026-02-19T04:46:32Z",
+  "timestamp": "2026-02-19T04:53:04Z",
   "botcoin": {
-    "blocks": 247,
-    "difficulty": 0.00003614827652695615,
-    "peers": 8,
-    "nodes_online": 3,
-    "mining_distribution": {"95.111.239.142":2050.00,"161.97.114.192":3250.00,"185.218.126.23":2000.00},
-    "total_mined": 7300.00
+    "blocks": 252,
+    "difficulty": 0.00003635688946584239,
+    "peers": 13,
+    "nodes_online": 10,
+    "mining_distribution": {"95.111.239.142":2150.00,"161.97.114.192":3350.00,"185.218.126.23":2050.00},
+    "total_mined": 7550.00
   },
   "bonero": {
     "height": 0,
@@ -15,5 +15,5 @@
     "incoming_connections": 0,
     "outgoing_connections": 0
   },
-  "fleet": [{"id":1,"ip":"95.111.227.14","status":"offline"},{"id":2,"ip":"95.111.229.108","status":"offline"},{"id":3,"ip":"95.111.239.142","status":"online"},{"id":4,"ip":"161.97.83.147","status":"offline"},{"id":5,"ip":"161.97.97.83","status":"offline"},{"id":6,"ip":"161.97.114.192","status":"online"},{"id":7,"ip":"161.97.117.0","status":"offline"},{"id":8,"ip":"194.163.144.177","status":"offline"},{"id":9,"ip":"185.218.126.23","status":"online"},{"id":10,"ip":"185.239.209.227","status":"offline"}]
+  "fleet": [{"id":1,"ip":"95.111.227.14","status":"online"},{"id":2,"ip":"95.111.229.108","status":"online"},{"id":3,"ip":"95.111.239.142","status":"online"},{"id":4,"ip":"161.97.83.147","status":"online"},{"id":5,"ip":"161.97.97.83","status":"online"},{"id":6,"ip":"161.97.114.192","status":"online"},{"id":7,"ip":"161.97.117.0","status":"online"},{"id":8,"ip":"194.163.144.177","status":"online"},{"id":9,"ip":"185.218.126.23","status":"online"},{"id":10,"ip":"185.239.209.227","status":"online"}]
 }
