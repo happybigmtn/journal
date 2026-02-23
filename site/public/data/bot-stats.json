@@ -1,9 +1,9 @@
 {
-  "timestamp": "2026-02-23T21:00:29Z",
+  "timestamp": "2026-02-23T21:15:31Z",
   "botcoin": {
-    "blocks": 4327,
-    "difficulty": 0.002677867440923879,
-    "peers": 18,
+    "blocks": 4332,
+    "difficulty": 0.00267205358540786,
+    "peers": 17,
     "nodes_online": 10,
     "mining_distribution": {"95.111.239.142":36050.00,"161.97.114.192":0.00,"185.218.126.23":0.00},
     "total_mined": 36050.00
