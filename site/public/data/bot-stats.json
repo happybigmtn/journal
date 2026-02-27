@@ -1,10 +1,10 @@
 {
-  "timestamp": "2026-02-26T21:00:27Z",
+  "timestamp": "2026-02-27T09:00:32Z",
   "botcoin": {
-    "blocks": 6359,
-    "difficulty": 0.002551235711367124,
-    "peers": 2,
-    "nodes_online": 1,
+    "blocks": 0,
+    "difficulty": 0,
+    "peers": 0,
+    "nodes_online": 0,
     "mining_distribution": {"95.111.239.142":0.00,"161.97.114.192":0.00,"185.218.126.23":0.00},
     "total_mined": 0.00
   },
@@ -15,5 +15,5 @@
     "incoming_connections": 0,
     "outgoing_connections": 0
   },
-  "fleet": [{"id":1,"ip":"95.111.227.14","status":"offline"},{"id":2,"ip":"95.111.229.108","status":"online"},{"id":3,"ip":"95.111.239.142","status":"offline"},{"id":4,"ip":"161.97.83.147","status":"offline"},{"id":5,"ip":"161.97.97.83","status":"offline"},{"id":6,"ip":"161.97.114.192","status":"offline"},{"id":7,"ip":"161.97.117.0","status":"offline"},{"id":8,"ip":"194.163.144.177","status":"offline"},{"id":9,"ip":"185.218.126.23","status":"offline"},{"id":10,"ip":"185.239.209.227","status":"offline"}]
+  "fleet": [{"id":1,"ip":"95.111.227.14","status":"offline"},{"id":2,"ip":"95.111.229.108","status":"offline"},{"id":3,"ip":"95.111.239.142","status":"offline"},{"id":4,"ip":"161.97.83.147","status":"offline"},{"id":5,"ip":"161.97.97.83","status":"offline"},{"id":6,"ip":"161.97.114.192","status":"offline"},{"id":7,"ip":"161.97.117.0","status":"offline"},{"id":8,"ip":"194.163.144.177","status":"offline"},{"id":9,"ip":"185.218.126.23","status":"offline"},{"id":10,"ip":"185.239.209.227","status":"offline"}]
 }
