@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-03-04T09:00:40Z",
+  "timestamp": "2026-03-04T21:00:26Z",
   "botcoin": {
     "blocks": 0,
     "difficulty": 0,
@@ -9,11 +9,11 @@
     "total_mined": 0.00
   },
   "bonero": {
-    "height": 0,
-    "difficulty": 0,
-    "hashrate": 0,
-    "incoming_connections": 0,
-    "outgoing_connections": 0
+    "height": 41771,
+    "difficulty": 46997,
+    "hashrate": 46997,
+    "incoming_connections": 1,
+    "outgoing_connections": 3
   },
   "fleet": [{"id":1,"ip":"95.111.227.14","status":"offline"},{"id":2,"ip":"95.111.229.108","status":"offline"},{"id":3,"ip":"95.111.239.142","status":"offline"},{"id":4,"ip":"161.97.83.147","status":"offline"},{"id":5,"ip":"161.97.97.83","status":"offline"},{"id":6,"ip":"161.97.114.192","status":"offline"},{"id":7,"ip":"161.97.117.0","status":"offline"},{"id":8,"ip":"194.163.144.177","status":"offline"},{"id":9,"ip":"185.218.126.23","status":"offline"},{"id":10,"ip":"185.239.209.227","status":"offline"}]
 }
