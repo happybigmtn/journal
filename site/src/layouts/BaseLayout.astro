@@ -25,6 +25,7 @@ const ogImageURL = ogImage ? new URL(ogImage, Astro.site).toString() : undefined
 
 // Navigation items with shortcut keys (letter to underline)
 const navItems = [
+  { href: 'https://pcm-interactive-book.netlify.app', label: 'Book', shortcut: 'k', external: true },
   { href: '/art', label: 'Art', shortcut: 'a' },
   { href: '/bots', label: 'Bots', shortcut: 'b' },
   { href: '/musings', label: 'dev', shortcut: 'd' },
@@ -81,8 +82,8 @@ const navItems = [
   <nav class="site-nav" aria-label="Main navigation">
     <ul class="nav-list">
       {navItems.map(item => {
-        const isActive = currentPath === item.href ||
-          (item.href !== '/' && currentPath.startsWith(item.href));
+        const isActive = !item.external && (currentPath === item.href ||
+          (item.href !== '/' && currentPath.startsWith(item.href)));
         // Underline the shortcut letter
         const shortcutIndex = item.label.toLowerCase().indexOf(item.shortcut);
         const before = item.label.slice(0, shortcutIndex);
@@ -90,7 +91,12 @@ const navItems = [
         const after = item.label.slice(shortcutIndex + 1);
         return (
           <li>
-            <a href={item.href} class:list={['nav-link', { active: isActive }]} aria-current={isActive ? 'page' : undefined}>
+            <a
+              href={item.href}
+              class:list={['nav-link', { active: isActive }]}
+              aria-current={isActive ? 'page' : undefined}
+              rel={item.external ? 'noreferrer' : undefined}
+            >
               {before}<span class="shortcut-key">{letter}</span>{after}
             </a>
           </li>
@@ -214,6 +220,7 @@ const navItems = [
     // Single-key keyboard navigation
     (function() {
       const shortcuts: Record<string, string> = {
+        'k': 'https://pcm-interactive-book.netlify.app', // book
         'a': '/art',         // art
         'h': '/art',         // home
         'd': '/musings',     // dev
@@ -245,6 +252,7 @@ const navItems = [
           <div class="kb-modal">
             <h2>Keyboard Shortcuts</h2>
             <dl>
+              <dt><kbd>k</kbd></dt><dd>Book</dd>
               <dt><kbd>a</kbd></dt><dd>Art</dd>
               <dt><kbd>d</kbd></dt><dd>dev</dd>
               <dt><kbd>l</kbd></dt><dd>Links</dd>
